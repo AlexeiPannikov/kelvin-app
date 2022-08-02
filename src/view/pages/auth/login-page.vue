@@ -18,7 +18,6 @@
               <v-row>
                 <v-col
                     cols="12"
-                    md="4"
                 >
                   <v-text-field
                       v-model="loginData.email"
@@ -30,7 +29,6 @@
 
                 <v-col
                     cols="12"
-                    md="4"
                 >
                   <v-text-field
                       v-model="loginData.password"

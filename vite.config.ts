@@ -14,7 +14,6 @@ export default defineConfig({
     plugins: [
         vue(),
         vuetify(),
-        ViteAliases(),
         electron({
             main: {
                 entry: 'electron/main/index.ts',

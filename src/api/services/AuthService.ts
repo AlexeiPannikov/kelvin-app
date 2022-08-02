@@ -9,7 +9,7 @@ class AuthService {
   async login(data: LoginRequest): Promise<boolean> {
     const res = await $api.post<LoginResponse>("auth/login", data);
     if (res?.data) {
-      Cookies.set("token", `${res.data.access_token}`);
+      localStorage.setItem("token", `${res.data.access_token}`);
       return true;
     }
   }
@@ -24,7 +24,7 @@ class AuthService {
   async logout(): Promise<boolean> {
     const res = await $api.post<LogoutResponse>("auth/logout");
     if (res?.data) {
-      Cookies.remove("token");
+      localStorage.removeItem("token");
       return true;
     }
     return false;
