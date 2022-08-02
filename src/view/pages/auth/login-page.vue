@@ -1,0 +1,92 @@
+<template>
+  <div class="login-page d-flex align-center justify-center">
+    <v-dialog persistent
+    >
+      <template #activator="{ props }">
+        <button-blue size="x-large" v-bind="props">Log in</button-blue>
+      </template>
+      <v-card min-width="400">
+        <v-card-title>
+          <h2 class="text-center">Log in</h2>
+        </v-card-title>
+        <v-card-text>
+          <v-form v-model="isValid"
+                  ref="form"
+                  lazy-validation
+          >
+            <v-container>
+              <v-row>
+                <v-col
+                    cols="12"
+                    md="4"
+                >
+                  <v-text-field
+                      v-model="loginData.email"
+                      :rules="[isEmail]"
+                      label="Email"
+                      required
+                  ></v-text-field>
+                </v-col>
+
+                <v-col
+                    cols="12"
+                    md="4"
+                >
+                  <v-text-field
+                      v-model="loginData.password"
+                      label="Password"
+                      :rules="[required]"
+                      :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                      :type="showPass ? 'text' : 'password'"
+                      @click:append-inner="showPass = !showPass"
+                      required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <button-blue @click="login"
+                       :is-loading="store.isLoadingLoginUser"
+          >
+            Log in
+          </button-blue>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import ButtonBlue from "../../components/buttons/button-blue.vue";
+import {reactive, ref} from "vue";
+import {isEmail, required} from "../../../functions/ValidationRules"
+import {useCurrentUserStore} from "../../../store/CurrentUserStore";
+import {LoginRequest} from "../../../api/models/requests/Auth/LoginRequest";
+import {useRouter} from "vue-router";
+
+const isValid = ref(false)
+const showPass = ref(false)
+const form = ref(null)
+const store = useCurrentUserStore()
+const loginData = reactive(new LoginRequest())
+const router = useRouter()
+
+const login = () => {
+  form?.value.validate()
+  if (isValid.value)
+    store.login(loginData).then(res => {
+      if (res)
+        router.push("/")
+    })
+}
+</script>
+
+<style lang="scss" scoped>
+.login-page {
+  width: 100%;
+  height: 100%;
+}
+</style>
