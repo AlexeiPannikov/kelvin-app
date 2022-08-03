@@ -1,4 +1,4 @@
-import {app, BrowserWindow, shell, ipcMain, session} from 'electron'
+import {app, BrowserWindow, shell, ipcMain, session, dialog} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
 import * as path from "path";
@@ -37,6 +37,8 @@ const indexHtml = join(ROOT_PATH.dist, 'index.html')
 async function createWindow() {
     win = new BrowserWindow({
         title: 'Main window',
+        width: 1200,
+        height: 800,
         icon: join(ROOT_PATH.public, 'favicon.ico'),
         webPreferences: {
             preload,
@@ -115,4 +117,9 @@ ipcMain.handle('open-win', (event, arg) => {
         childWindow.loadURL(`${url}/#${arg}`)
         // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
     }
+})
+
+
+ipcMain.handle("set-folder", async (event) => {
+    return await dialog.showOpenDialog({properties: ['openDirectory', "createDirectory"]})
 })
