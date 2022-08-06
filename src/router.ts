@@ -8,6 +8,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import("./view/pages/auth/login-page.vue"),
     },
     {
+        path: "/primary-settings",
+        name: "primary-settings",
+        component: () => import("./view/pages/auth/primary-settings.vue"),
+    },
+    {
         path: "/",
         name: "app",
         component: () => import("./view/layouts/main-layout.vue"),

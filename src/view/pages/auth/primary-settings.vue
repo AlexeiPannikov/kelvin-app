@@ -10,7 +10,7 @@
           working. Please create a folder on your disc
         </v-card-text>
         <div class="d-flex justify-center py-16 px-16">
-          <button-blue @click="selectFolder"
+          <button-blue @click="selectDirectory"
                        size="large"
                        v-if="!primarySettings.folder"
           >
@@ -127,7 +127,7 @@
         <div class="d-flex justify-center align-center py-16 px-16">
           <div class="w-100 d-flex justify-center">
             <div class="bg-white rounded-circle px-2 py-2">
-              <v-icon size="40" >
+              <v-icon size="40">
                 mdi-check
               </v-icon>
             </div>
@@ -135,7 +135,7 @@
         </div>
 
         <v-card-item class="justify-center">
-          <button-blue @click="emit('configured')"
+          <button-blue @click="finish"
                        size="large"
           >
             START USING KELVIN
@@ -152,53 +152,38 @@ import {ipcRenderer} from "electron"
 import OpenDialogReturnValue = Electron.OpenDialogReturnValue;
 import {reactive, ref} from "vue";
 import ButtonWhite from "../../components/buttons/button-white.vue";
-import * as fs from "fs";
+import {PrimarySettings} from "./models/PrimarySettings";
+import fs from "fs";
+import router from "../../../router";
+import {useCurrentUserStore} from "../../../store/CurrentUserStore";
 
-interface IPrimarySettings {
-  folder: string,
-  transferHistory: number,
-  adobeApplications: {
-    ps: string
-    br: string
-  }
-}
+const currentUserStory = useCurrentUserStore()
+import {primarySettings} from "./state/PrimarySettingsState"
+import {loginData} from "./state/LoginDataState"
 
 const emit = defineEmits(['configured'])
 
 const step = ref(1)
-const primarySettings = reactive(<IPrimarySettings>{
-  folder: "",
-  transferHistory: 7,
-  adobeApplications: {
-    ps: "",
-    br: ""
-  }
-})
 
-const saveInStorage = () => {
-  localStorage.setItem("primary_settings", JSON.stringify(primarySettings))
-}
-
-const selectFolder = async () => {
-  const folder: OpenDialogReturnValue = await ipcRenderer.invoke("set-folder")
-  if (folder.filePaths.length)
-    primarySettings.folder = folder.filePaths[0]
+const selectDirectory = async () => {
+  const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-folder-dialog")
+  ipcRenderer.send("set-user-settings", new PrimarySettings({folder: "121231"}))
 }
 
 const saveFolder = () => {
-  fs.mkdirSync(primarySettings.folder + "/Kelvin Workspace")
-  saveInStorage()
   step.value = 2
 }
 
 const saveTransferHistory = () => {
-  saveInStorage()
   step.value = 3
 }
 
 const saveAdobeApps = () => {
-  saveInStorage()
   step.value = 4
+}
+
+const finish = () => {
+  const copy = (data: any) => JSON.parse(JSON.stringify(data))
 }
 </script>
 

@@ -55,6 +55,7 @@ import {useFirstNameLetters} from "../../../../functions/useFirstNameLetters";
 import {ref, toRefs} from "vue";
 import {useRouter} from "vue-router";
 import ComputerLocationModal from "./computer-location-modal.vue";
+import {ipcRenderer} from "electron"
 
 const currentUserStore = useCurrentUserStore()
 const {currentUser} = toRefs(currentUserStore)
@@ -63,8 +64,11 @@ const isOpenComputerLocation = ref(false)
 const nameFirstLetters = useFirstNameLetters(currentUser.value.name)
 const router = useRouter()
 
-const logout = () => {
-  currentUserStore.logout().then(res => router.push("/login"))
+const logout = async () => {
+  const res = await currentUserStore.logout()
+  if (res) {
+    await router.push("/login")
+  }
 }
 
 </script>

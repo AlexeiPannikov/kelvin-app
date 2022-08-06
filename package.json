@@ -29,6 +29,7 @@
     "@vue/devtools": "^6.0.0-beta.21",
     "@vuetify/vite-plugin": "^1.0.0-alpha.0",
     "electron": "^19.0.8",
+    "electron-builder": "^23.3.3",
     "pinia": "^2.0.14",
     "roboto-fontface": "*",
     "sass": "^1.38.0",
@@ -42,8 +43,7 @@
     "vue-tsc": "^0.38.3",
     "vuetify": "^3.0.0-beta.0",
     "vuetify-loader": "^2.0.0-alpha.0",
-    "webfontloader": "^1.0.0",
-    "electron-builder": "^23.3.3"
+    "webfontloader": "^1.0.0"
   },
   "env": {
     "VITE_DEV_SERVER_HOST": "127.0.0.1",
@@ -60,6 +60,7 @@
     "@types/js-cookie": "^3.0.2",
     "axios": "^0.27.2",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.1.0",
     "js-cookie": "^3.0.1"
   },
   "config": {

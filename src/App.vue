@@ -1,5 +1,15 @@
 <script setup lang="ts">
+import {onMounted} from "vue";
+import {ipcRenderer} from "electron";
+import {useCurrentUserStore} from "./store/CurrentUserStore";
+import {useRouter} from "vue-router";
 
+const store = useCurrentUserStore()
+const router = useRouter()
+
+onMounted(async () => {
+
+})
 </script>
 
 <template>
