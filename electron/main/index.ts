@@ -4,8 +4,7 @@ import {join} from 'path'
 import {Window} from "./Window";
 import {UserSettingsStore} from "./store/UserSettings"
 import {PrimarySettings} from "../../src/view/pages/auth/models/PrimarySettings";
-
-const userSettingsStore = new UserSettingsStore()
+import {useCurrentUserStore} from "../../src/store/CurrentUserStore";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -64,11 +63,16 @@ app.on('activate', async () => {
     }
 })
 
-ipcMain.handle("open-set-folder-dialog", async (event) => {
+ipcMain.handle("open-set-directory-dialog", async (event) => {
     return await dialog.showOpenDialog({properties: ['openDirectory', "createDirectory"]})
 })
 
-ipcMain.on("set-user-settings", (event, data: PrimarySettings) => {
-    const res = userSettingsStore.saveSettings(data)
-    console.log(res.getSettings())
+ipcMain.on("set-user-settings", (event, userId: string | number, data: PrimarySettings) => {
+    const userSettingsStore = new UserSettingsStore(userId)
+    userSettingsStore.saveSettings(data)
+})
+
+ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
+    const userSettingsStore = new UserSettingsStore(userId)
+    return userSettingsStore.getAllSettings().data
 })

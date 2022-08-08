@@ -25,14 +25,14 @@
             >
             </v-text-field>
             <span>/Kelvin Workspace</span>
-            <button-white @click="selectFolder" size="small" class="ml-3">
+            <button-white @click="selectDirectory" size="small" class="ml-3">
               <v-icon size="27">mdi-dots-horizontal</v-icon>
             </button-white>
           </div>
         </div>
 
         <v-card-item class="justify-center">
-          <button-blue @click="saveFolder"
+          <button-blue @click="saveDirectory"
                        size="large"
                        v-if="primarySettings.folder"
           >
@@ -150,27 +150,24 @@
 import ButtonBlue from "../../components/buttons/button-blue.vue";
 import {ipcRenderer} from "electron"
 import OpenDialogReturnValue = Electron.OpenDialogReturnValue;
-import {reactive, ref} from "vue";
+import {ref} from "vue";
 import ButtonWhite from "../../components/buttons/button-white.vue";
 import {PrimarySettings} from "./models/PrimarySettings";
-import fs from "fs";
 import router from "../../../router";
 import {useCurrentUserStore} from "../../../store/CurrentUserStore";
-
-const currentUserStory = useCurrentUserStore()
 import {primarySettings} from "./state/PrimarySettingsState"
-import {loginData} from "./state/LoginDataState"
-
-const emit = defineEmits(['configured'])
 
 const step = ref(1)
+const store = useCurrentUserStore()
 
 const selectDirectory = async () => {
-  const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-folder-dialog")
-  ipcRenderer.send("set-user-settings", new PrimarySettings({folder: "121231"}))
+  const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-directory-dialog")
+  if (dialogRes)
+    primarySettings.folder = dialogRes.filePaths[0]
 }
 
-const saveFolder = () => {
+const saveDirectory = () => {
+  ipcRenderer.send("set-user-settings", store.currentUser.id, new PrimarySettings({folder: primarySettings.folder}))
   step.value = 2
 }
 
@@ -183,7 +180,7 @@ const saveAdobeApps = () => {
 }
 
 const finish = () => {
-  const copy = (data: any) => JSON.parse(JSON.stringify(data))
+  router.push("/")
 }
 </script>
 

@@ -64,6 +64,8 @@ import {isEmail, required} from "../../../functions/ValidationRules"
 import {useCurrentUserStore} from "../../../store/CurrentUserStore";
 import {useRouter} from "vue-router";
 import {loginData} from "./state/LoginDataState"
+import {ipcRenderer} from "electron";
+import {PrimarySettings} from "./models/PrimarySettings";
 
 const isValid = ref(false)
 const showPass = ref(false)
@@ -72,13 +74,17 @@ const store = useCurrentUserStore()
 
 const router = useRouter()
 
-const login = () => {
+const login = async () => {
   form?.value.validate()
-  if (isValid.value)
-    store.login(loginData).then(res => {
-      if (res)
-        store.getCurrentUser().then(() => router.push("/primary-settings"))
-    })
+  if (isValid.value) {
+    const res = await store.login(loginData)
+    if (res) {
+      await store.getCurrentUser()
+      const userId = store.currentUser.id
+      const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", userId)
+      settings.folder ? await router.push("/") : await router.push("/primary-settings")
+    }
+  }
 }
 </script>
 
