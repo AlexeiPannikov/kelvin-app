@@ -3,9 +3,9 @@
     <sidebar-layout></sidebar-layout>
     <header-layout></header-layout>
     <v-main>
-      <div class="bg-main-content-back fill-height">
+      <v-container fluid class="bg-main-content-back fill-height">
         <router-view></router-view>
-      </div>
+      </v-container>
     </v-main>
   </v-app>
 </template>

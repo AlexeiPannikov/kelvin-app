@@ -163,6 +163,7 @@ const store = useCurrentUserStore()
 const selectDirectory = async () => {
   const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-directory-dialog")
   if (dialogRes)
+    console.log(dialogRes)
     primarySettings.folder = dialogRes.filePaths[0]
 }
 
@@ -180,7 +181,7 @@ const saveAdobeApps = () => {
 }
 
 const finish = () => {
-  router.push("/")
+  router.push({name: "app"})
 }
 </script>
 

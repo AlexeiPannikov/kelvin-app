@@ -4,7 +4,7 @@ import {join} from 'path'
 import {Window} from "./Window";
 import {UserSettingsStore} from "./store/UserSettings"
 import {PrimarySettings} from "../../src/view/pages/auth/models/PrimarySettings";
-import {useCurrentUserStore} from "../../src/store/CurrentUserStore";
+import fs from "fs";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()

@@ -4,7 +4,7 @@ import {app} from "electron"
 import * as fs from "fs";
 
 export class UserSettingsStore extends Store {
-    data: PrimarySettings | any = new PrimarySettings()
+    data: PrimarySettings = new PrimarySettings()
 
     constructor(userId: string | number, settings?: Options<any>) {
         const userDirectory = app.getPath("userData") + `/user.${userId}`
@@ -12,11 +12,11 @@ export class UserSettingsStore extends Store {
             fs.mkdirSync(userDirectory)
         }
         super({name: ` user.${userId}-settings`, cwd: userDirectory, ...settings});
-        this.data = this.get("data") || new PrimarySettings()
+        this.data = this.get("data") as PrimarySettings || new PrimarySettings()
     }
 
     getAllSettings() {
-        this.data = this.get("data") || new PrimarySettings()
+        this.data = this.get("data") as PrimarySettings || new PrimarySettings()
         return this
     }
 
