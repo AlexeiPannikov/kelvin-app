@@ -24,7 +24,6 @@
                           hide-details
             >
             </v-text-field>
-            <span>/Kelvin Workspace</span>
             <button-white @click="selectDirectory" size="small" class="ml-3">
               <v-icon size="27">mdi-dots-horizontal</v-icon>
             </button-white>
@@ -153,9 +152,11 @@ import OpenDialogReturnValue = Electron.OpenDialogReturnValue;
 import {ref} from "vue";
 import ButtonWhite from "../../components/buttons/button-white.vue";
 import {PrimarySettings} from "./models/PrimarySettings";
-import router from "../../../router";
 import {useCurrentUserStore} from "../../../store/CurrentUserStore";
 import {primarySettings} from "./state/PrimarySettingsState"
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 
 const step = ref(1)
 const store = useCurrentUserStore()
@@ -181,7 +182,7 @@ const saveAdobeApps = () => {
 }
 
 const finish = () => {
-  router.push({name: "app"})
+  router.push("/")
 }
 </script>
 

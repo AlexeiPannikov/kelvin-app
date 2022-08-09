@@ -76,3 +76,5 @@ ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
     const userSettingsStore = new UserSettingsStore(userId)
     return userSettingsStore.getAllSettings().data
 })
+
+console.log(app.getPath("userData"))
