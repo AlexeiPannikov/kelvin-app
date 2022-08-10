@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 
 import axios from "axios";
+import Notifications from "../view/components/ui-notifications/models/Notifications";
 // import Notifications from "@components/ui-notifications/models/Notifications";
 
 const $api = axios.create({
@@ -41,8 +42,7 @@ $api.interceptors.response.use(
                 console.log("Not authorized");
             }
         }
-        console.log(error.response.data.message)
-        // Notifications.newWarning(error.response.data.message);
+        Notifications.newWarning(error.response.data.message);
     }
 );
 

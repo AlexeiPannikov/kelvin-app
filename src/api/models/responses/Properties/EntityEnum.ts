@@ -1,0 +1,13 @@
+export enum EntityEnum {
+  JOB = 1,
+  OUTFIT = 2,
+  PRODUCT = 3,
+  SAMPLE = 4,
+  USER = 5,
+  LOCATION = 6,
+  CONTAINER = 7,
+  STYLEGUIDE = 8,
+  STYLEGUIDE_PRODUCTION_TYPE = 9,
+  STYLEGUIDE_POSITION = 10,
+  VENDOR_USER = 11,
+}

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {onMounted} from "vue";
-import {ipcRenderer} from "electron";
 import {useCurrentUserStore} from "./store/CurrentUserStore";
 import {useRouter} from "vue-router";
+import UiNotification from "./view/components/ui-notifications/ui-notification.vue";
 
 const store = useCurrentUserStore()
 const router = useRouter()
@@ -15,6 +15,7 @@ onMounted(async () => {
 <template>
   <router-view>
   </router-view>
+  <ui-notification></ui-notification>
 </template>
 
 <style lang="scss">
