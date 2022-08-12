@@ -3,7 +3,7 @@
     <v-col cols="4" class="border-e fill-height pb-0">
       <style-guide-select></style-guide-select>
     </v-col>
-    <v-col cols="8">
+    <v-col cols="8" class="fill-height" style="overflow-y: overlay">
       <style-guide-detail></style-guide-detail>
     </v-col>
   </v-row>

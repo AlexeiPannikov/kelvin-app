@@ -19,15 +19,17 @@ import {useStudioStore} from "../../store/StudioStore";
 
 const clientsStore = useClientsStore()
 const styleGuidesStore = useStyleGuidesStore()
-const productionStore = useStudioStore()
+const studioStore = useStudioStore()
 
 const getData = async () => {
   const res = await clientsStore.getClients()
   if (res?.length) {
     clientsStore.selectedClientId = res[0].id
     await styleGuidesStore.getStyleGuides(clientsStore.selectedClientId)
-    await productionStore.getProductionTypes()
-    await styleGuidesStore.viewStyleGuide(styleGuidesStore.styleGuides[0].uuid)
+    await studioStore.getProductionTypes()
+    if (styleGuidesStore.styleGuides.length)
+      await styleGuidesStore.viewStyleGuide(styleGuidesStore.styleGuides[0].uuid)
+    styleGuidesStore.selectedShootingTypeUuid = styleGuidesStore.getStyleGuideProductionTypesSelectList[0]?.value
   }
 }
 getData()

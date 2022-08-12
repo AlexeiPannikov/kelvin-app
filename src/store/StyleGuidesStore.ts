@@ -4,13 +4,14 @@ import {Position} from "../api/models/requests/StyleGuides/Position";
 import {defineStore} from "pinia";
 import {ShootingType} from "../api/models/requests/StyleGuides/ShootingType";
 import StyleGuidesService from "../api/services/StyleGuidesService";
-
+import {useStudioStore} from "./StudioStore";
 
 interface IState {
     isLoadingStyleGuides: boolean;
     isLoadingStyleGuide: boolean;
     styleGuides: StyleGuide[];
     styleGuide: StyleGuide;
+    selectedShootingTypeUuid: string
 }
 
 export const useStyleGuidesStore = defineStore("style-guides", {
@@ -20,10 +21,18 @@ export const useStyleGuidesStore = defineStore("style-guides", {
             isLoadingStyleGuide: false,
             styleGuides: new Array<StyleGuide>(),
             styleGuide: new StyleGuide(),
+            selectedShootingTypeUuid: ""
         } as IState;
     },
 
     getters: {
+        getStyleGuideProductionTypesSelectList(): { title: string, value: string }[] {
+            const studioStore = useStudioStore()
+            return studioStore.productionTypes
+                .filter(({uuid}) => !!this.styleGuide.shootingTypes
+                    .find(({production_type_uuid}) => production_type_uuid === uuid))
+                .map(({uuid, name}) => ({title: name, value: uuid}))
+        }
     },
 
     actions: {

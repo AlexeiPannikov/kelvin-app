@@ -55,7 +55,10 @@ const styleGuidesStore = useStyleGuidesStore()
 
 watch(() => clientsStore.selectedClientId, () => styleGuidesStore.getStyleGuides(clientsStore.selectedClientId))
 
-const selectStyleGuide = (uuid: string) => styleGuidesStore.viewStyleGuide(uuid)
+const selectStyleGuide = async (uuid: string) => {
+  await styleGuidesStore.viewStyleGuide(uuid)
+  styleGuidesStore.selectedShootingTypeUuid = styleGuidesStore.getStyleGuideProductionTypesSelectList[0]?.value
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,30 +1,32 @@
 <template>
-  <v-row justify="end">
-    <v-col cols="auto">
-      <ui-search></ui-search>
-    </v-col>
-  </v-row>
-  <v-row>
-    <v-col>
-      <div class="text-uppercase description">{{ watchedFolder }}</div>
-      <div class="text-h4 text-uppercase">{{ endFolder.toLocaleUpperCase() }}</div>
-    </v-col>
-  </v-row>
-  <v-row class="flex-wrap">
-    <v-col v-for="(file, i) in filesInFolder" :key="file.name" cols="auto">
-      <image-box :file="file"
-                 @dblclick="openModal(i)"
-      ></image-box>
-    </v-col>
+  <div class="fill-height d-flex flex-column">
+    <v-row justify="end" no-gutters>
+      <v-col cols="auto">
+        <ui-search></ui-search>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
+      <v-col>
+        <div class="text-uppercase description">{{ watchedFolder }}</div>
+        <div class="text-h4 text-uppercase">{{ endFolder.toLocaleUpperCase() }}</div>
+      </v-col>
+    </v-row>
+    <v-row class="flex-wrap overflow-auto mt-2">
+      <v-col v-for="(file, i) in filesInFolder" :key="file.name" cols="auto">
+        <image-box :file="file"
+                   @dblclick="openModal(i)"
+        ></image-box>
+      </v-col>
 
-    <ui-modal-fullscreen-image-crop v-if="isOpenModal"
-                                    :file-list="filesInFolder"
-                                    :index="fileIndex"
-                                    @change="cropChange"
-                                    @reset-crop="resetCrop"
-                                    @close="isOpenModal = false"
-    ></ui-modal-fullscreen-image-crop>
-  </v-row>
+      <ui-modal-fullscreen-image-crop v-if="isOpenModal"
+                                      :file-list="filesInFolder"
+                                      :index="fileIndex"
+                                      @change="cropChange"
+                                      @reset-crop="resetCrop"
+                                      @close="isOpenModal = false"
+      ></ui-modal-fullscreen-image-crop>
+    </v-row>
+  </div>
 </template>
 
 <script lang="ts" setup>

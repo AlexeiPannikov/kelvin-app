@@ -5,34 +5,51 @@
         <v-col cols="12">
           <div class="d-flex">
             <div class="bg-white mr-4">
-              <v-img width="150" :src="styleGuide.coverFile.url"></v-img>
+              <v-img width="150" aspect-ratio="1" :src="styleGuide.coverFile.url"></v-img>
             </div>
             <div>
-              <div class="text-h5">
+              <h1 class="text-h5">
                 {{ styleGuide.name.toLocaleUpperCase() }}
-              </div>
-              <div class="description" v-html="styleGuide.description"></div>
-              <div class="d-flex align-center mt-3 file pointer"
-                   v-for="file in styleGuide.filesInner"
-                   :key="file.url"
-                   @click="openInBrowser(file.url)"
-              >
-                <v-icon>mdi-file</v-icon>
-                <div class="text-decoration-underline description"
-                >
-                  {{ file.original_name }}
-                </div>
-              </div>
+              </h1>
+              <div class="description mt-2" v-html="styleGuide.description"></div>
+              <file-link v-for="file in styleGuide.filesInner"
+                         :key="file.url"
+                         @click="openInBrowser(file.url)"
+                         class="mt-2"
+              >{{ file.original_name }}
+              </file-link>
             </div>
           </div>
         </v-col>
       </v-row>
 
-      <v-row justify="flex-end">
-        <v-col>
-          <ui-select
+      <v-row justify="end">
+        <v-col cols="auto">
+          <ui-select :items="styleGuidesStore.getStyleGuideProductionTypesSelectList"
+                     v-model="styleGuidesStore.selectedShootingTypeUuid"
           >
           </ui-select>
+        </v-col>
+        <v-col cols="12">
+          <h2 class="text-h6 text-uppercase">{{ shootingTypeName?.toString().toLocaleUpperCase() }}</h2>
+          <div v-html="styleGuide.description" class="description mt-2"></div>
+          <file-link v-for="file in styleGuide.filesInner"
+                     :key="file.url"
+                     @click="openInBrowser(file.url)"
+                     class="mt-2"
+          >{{ file.original_name }}
+          </file-link>
+        </v-col>
+        <v-col cols="12">
+          <v-row>
+            <v-col v-for="position in positions"
+                   :key="position.id"
+                   cols="6"
+            >
+              <position-img-box :position="position"
+              ></position-img-box>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </ui-preloader>
@@ -42,13 +59,23 @@
 <script lang="ts" setup>
 import UiPreloader from "../../../components/ui-preloader/ui-preloader.vue";
 import {useStyleGuidesStore} from "../../../../store/StyleGuidesStore";
-import {toRefs} from "vue";
+import {computed, toRefs} from "vue";
 import {openInBrowser} from "../../../../functions/openInBrowser"
 import UiSelect from "../../../components/ui-select/ui-select.vue";
+import {useStudioStore} from "../../../../store/StudioStore";
+import FileLink from "./file--link.vue";
+import PositionImgBox from "./position-img-box.vue";
 
 const styleGuidesStore = useStyleGuidesStore()
+const studioStore = useStudioStore()
 const {styleGuide} = toRefs(styleGuidesStore)
 
+const shootingTypeName = computed(() =>
+    studioStore.productionTypes
+        .find(({uuid}) => styleGuidesStore.selectedShootingTypeUuid === uuid)?.name)
+
+const positions = computed(() => styleGuide.value.shootingTypes
+    .find(({production_type_uuid}) => styleGuidesStore.selectedShootingTypeUuid === production_type_uuid)?.positions)
 </script>
 
 <style lang="scss" scoped>

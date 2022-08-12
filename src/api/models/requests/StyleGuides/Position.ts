@@ -25,9 +25,7 @@ export class Position {
     constructor(obj?: Partial<Position>) {
         if (obj) {
             Object.assign(this, obj)
-            if (!obj.asset) {
-                this.asset = new Asset()
-            }
+            this.asset = new Asset(obj.asset)
         }
         this.coverFile.uuid = this.cover_file_uuid
         this.filesInner = this.fileIds.map(uuid => new FileDataModel({uuid}))

@@ -120,6 +120,7 @@ onMounted(() => {
     props.fileList.forEach(({name}) => {
       images.push(document.getElementById(name) as HTMLImageElement);
     })
+    console.log(images)
     fullscreenImage.init(images, props.index);
   }, 20);
 });

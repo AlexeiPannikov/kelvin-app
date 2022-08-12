@@ -1,6 +1,6 @@
 <template>
-  <v-row class="fill-height">
-    <v-col cols="8" class="border-e">
+  <v-row class="fill-height overflow-hidden">
+    <v-col cols="8" class="border-e fill-height overflow-hidden">
       <files-view></files-view>
     </v-col>
     <v-col cols="4">

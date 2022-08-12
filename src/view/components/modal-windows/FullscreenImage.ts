@@ -74,7 +74,7 @@ export class FullscreenImage {
         this.img = this.imgs[this.currentImgIdx];
         this.imgsWrap.style.left = "0px"
         this.imgWrap = this.img.parentElement as HTMLDivElement;
-        this.imgsWrap.style.left = -window.innerWidth + "px"
+        this.imgsWrap.style.left = -window.innerWidth * this.currentImgIdx + "px"
         if (this.currentImgIdx === 0) {
             this.imgsWrap.style.left = "0px"
         }
