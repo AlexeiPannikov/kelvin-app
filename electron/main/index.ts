@@ -77,4 +77,6 @@ ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
     return userSettingsStore.getAllSettings().data
 })
 
-console.log(app.getPath("userData"))
+import updateApp from "update-electron-app"
+
+updateApp()
