@@ -1,4 +1,4 @@
-import {Option} from "@api/models/requests/Properties/Option";
+import {Option} from "./Option";
 
 export class EditPropertyRequest {
   type: string = "";

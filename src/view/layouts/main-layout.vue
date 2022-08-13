@@ -16,6 +16,7 @@ import SidebarLayout from "./sidebar-layout/sidebar-layout.vue";
 import {useClientsStore} from "../../store/ClientsStore";
 import {useStyleGuidesStore} from "../../store/StyleGuidesStore";
 import {useStudioStore} from "../../store/StudioStore";
+import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 
 const clientsStore = useClientsStore()
 const styleGuidesStore = useStyleGuidesStore()

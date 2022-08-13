@@ -1,4 +1,4 @@
-import {FileDataModel} from "@components/upload-photo/FileDataModel";
+import {FileDataModel} from "./FileDataModel";
 
 export interface IGetFilesResponse {
     [key: string]: FileDataModel

@@ -1,21 +1,25 @@
 <template>
   <v-overlay
-    :model-value="props.isLoading"
-    :contained="props.contained"
-    class="align-center justify-center preloader-overlay"
-    :scrim="overlayScrimBack"
-    :transition="props.transition"
+      :model-value="props.isLoading"
+      :contained="props.contained"
+      class="align-center justify-center preloader-overlay"
+      :scrim="overlayScrimBack"
+      :transition="props.transition"
   >
     <v-progress-circular
-      color="primary"
-      indeterminate
-      :size="props.size"
+        color="primary"
+        indeterminate
+        :size="props.size"
     ></v-progress-circular>
   </v-overlay>
-  <slot v-if="!props.isLoading"></slot>
+  <ui-transition>
+    <slot v-if="!props.isLoading"></slot>
+  </ui-transition>
 </template>
 
 <script lang="ts" setup>
+import UiTransition from "../ui-transition/ui-transition.vue";
+
 const props = defineProps({
   isLoading: {
     type: Boolean,
@@ -58,7 +62,7 @@ body {
 
 .progress-enter-active,
 .progress-leave-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 
 .progress-enter-to {

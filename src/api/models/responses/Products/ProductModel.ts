@@ -1,4 +1,4 @@
-import {ProductStatusEnum} from "@api/models/requests/Products/ProductStatusEnum";
+import {ProductStatusEnum} from "../../requests/Products/ProductStatusEnum";
 
 export class ProductModel {
     job_id: number = null;

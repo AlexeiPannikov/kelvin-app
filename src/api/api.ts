@@ -1,8 +1,5 @@
-import Cookies from "js-cookie";
-
 import axios from "axios";
 import Notifications from "../view/components/ui-notifications/models/Notifications";
-// import Notifications from "@components/ui-notifications/models/Notifications";
 
 const $api = axios.create({
     // withCredentials: true,
@@ -42,7 +39,9 @@ $api.interceptors.response.use(
                 console.log("Not authorized");
             }
         }
-        Notifications.newWarning(error.response.data.message);
+        if (error.response.status !== 401) {
+            Notifications.newMessage(error.response.data.message);
+        }
     }
 );
 

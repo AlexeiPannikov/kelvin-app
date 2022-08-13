@@ -10,7 +10,7 @@
         </ui-select>
       </v-col>
       <v-col>
-        <ui-search></ui-search>
+        <ui-search v-model="searchText"></ui-search>
       </v-col>
     </v-row>
     <v-row class="list-row">
@@ -20,7 +20,7 @@
                   bg-color="main-content-back"
                   height="100%"
           >
-            <v-list-item v-for="styleGuide in styleGuidesStore.styleGuides"
+            <v-list-item v-for="styleGuide in filteredStyleGuides"
                          class="border-t pb-0"
                          @click="selectStyleGuide(styleGuide.uuid)"
                          :active="styleGuidesStore.styleGuide.uuid === styleGuide.uuid"
@@ -44,16 +44,27 @@
 
 <script lang="ts" setup>
 import {useClientsStore} from "../../../../store/ClientsStore";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import UiSearch from "../../../components/search/ui-search.vue";
 import UiSelect from "../../../components/ui-select/ui-select.vue";
 import {useStyleGuidesStore} from "../../../../store/StyleGuidesStore";
 import UiPreloader from "../../../components/ui-preloader/ui-preloader.vue";
+import {StyleGuide} from "../../../../api/models/responses/StyleGuides/StyleGuide";
+import {useSearchFilter} from "../../../../functions/useSearch";
 
 const clientsStore = useClientsStore()
 const styleGuidesStore = useStyleGuidesStore()
+const searchText = ref("")
 
-watch(() => clientsStore.selectedClientId, () => styleGuidesStore.getStyleGuides(clientsStore.selectedClientId))
+const filteredStyleGuides = computed(() => useSearchFilter(searchText.value, styleGuidesStore.styleGuides, ["name"]))
+
+watch(() => clientsStore.selectedClientId, async () => {
+  styleGuidesStore.styleGuide = new StyleGuide()
+  await styleGuidesStore.getStyleGuides(clientsStore.selectedClientId)
+  if (styleGuidesStore.styleGuides.length) {
+    await styleGuidesStore.viewStyleGuide(styleGuidesStore.styleGuides[0].uuid)
+  }
+})
 
 const selectStyleGuide = async (uuid: string) => {
   await styleGuidesStore.viewStyleGuide(uuid)

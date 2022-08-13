@@ -1,4 +1,4 @@
-import {EntityEnum} from "@api/models/responses/Properties/EntityEnum";
+import {EntityEnum} from "./EntityEnum";
 
 export class EntityModel {
     id: number = null;

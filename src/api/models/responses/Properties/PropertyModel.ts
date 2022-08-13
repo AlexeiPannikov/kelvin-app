@@ -1,5 +1,5 @@
-import moment from "moment";
-import {Option} from "@api/models/requests/Properties/Option";
+import {Option} from "../../requests/Properties/Option";
+import moment from "moment"
 
 export class PropertyModel {
   id: number = null;

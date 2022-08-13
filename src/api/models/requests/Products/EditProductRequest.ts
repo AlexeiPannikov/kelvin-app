@@ -1,4 +1,4 @@
-import { ProductStatusEnum } from "@api/models/requests/Products/ProductStatusEnum";
+import {ProductStatusEnum} from "./ProductStatusEnum";
 
 export class EditProductRequest {
   status: ProductStatusEnum = null;

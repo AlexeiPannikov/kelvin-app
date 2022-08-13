@@ -1,11 +1,11 @@
 <template>
   <div class="fill-height d-flex flex-column">
-    <v-row justify="end" no-gutters>
+    <v-row class="flex-grow-0" justify="end" no-gutters>
       <v-col cols="auto">
         <ui-search></ui-search>
       </v-col>
     </v-row>
-    <v-row no-gutters>
+    <v-row class="flex-grow-0" no-gutters>
       <v-col>
         <div class="text-uppercase description">{{ watchedFolder }}</div>
         <div class="text-h4 text-uppercase">{{ endFolder.toLocaleUpperCase() }}</div>

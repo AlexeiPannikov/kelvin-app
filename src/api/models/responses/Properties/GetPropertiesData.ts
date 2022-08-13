@@ -1,5 +1,5 @@
-import { EntityModel } from "@api/models/responses/Properties/EntityModel";
-import { PropertyModel } from "@api/models/responses/Properties/PropertyModel";
+import {EntityModel} from "./EntityModel";
+import {PropertyModel} from "./PropertyModel";
 
 export class GetPropertiesData {
   entities: EntityModel[];

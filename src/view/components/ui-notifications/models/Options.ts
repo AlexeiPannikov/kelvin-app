@@ -5,10 +5,10 @@ export class Options {
   closeIconColor? = "";
   closeIconBackgroundColor? = "";
   duration? = 5000;
-  left? = "auto";
-  right? = "40px";
-  top? = "40px";
-  bottom? = "auto";
+  left? = "40px";
+  right? = "auto";
+  top? = "auto";
+  bottom? = "0";
 
   constructor(obj?: Partial<Options>) {
     if (obj) {

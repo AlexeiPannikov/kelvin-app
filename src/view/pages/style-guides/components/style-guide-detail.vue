@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="position-relative fill-height">
+  <v-container v-if="styleGuide.uuid" fluid class="position-relative fill-height">
     <ui-preloader :is-loading="styleGuidesStore.isLoadingStyleGuide" contained>
       <v-row>
         <v-col cols="12">

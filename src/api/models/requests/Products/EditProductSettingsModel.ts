@@ -1,5 +1,5 @@
-import { ProductStatusEnum } from "@api/models/requests/Products/ProductStatusEnum";
-import { PropertyModel } from "@api/models/responses/Properties/PropertyModel";
+import {PropertyModel} from "../../responses/Properties/PropertyModel";
+import {ProductStatusEnum} from "./ProductStatusEnum";
 
 export class EditProductSettingsModel {
   status: ProductStatusEnum = null;
