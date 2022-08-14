@@ -76,7 +76,3 @@ ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
     const userSettingsStore = new UserSettingsStore(userId)
     return userSettingsStore.getAllSettings().data
 })
-
-import updateApp from "update-electron-app"
-
-updateApp()
