@@ -24,6 +24,7 @@
                       :rules="[isEmail]"
                       label="Email"
                       required
+                      @keydown.enter="focusOnPassword"
                   ></v-text-field>
                 </v-col>
 
@@ -38,6 +39,8 @@
                       :type="showPass ? 'text' : 'password'"
                       @click:append-inner="showPass = !showPass"
                       required
+                      ref="passwordInput"
+                      @keydown.enter="focusOnButton"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -48,6 +51,7 @@
           <v-spacer></v-spacer>
           <button-blue @click="login"
                        :is-loading="store.isLoadingLoginUser"
+                       ref="buttonEnter"
           >
             Log in
           </button-blue>
@@ -70,6 +74,8 @@ import {PrimarySettings} from "./models/PrimarySettings";
 const isValid = ref(false)
 const showPass = ref(false)
 const form = ref(null)
+const passwordInput = ref(null)
+const buttonEnter = ref(null)
 const store = useCurrentUserStore()
 
 const router = useRouter()
@@ -85,6 +91,15 @@ const login = async () => {
       settings.folder ? await router.push("/") : await router.push("/primary-settings")
     }
   }
+}
+
+const focusOnPassword = () => {
+  const [input] = passwordInput.value.$el.getElementsByTagName("input")
+  input.focus()
+}
+
+const focusOnButton = () => {
+  buttonEnter.value.$el.focus()
 }
 </script>
 
