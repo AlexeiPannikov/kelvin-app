@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar flat color="main-content-back border-b">
+  <v-app-bar flat color="main-content-back border-b" :order="1">
     <v-row justify="space-between">
       <v-col>
         <h1 class="font-weight-medium">{{ title }}</h1>
@@ -23,6 +23,8 @@ import UiSelect from "../components/ui-select/ui-select.vue";
 
 const route = useRoute()
 const studioStore = useStudioStore()
+
+studioStore.getProductionTypes()
 
 const title = computed(() => {
   return (route.meta.title as string).toLocaleUpperCase()

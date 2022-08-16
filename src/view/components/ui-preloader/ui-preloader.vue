@@ -5,6 +5,8 @@
       class="align-center justify-center preloader-overlay"
       :scrim="overlayScrimBack"
       :transition="props.transition"
+      z-index="1000"
+      style="z-index: 1000"
   >
     <v-progress-circular
         color="primary"

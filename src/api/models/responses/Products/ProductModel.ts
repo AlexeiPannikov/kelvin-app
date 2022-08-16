@@ -1,4 +1,5 @@
 import {ProductStatusEnum} from "../../requests/Products/ProductStatusEnum";
+import {StyleGuide} from "../StyleGuides/StyleGuide";
 
 export class ProductModel {
     job_id: number = null;
@@ -22,4 +23,9 @@ export class ProductModel {
     state: number = 0;
     styleguide_name: string = null
     styleguide_uuid: string = null
+    styleGuide = new StyleGuide()
+
+    constructor(obj?: Partial<ProductModel>) {
+        if (obj) Object.assign(this, obj)
+    }
 }

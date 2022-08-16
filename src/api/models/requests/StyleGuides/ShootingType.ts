@@ -13,6 +13,7 @@ export class ShootingType {
             Object.assign(this, obj)
         }
         this.filesInner = this.fileIds.map(uuid => new FileDataModel({uuid}))
+        this.positions = obj.positions.map(item => new Position(item))
     }
 
 }

@@ -29,5 +29,6 @@ export class Position {
         }
         this.coverFile.uuid = this.cover_file_uuid
         this.filesInner = this.fileIds.map(uuid => new FileDataModel({uuid}))
+        this.asset = new Asset(obj.asset)
     }
 }

@@ -1,17 +1,17 @@
 <template>
   <v-card-title class="border-b">SELECT SAMPLE</v-card-title>
   <v-card-subtitle class="py-4">
-    The product {{ samplesStore.samples[0].product_code }} has multiple samples.
+    The product {{ scanProductStore.samples[0]?.product_code }} has multiple samples.
     Please select below.
   </v-card-subtitle>
   <v-card-item>
-    <v-item-group v-model="selectedSample" selected-class="border border-primary border-opacity-100">
-      <v-item v-for="(sample, i) in samplesStore.samples"
+    <v-item-group v-model="selectedSampleId" selected-class="border border-primary border-opacity-100">
+      <v-item v-for="(sample, i) in scanProductStore.samples"
               :key="sample.sample_uuid"
               v-slot="{ isSelected, selectedClass }"
       >
         <v-card :class="['d-flex align-center', selectedClass]"
-                @click="selectTask(i)"
+                @click="selectSample(i)"
                 class="px-4"
         >
           <div class="py-4">
@@ -36,31 +36,30 @@
 
 <script lang="ts" setup>
 import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
-import {useSampleStore} from "../../../../../../../store/SamplesStore";
 import {onMounted, onUnmounted, ref} from "vue";
 import ButtonBlue from "../../../../../../components/buttons/button-blue.vue";
+import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
 
 const emit = defineEmits(["cancel", "select", "back"])
 
-const samplesStore = useSampleStore()
-
-const selectedSample = ref(0)
+const scanProductStore = useScanProductStore()
+const selectedSampleId = ref(0)
 
 const keyDownHandler = (e: KeyboardEvent) => {
-  if (e.key === "ArrowDown" && selectedSample.value < samplesStore.samples.length - 1) {
-    selectedSample.value += 1
+  if (e.key === "ArrowDown" && selectedSampleId.value < scanProductStore.samples.length - 1) {
+    selectedSampleId.value += 1
   }
-  if (e.key === "ArrowUp" && selectedSample.value > 0) {
-    selectedSample.value -= 1
+  if (e.key === "ArrowUp" && selectedSampleId.value > 0) {
+    selectedSampleId.value -= 1
   }
   if (e.key === "Enter") {
-    selectTask()
+    selectSample()
   }
 }
 
-const selectTask = (i?: number) => {
-  if (i) selectedSample.value = i
-  samplesStore.sample = samplesStore.samples[i]
+const selectSample = (i?: number) => {
+  if (i) selectedSampleId.value = i
+  scanProductStore.selectedSample = scanProductStore.samples[i || selectedSampleId.value]
   emit("select")
 }
 

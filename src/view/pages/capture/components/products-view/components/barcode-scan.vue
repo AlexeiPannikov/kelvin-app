@@ -19,7 +19,7 @@
       </div>
     </template>
     <v-text-field v-else
-                  v-model.trim="samplesStore.barcode"
+                  v-model.trim="scanProductStore.barcode"
                   placeholder="Enter barcode manually"
                   color="primary"
                   variant="plain"
@@ -27,7 +27,7 @@
                   hide-details
                   density="compact"
                   :autofocus="true"
-                  :append-icon="samplesStore.barcode ? 'mdi-arrow-left' : ''"
+                  :append-icon="scanProductStore.barcode ? 'mdi-arrow-left' : ''"
                   @click:append="search"
                   @keydown.enter="search"
     ></v-text-field>
@@ -37,16 +37,14 @@
 <script lang="ts" setup>
 import UiPreloader from "../../../../../components/ui-preloader/ui-preloader.vue";
 import {onMounted, onUnmounted, ref} from "vue";
-import {useSampleStore} from "../../../../../../store/SamplesStore";
-import {useJobsStore} from "../../../../../../store/JobsStore";
-import {useProductsStore} from "../../../../../../store/ProductsStore";
+import {useScanProductStore} from "../../../../../../store/ScanProductStore";
 
 const emits = defineEmits<{
   (e: "scan", isManySamples: boolean): void
 }>()
 
+const scanProductStore = useScanProductStore()
 const isManuallyMode = ref(false)
-const samplesStore = useSampleStore()
 let interval: NodeJS.Timer = null;
 
 const enterManually = () => {
@@ -55,36 +53,34 @@ const enterManually = () => {
 }
 
 const clickOutsideHandler = () => {
-  if (isManuallyMode.value && !samplesStore.barcode) {
+  if (isManuallyMode.value && !scanProductStore.barcode) {
     isManuallyMode.value = false;
     subscribeOnScannerEvents();
   }
 }
 
 const search = async () => {
-  if (!samplesStore.barcode) return
-  await samplesStore.search()
-  samplesStore.barcode = ""
+  if (!scanProductStore.barcode) return
+  await scanProductStore.search()
+  scanProductStore.barcode = ""
   isManuallyMode.value = false
-  if (samplesStore.samples.length > 1) {
+  if (scanProductStore.samples.length > 0) {
     emits("scan", true)
-    return
   }
-  emits("scan", false)
 }
 
 const scannerEventsHandler = (e: KeyboardEvent) => {
   if (interval) clearInterval(interval);
   if (e.code === "Enter") {
-    if (samplesStore.barcode) {
+    if (scanProductStore.barcode) {
       search();
     }
-    samplesStore.barcode = "";
+    scanProductStore.barcode = "";
     return;
   }
   if (e.key !== "Shift") {
-    samplesStore.barcode += e.key;
-    interval = setInterval(() => (samplesStore.barcode = ""), 20);
+    scanProductStore.barcode += e.key;
+    interval = setInterval(() => (scanProductStore.barcode = ""), 20);
   }
 };
 

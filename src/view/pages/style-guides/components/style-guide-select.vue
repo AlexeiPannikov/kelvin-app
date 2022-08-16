@@ -59,6 +59,7 @@ const searchText = ref("")
 const filteredStyleGuides = computed(() => useSearchFilter(searchText.value, styleGuidesStore.styleGuides, ["name"]))
 
 watch(() => clientsStore.selectedClientId, async () => {
+  if (styleGuidesStore.isFirstLoading) return
   styleGuidesStore.styleGuide = new StyleGuide()
   await styleGuidesStore.getStyleGuides(clientsStore.selectedClientId)
   if (styleGuidesStore.styleGuides.length) {
@@ -67,6 +68,7 @@ watch(() => clientsStore.selectedClientId, async () => {
 })
 
 const selectStyleGuide = async (uuid: string) => {
+  if (styleGuidesStore.styleGuide.uuid === uuid) return
   await styleGuidesStore.viewStyleGuide(uuid)
   styleGuidesStore.selectedShootingTypeUuid = styleGuidesStore.getStyleGuideProductionTypesSelectList[0]?.value
 }

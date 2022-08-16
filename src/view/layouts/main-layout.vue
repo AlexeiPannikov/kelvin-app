@@ -18,22 +18,6 @@ import {useStyleGuidesStore} from "../../store/StyleGuidesStore";
 import {useStudioStore} from "../../store/StudioStore";
 import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 
-const clientsStore = useClientsStore()
-const styleGuidesStore = useStyleGuidesStore()
-const studioStore = useStudioStore()
-
-const getData = async () => {
-  const res = await clientsStore.getClients()
-  if (res?.length) {
-    clientsStore.selectedClientId = res[0].id
-    await styleGuidesStore.getStyleGuides(clientsStore.selectedClientId)
-    await studioStore.getProductionTypes()
-    if (styleGuidesStore.styleGuides.length)
-      await styleGuidesStore.viewStyleGuide(styleGuidesStore.styleGuides[0].uuid)
-    styleGuidesStore.selectedShootingTypeUuid = styleGuidesStore.getStyleGuideProductionTypesSelectList[0]?.value
-  }
-}
-getData()
 </script>
 
 <style lang="scss">

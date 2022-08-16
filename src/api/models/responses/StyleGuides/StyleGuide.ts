@@ -34,9 +34,9 @@ export class StyleGuide {
             this.coverFile,
             ...this.filesInner,
             ...this.shootingTypes.map(({filesInner, positions}) => ([...filesInner, ...positions.map(({
-                                                                                                       coverFile,
-                                                                                                       filesInner: files
-                                                                                                   }) => ([coverFile, ...files])).flat(1)])).flat(1),
+                                                                                                          coverFile,
+                                                                                                          filesInner: files
+                                                                                                      }) => ([coverFile, ...files])).flat(1)])).flat(1),
         ]
     }
 
@@ -47,8 +47,10 @@ export class StyleGuide {
         this.coverFile.uuid = this.cover_file_uuid
         this.coverFile.id = this.cover_file_id
         this.filesInner = this.files.map(uuid => new FileDataModel({uuid}))
-        if(obj?.categories?.length) {
+        if (obj?.categories?.length) {
             this.categories = obj.categories.map(category => new Category(category))
         }
+        if (obj?.shootingTypes)
+            this.shootingTypes = obj.shootingTypes.map(item => new ShootingType(item))
     }
 }

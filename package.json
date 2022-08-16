@@ -33,6 +33,7 @@
     "@vuetify/vite-plugin": "^1.0.0-alpha.0",
     "electron": "^19.0.8",
     "electron-builder": "^23.3.3",
+    "electron-devtools-installer": "^3.2.0",
     "pinia": "^2.0.14",
     "roboto-fontface": "*",
     "sass": "^1.38.0",

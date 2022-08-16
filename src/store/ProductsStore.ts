@@ -7,6 +7,7 @@ import {PropertyRequestModel} from "../api/models/requests/Properties/PropertyRe
 import {useColumnsStore} from "./ColumnsStore";
 import {EditProductDataModel} from "../api/models/requests/Products/EditProductDataModel";
 import {PropertyModel} from "../api/models/responses/Properties/PropertyModel";
+import {getProduct, getProducts} from "./methods/Products";
 
 interface IState {
     isLoadingProduct: boolean;
@@ -69,31 +70,16 @@ export const useProductsStore = defineStore("products", {
     actions: {
         async getProducts(free_text: string) {
             this.isLoadingProducts = true;
-            const columnsStore = useColumnsStore();
-            try {
-                const res = await ProductsService.getProducts(free_text);
-                if (res) {
-                    this.products.push(...res.list.data);
-                    this.properties = res.properties
-                    columnsStore.columns = res.columns;
-                }
-            } finally {
-                this.isLoadingProducts = false;
-            }
+            const [products, properties] = await getProducts({free_text})
+            this.products = products
+            this.properties = properties
+            this.isLoadingProducts = false;
         },
 
         async getProduct(uuid: string) {
             this.isLoadingProduct = true;
-            try {
-                const res = await ProductsService.getProduct(uuid);
-                if (res) {
-                    this.product = res.product;
-                    this.editProductData.isActive = !!res.product.state;
-                    this.editProductData.settings.status = res.product.status;
-                }
-            } finally {
-                this.isLoadingProduct = false;
-            }
+            this.product = await getProduct({uuid})
+            this.isLoadingProduct = false;
         },
 
         async editProduct() {

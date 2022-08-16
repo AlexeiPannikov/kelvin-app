@@ -5,6 +5,7 @@ import {defineStore} from "pinia";
 import {useColumnsStore} from "./ColumnsStore";
 import Notifications from "../view/components/ui-notifications/models/Notifications";
 import {useJobsStore} from "./JobsStore";
+import {search} from "./methods/Samples";
 
 export const useSampleStore = defineStore("samples", {
     state: () => {
@@ -70,18 +71,10 @@ export const useSampleStore = defineStore("samples", {
         },
 
         async search(barcode?: string): Promise<boolean> {
-            try {
-                const res = await SamplesService.search(barcode || this.barcode);
-                if (res) {
-                    this.samples = res.map((item) => new SampleModel(item));
-                    if (res.length) {
-                        return true
-                    }
-                    if (!res.length) Notifications.newMessage("No products found for this code")
-                }
-            } finally {
-                this.isLoadingSearchSamples = false;
-            }
+            this.isLoadingSearchSamples = true;
+            this.samples = await search({barcode})
+            this.isLoadingSearchSamples = false;
+            if (!this.samples) return true
         },
     },
 });

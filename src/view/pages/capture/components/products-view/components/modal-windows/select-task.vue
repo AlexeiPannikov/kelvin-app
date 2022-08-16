@@ -4,8 +4,8 @@
     Please select below
   </v-card-subtitle>
   <v-card-item>
-    <v-item-group v-model="selectedTask" selected-class="border border-primary border-opacity-100">
-      <v-item v-for="(sample, i) in samplesStore.samples"
+    <v-item-group v-model="selectedTaskId" selected-class="border border-primary border-opacity-100">
+      <v-item v-for="(sample, i) in scanProductStore.samples"
               :key="sample.sample_uuid"
               v-slot="{ isSelected, selectedClass }"
       >
@@ -28,21 +28,20 @@
 
 <script lang="ts" setup>
 import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
-import {useSampleStore} from "../../../../../../../store/SamplesStore";
 import {onMounted, onUnmounted, ref} from "vue";
-import {selectedTaskCode} from "./SelectedTaskCode"
+import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
 
 const emit = defineEmits(["cancel", "select"])
 
-const samplesStore = useSampleStore()
-const selectedTask = ref(0)
+const scanProductStore = useScanProductStore()
+const selectedTaskId = ref(0)
 
 const keyDownHandler = (e: KeyboardEvent) => {
-  if (e.key === "ArrowDown" && selectedTask.value < samplesStore.samples.length - 1) {
-    selectedTask.value += 1
+  if (e.key === "ArrowDown" && selectedTaskId.value < scanProductStore.samples.length - 1) {
+    selectedTaskId.value += 1
   }
-  if (e.key === "ArrowUp" && selectedTask.value > 0) {
-    selectedTask.value -= 1
+  if (e.key === "ArrowUp" && selectedTaskId.value > 0) {
+    selectedTaskId.value -= 1
   }
   if (e.key === "Enter") {
     selectTask()
@@ -50,8 +49,8 @@ const keyDownHandler = (e: KeyboardEvent) => {
 }
 
 const selectTask = (i?: number) => {
-  if (i) selectedTask.value = i
-  selectedTaskCode.value = samplesStore.samples[i].job_code
+  if (i) selectedTaskId.value = i
+  scanProductStore.selectedJobCode = scanProductStore.samples[i || selectedTaskId.value].job_code
   emit("select")
 }
 
