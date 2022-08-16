@@ -12,6 +12,7 @@
 <script lang="ts" setup>
 import FilesView from "./components/files-view/files-view.vue";
 import ProductsView from "./components/products-view/products-view.vue";
+
 </script>
 <style lang="scss" scoped>
 

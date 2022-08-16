@@ -6,7 +6,7 @@ export class ProductModel {
     product_code: string = null;
     product_uuid: string = "";
     client_id: number = null;
-    job_code: number = null;
+    job_code: string = null;
     product_name: string = null;
     checked = 0;
     checkin_percent: string = null;

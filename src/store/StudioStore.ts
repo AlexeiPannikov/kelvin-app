@@ -7,7 +7,16 @@ export const useStudioStore = defineStore("studio", {
         return {
             isLoadingProductionTypes: false,
             productionTypes: new Array<ProductionType>(),
+            selectedProductionTypeUuid: ""
         };
+    },
+
+    getters: {
+        enabledProductionTypesSelectList(): { title: string, value: string }[] {
+            if (!this.productionTypes.length) return
+            return this.productionTypes.filter(({is_enabled}) => is_enabled)
+                .map(({name, uuid}) => ({title: name, value: uuid}))
+        }
     },
 
     actions: {

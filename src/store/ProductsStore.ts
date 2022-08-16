@@ -67,6 +67,20 @@ export const useProductsStore = defineStore("products", {
     },
 
     actions: {
+        async getProducts(free_text: string) {
+            this.isLoadingProducts = true;
+            const columnsStore = useColumnsStore();
+            try {
+                const res = await ProductsService.getProducts(free_text);
+                if (res) {
+                    this.products.push(...res.list.data);
+                    this.properties = res.properties
+                    columnsStore.columns = res.columns;
+                }
+            } finally {
+                this.isLoadingProducts = false;
+            }
+        },
 
         async getProduct(uuid: string) {
             this.isLoadingProduct = true;

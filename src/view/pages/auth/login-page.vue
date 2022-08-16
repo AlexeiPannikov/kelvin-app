@@ -25,6 +25,7 @@
                       label="Email"
                       required
                       @keydown.enter="focusOnPassword"
+                      ref="loginInput"
                   ></v-text-field>
                 </v-col>
 
@@ -41,6 +42,7 @@
                       required
                       ref="passwordInput"
                       @keydown.enter="focusOnButton"
+                      @keydown="backspaceHandler"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -75,6 +77,7 @@ const isValid = ref(false)
 const showPass = ref(false)
 const form = ref(null)
 const passwordInput = ref(null)
+const loginInput = ref(null)
 const buttonEnter = ref(null)
 const store = useCurrentUserStore()
 
@@ -100,6 +103,13 @@ const focusOnPassword = () => {
 
 const focusOnButton = () => {
   buttonEnter.value.$el.focus()
+}
+
+const backspaceHandler = (e: KeyboardEvent) => {
+  if (e.key === "Backspace" && !loginData.password.length) {
+    const [input] = loginInput.value.$el.getElementsByTagName("input")
+    input.focus()
+  }
 }
 </script>
 
