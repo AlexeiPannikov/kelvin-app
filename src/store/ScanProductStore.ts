@@ -9,6 +9,10 @@ import {search} from "./methods/Samples";
 import {ConfirmedProduct} from "./models/ConfirmedProduct";
 import {getProperties} from "./methods/Properties";
 import {EntityEnum} from "../api/models/responses/Properties/EntityEnum";
+import ProductsService from "../api/services/ProductsService";
+import {EditProductRequest} from "../api/models/requests/Products/EditProductRequest";
+import {PropertyRequestModel} from "../api/models/requests/Properties/PropertyRequestModel";
+import Notifications from "../view/components/ui-notifications/models/Notifications";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -22,6 +26,7 @@ export const useScanProductStore = defineStore("scan-product", {
             isLoadingScan: false,
             isLoadingProducts: false,
             isLoadingProduct: false,
+            isLoadingEditProduct: false,
             isLoadingStyleGuide: false,
             samples: new Array<SampleModel>(),
             products: new Array<ProductModel>(),
@@ -31,7 +36,8 @@ export const useScanProductStore = defineStore("scan-product", {
             selectedSample: null,
             styleGuide: new StyleGuide(),
             barcode: "",
-            confirmedProduct: null as ConfirmedProduct
+            confirmedProduct: null as ConfirmedProduct,
+            confirmedProductCopy: null as ConfirmedProduct
         };
     },
 
@@ -49,7 +55,7 @@ export const useScanProductStore = defineStore("scan-product", {
         },
 
         confirmedProductPropertiesList(): { internal_name: string, name: string, value: any }[] {
-            if (!this.product) return []
+            if (!this.confirmedProduct) return []
             return this.confirmedProduct.properties.map(prop => {
                     return {
                         internal_name: prop.internal_name,
@@ -59,6 +65,10 @@ export const useScanProductStore = defineStore("scan-product", {
                 }
             ).filter(item => item.value);
         },
+
+        isChangedConfirmedProduct(): boolean {
+            return JSON.stringify(this.confirmedProduct) !== JSON.stringify(this.confirmedProductCopy)
+        }
     },
 
     actions: {
@@ -82,6 +92,37 @@ export const useScanProductStore = defineStore("scan-product", {
             this.isLoadingProduct = false;
         },
 
+        async editConfirmedProduct() {
+            this.isLoadingEditProduct = true;
+            const {properties, product} = this.confirmedProduct
+            console.log(properties)
+            try {
+                const res = await ProductsService.editProduct(
+                    product.product_uuid,
+                    new EditProductRequest({
+                        is_active: !!product.state,
+                        status: product.status,
+                        styleguide_uuid: product.styleguide_uuid,
+                        properties: [
+                            ...properties.map(
+                                ({propertyId, valueDependingOfType}) =>
+                                    new PropertyRequestModel(
+                                        propertyId,
+                                        valueDependingOfType?.toString() || ""
+                                    )
+                            ),
+                        ],
+                    })
+                );
+                if (res) {
+                    this.copyConfirmedProduct()
+                    Notifications.newMessage("Product edited successfully");
+                } else this.resetConfirmedProduct()
+            } finally {
+                this.isLoadingEditProduct = false;
+            }
+        },
+
         async viewStyleGuide(uuid: string) {
             this.isLoadingStyleGuide = true
             this.styleGuide = await viewStyleGuide({uuid})
@@ -99,6 +140,10 @@ export const useScanProductStore = defineStore("scan-product", {
             const productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code)
             if (!productInSelectedTask) return
             await this.getProduct(productInSelectedTask.product_uuid)
+            this.productProperties = this.productProperties.map(item => new PropertyModel({
+                ...item,
+                value: this.product[item.internal_name as keyof ProductModel]?.toString() || ""
+            }))
             if (this.product.styleguide_uuid) {
                 await this.viewStyleGuide(this.product.styleguide_uuid)
             }
@@ -107,12 +152,36 @@ export const useScanProductStore = defineStore("scan-product", {
         async getProductFromSavedList({productUuid, styleGuideUuid, sampleCode}: IParamsSavedProduct) {
             const product = await getProduct({uuid: productUuid})
             const [properties] = await getProperties(EntityEnum.PRODUCT)
+            const mappedProperties = properties.map(item => new PropertyModel({
+                ...item,
+                value: product[item.internal_name as keyof ProductModel]?.toString() || ""
+            }))
             const styleGuide = await viewStyleGuide({uuid: styleGuideUuid})
-            this.confirmedProduct = new ConfirmedProduct(product, styleGuide, properties, sampleCode)
+            this.confirmedProduct = new ConfirmedProduct({
+                product,
+                styleGuide,
+                properties: mappedProperties,
+                sampleCode
+            })
+            this.copyConfirmedProduct()
         },
 
         confirmProduct() {
-            this.confirmedProduct = new ConfirmedProduct(this.product, this.styleGuide, this.productProperties, this.selectedSample.sample_code)
+            this.confirmedProduct = new ConfirmedProduct({
+                product: this.product,
+                styleGuide: this.styleGuide,
+                properties: this.productProperties,
+                sampleCode: this.selectedSample.sample_code
+            })
+            this.copyConfirmedProduct()
+        },
+
+        copyConfirmedProduct() {
+            this.confirmedProductCopy = new ConfirmedProduct(JSON.parse(JSON.stringify(this.confirmedProduct)))
+        },
+
+        resetConfirmedProduct() {
+            this.confirmedProduct = new ConfirmedProduct(JSON.parse(JSON.stringify(this.confirmedProductCopy)))
         },
 
         resetData() {

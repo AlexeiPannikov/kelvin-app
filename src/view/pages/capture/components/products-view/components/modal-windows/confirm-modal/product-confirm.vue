@@ -29,6 +29,7 @@
             </v-menu>
             <button-white size="small"
                           class="ml-3"
+                          @click="isOpenEditModal = true"
             >Edit
             </button-white>
           </div>
@@ -69,22 +70,30 @@
     <button-white @click="sendEvent('cancel')">cancel</button-white>
     <button-blue @click="sendEvent('confirm')">Confirm</button-blue>
   </v-card-actions>
+
+<!--  <edit-product-modal v-model="isOpenEditModal"-->
+<!--                      @cancel="isOpenEditModal = false"-->
+<!--  >-->
+<!--  </edit-product-modal>-->
 </template>
 
 <script lang="ts" setup>
-import ButtonBlue from "../../../../../../components/buttons/button-blue.vue";
-import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
-import {onActivated, onDeactivated, onMounted, onUnmounted, ref} from "vue";
-import UiPreloader from "../../../../../../components/ui-preloader/ui-preloader.vue";
-import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
-import {ProductModel} from "../../../../../../../api/models/responses/Products/ProductModel";
-import {StyleGuide} from "../../../../../../../api/models/responses/StyleGuides/StyleGuide";
+import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
+import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
+import {defineAsyncComponent, onActivated, onDeactivated, ref} from "vue";
+import UiPreloader from "../../../../../../../components/ui-preloader/ui-preloader.vue";
+import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
+import {ProductModel} from "../../../../../../../../api/models/responses/Products/ProductModel";
+import {StyleGuide} from "../../../../../../../../api/models/responses/StyleGuides/StyleGuide";
+
+const EditProductModal = defineAsyncComponent(() => import("../edit-product-modal/edit-product-modal.vue"));
 
 const emit = defineEmits(["cancel", "confirm", "back"])
 
 const scanProductStore = useScanProductStore()
 const isOpenMenu = ref(false)
 const isLoading = ref(false)
+const isOpenEditModal = ref(false)
 
 const init = async () => {
   isLoading.value = true

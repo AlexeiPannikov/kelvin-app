@@ -8,14 +8,16 @@ export class ConfirmedProduct {
     styleGuide = new StyleGuide()
     sampleCode = ""
 
-    constructor(product?: ProductModel, styleGuide?: StyleGuide, properties?: PropertyModel[], sampleCode?: string) {
-        if (product)
-            this.product = product
-        if (styleGuide)
-            this.styleGuide = styleGuide
-        if (properties)
-            this.properties = properties
-        if (sampleCode)
-            this.sampleCode = sampleCode
+    get defaultProperties() {
+        return this.properties.filter(({is_default}) => is_default)
+    }
+
+    get customProperties() {
+        return this.properties.filter(({is_default}) => !is_default)
+    }
+
+    constructor(obj?: Partial<ConfirmedProduct>) {
+        if (obj)
+            Object.assign(this, obj)
     }
 }

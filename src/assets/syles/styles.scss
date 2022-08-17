@@ -4,6 +4,12 @@
   border-block-end-color: rgba(var(--v-theme-border-color), var(--v-border-opacity)) !important;
 }
 
+.border-r {
+  border-block-end-width: thin !important;
+  border-block-end-style: solid !important;
+  border-block-end-color: rgba(var(--v-theme-border-color), var(--v-border-opacity)) !important;
+}
+
 .pointer {
   cursor: pointer;
 }

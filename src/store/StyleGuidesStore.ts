@@ -33,6 +33,10 @@ export const useStyleGuidesStore = defineStore("style-guides", {
                 .filter(({uuid}) => !!this.styleGuide.shootingTypes
                     .find(({production_type_uuid}) => production_type_uuid === uuid))
                 .map(({uuid, name}) => ({title: name, value: uuid}))
+        },
+
+        styleGuidesSelectList(): { title: string, value: string }[] {
+            return this.styleGuides.map(({uuid, name}) => ({title: name, value: uuid}))
         }
     },
 

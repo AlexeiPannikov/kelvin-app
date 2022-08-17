@@ -27,6 +27,7 @@ class ProductsService {
     }
 
     async editProduct(uuid: string, data: EditProductRequest): Promise<boolean> {
+        console.log(data)
         const res = await $api.put<BaseResponse<any>>(`products/${uuid}`, data);
         if (res?.data?.success) {
             return res.data.success;

@@ -27,6 +27,7 @@
               </v-menu>
               <button-white size="small"
                             class="ml-3"
+                            @click="openEditor"
               >Edit
               </button-white>
             </div>
@@ -34,9 +35,11 @@
             <div class="text-grey-lighten-1">{{ scanProductStore.confirmedProduct?.sampleCode }}</div>
             <div class="text-h6 mt-4">Product Properties</div>
             <div class="properties-wrap">
-              <div v-for="property in scanProductStore.confirmedProductPropertiesList" class="mt-2">
-                <div class="text-grey-lighten-1 text-uppercase description">{{ property.name }}</div>
-                <div class="description">{{ property.value }}</div>
+              <div v-for="property in scanProductStore.confirmedProduct.properties" class="mt-2">
+                <template v-if="property.value">
+                  <div class="text-grey-lighten-1 text-uppercase description">{{ property.name }}</div>
+                  <div class="description">{{ property.value }}</div>
+                </template>
               </div>
             </div>
           </v-col>
@@ -62,21 +65,38 @@
         <button-blue @click="emit('confirm')">Confirm</button-blue>
       </v-card-actions>
     </v-card>
+
+    <edit-product-modal v-model="isOpenEditModal"
+                        @cancel="closeEditor"
+    ></edit-product-modal>
   </v-dialog>
 </template>
 
 <script lang="ts" setup>
 
-import {ref} from "vue";
+import {getCurrentInstance, ref} from "vue";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
 import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
+import EditProductModal from "../../modal-windows/edit-product-modal/edit-product-modal.vue";
 
 const isOpenMenu = ref(false)
+const instance = getCurrentInstance();
 
 const emit = defineEmits(["cancel", "confirm"])
 
 const scanProductStore = useScanProductStore()
+const isOpenEditModal = ref(false)
+
+const openEditor = () => {
+  scanProductStore.copyConfirmedProduct()
+  isOpenEditModal.value = true
+}
+
+const closeEditor = () => {
+  console.log(scanProductStore.confirmedProduct.product)
+  isOpenEditModal.value = false
+}
 </script>
 
 <style lang="scss" scoped>

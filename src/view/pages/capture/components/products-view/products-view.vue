@@ -26,7 +26,7 @@ import {useScanProductStore} from "../../../../../store/ScanProductStore";
 
 const scanProductStore = useScanProductStore()
 
-const ConfirmModal = defineAsyncComponent(() => import("./components/modal-windows/confirm-modal.vue"));
+const ConfirmModal = defineAsyncComponent(() => import("./components/modal-windows/confirm-modal/confirm-modal.vue"));
 
 const isOpenConfirmModal = ref(false)
 

@@ -27,10 +27,10 @@
 </template>
 
 <script lang="ts" setup>
-import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
+import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
 import {onActivated, onDeactivated, onMounted, onUnmounted, onUpdated, ref} from "vue";
-import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
-import {loginData} from "../../../../../auth/state/LoginDataState";
+import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
+import {loginData} from "../../../../../../auth/state/LoginDataState";
 
 const emit = defineEmits(["cancel", "select"])
 

@@ -35,10 +35,10 @@
 </template>
 
 <script lang="ts" setup>
-import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
+import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
 import {onActivated, onDeactivated, onMounted, onUnmounted, ref} from "vue";
-import ButtonBlue from "../../../../../../components/buttons/button-blue.vue";
-import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
+import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
+import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 
 const emit = defineEmits(["cancel", "select", "back"])
 
