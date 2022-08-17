@@ -1,21 +1,27 @@
 <template>
   <v-dialog>
     <v-card min-width="600">
-      <select-task v-if="currentStep === ConfirmStepEnum.SelectTask"
-                   @cancel="emit('cancel')"
-                   @select="next"
-      ></select-task>
-      <select-sample v-if="currentStep === ConfirmStepEnum.SelectSample"
+      <keep-alive>
+        <select-task v-if="currentStep === ConfirmStepEnum.SelectTask"
                      @cancel="emit('cancel')"
                      @select="next"
-                     @back="prev"
-      >
-      </select-sample>
-      <product-confirm v-if="currentStep === ConfirmStepEnum.ConfirmProduct"
+        ></select-task>
+      </keep-alive>
+      <keep-alive>
+        <select-sample v-if="currentStep === ConfirmStepEnum.SelectSample"
                        @cancel="emit('cancel')"
-                       @confirm="confirmProduct"
+                       @select="next"
                        @back="prev"
-      ></product-confirm>
+        >
+        </select-sample>
+      </keep-alive>
+      <keep-alive>
+        <product-confirm v-if="currentStep === ConfirmStepEnum.ConfirmProduct"
+                         @cancel="emit('cancel')"
+                         @confirm="confirmProduct"
+                         @back="prev"
+        ></product-confirm>
+      </keep-alive>
     </v-card>
   </v-dialog>
 </template>

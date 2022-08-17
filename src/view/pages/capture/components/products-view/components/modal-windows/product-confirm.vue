@@ -37,8 +37,8 @@
           <div class="text-h6 mt-4">Product Properties</div>
           <div class="properties-wrap">
             <div v-for="property in scanProductStore.productPropertiesList" class="mt-2">
-              <div class="text-grey-lighten-1 text-uppercase description">{{property.name}}</div>
-              <div class="description">{{property.value}}</div>
+              <div class="text-grey-lighten-1 text-uppercase description">{{ property.name }}</div>
+              <div class="description">{{ property.value }}</div>
             </div>
           </div>
         </v-col>
@@ -60,21 +60,21 @@
     </ui-preloader>
   </v-card-item>
   <v-card-actions class="justify-end mt-5">
-    <button-white @click="emit('back')"
+    <button-white @click="sendEvent('back')"
                   prepend-icon="mdi-arrow-left"
                   v-if="scanProductStore.samples.length > 1"
     >back
     </button-white>
     <v-spacer></v-spacer>
-    <button-white @click="emit('cancel')">cancel</button-white>
-    <button-blue @click="emit('confirm')">Confirm</button-blue>
+    <button-white @click="sendEvent('cancel')">cancel</button-white>
+    <button-blue @click="sendEvent('confirm')">Confirm</button-blue>
   </v-card-actions>
 </template>
 
 <script lang="ts" setup>
 import ButtonBlue from "../../../../../../components/buttons/button-blue.vue";
 import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
-import {onUnmounted, ref} from "vue";
+import {onActivated, onDeactivated, onMounted, onUnmounted, ref} from "vue";
 import UiPreloader from "../../../../../../components/ui-preloader/ui-preloader.vue";
 import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
 import {ProductModel} from "../../../../../../../api/models/responses/Products/ProductModel";
@@ -94,11 +94,29 @@ const init = async () => {
     isLoading.value = false
   }
 }
-init()
 
-onUnmounted(() => {
+const sendEvent = (event: "cancel" | "confirm" | "back") => {
+  unsubscribe()
+  emit(event)
+}
+
+const keyDownHandler = (e: KeyboardEvent) => {
+  if (e.key === "Enter") sendEvent("confirm")
+  if (e.key === "Backspace") sendEvent("back")
+}
+
+const unsubscribe = () => removeEventListener("keydown", keyDownHandler)
+
+onActivated(() => {
+  addEventListener("keydown", keyDownHandler)
+  init()
+})
+
+onDeactivated(() => {
   scanProductStore.product = new ProductModel()
   scanProductStore.styleGuide = new StyleGuide()
+  scanProductStore.productProperties = []
+  unsubscribe()
 })
 </script>
 

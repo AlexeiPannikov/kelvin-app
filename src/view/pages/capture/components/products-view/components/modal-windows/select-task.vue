@@ -22,14 +22,15 @@
     </v-item-group>
   </v-card-item>
   <v-card-actions class="justify-end mt-5">
-    <button-white @click="emit('cancel')">cancel</button-white>
+    <button-white @click="sendEvent('cancel')">cancel</button-white>
   </v-card-actions>
 </template>
 
 <script lang="ts" setup>
 import ButtonWhite from "../../../../../../components/buttons/button-white.vue";
-import {onMounted, onUnmounted, ref} from "vue";
+import {onActivated, onDeactivated, onMounted, onUnmounted, onUpdated, ref} from "vue";
 import {useScanProductStore} from "../../../../../../../store/ScanProductStore";
+import {loginData} from "../../../../../auth/state/LoginDataState";
 
 const emit = defineEmits(["cancel", "select"])
 
@@ -48,14 +49,21 @@ const keyDownHandler = (e: KeyboardEvent) => {
   }
 }
 
+const unsubscribe = () => removeEventListener("keydown", keyDownHandler)
+
+const sendEvent = (event: "cancel" | "select") => {
+  unsubscribe()
+  emit(event)
+}
+
 const selectTask = (i?: number) => {
   if (i) selectedTaskId.value = i
   scanProductStore.selectedJobCode = scanProductStore.samples[i || selectedTaskId.value].job_code
-  emit("select")
+  sendEvent("select")
 }
 
-onMounted(() => addEventListener("keydown", keyDownHandler))
-onUnmounted(() => removeEventListener("keydown", keyDownHandler))
+onActivated(() => addEventListener("keydown", keyDownHandler))
+onDeactivated(() => unsubscribe())
 </script>
 
 <style lang="scss" scoped>
