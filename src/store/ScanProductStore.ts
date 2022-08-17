@@ -7,6 +7,14 @@ import {viewStyleGuide} from "./methods/StyleGuides";
 import {getProduct, getProducts} from "./methods/Products";
 import {search} from "./methods/Samples";
 import {ConfirmedProduct} from "./models/ConfirmedProduct";
+import {getProperties} from "./methods/Properties";
+import {EntityEnum} from "../api/models/responses/Properties/EntityEnum";
+
+interface IParamsSavedProduct {
+    productUuid: string,
+    styleGuideUuid: string,
+    sampleCode: string
+}
 
 export const useScanProductStore = defineStore("scan-product", {
     state: () => {
@@ -46,7 +54,7 @@ export const useScanProductStore = defineStore("scan-product", {
                     return {
                         internal_name: prop.internal_name,
                         name: prop.name,
-                        value: this.product[prop.internal_name as keyof ProductModel]
+                        value: this.confirmedProduct.product[prop.internal_name as keyof ProductModel]
                     }
                 }
             ).filter(item => item.value);
@@ -94,6 +102,13 @@ export const useScanProductStore = defineStore("scan-product", {
             if (this.product.styleguide_uuid) {
                 await this.viewStyleGuide(this.product.styleguide_uuid)
             }
+        },
+
+        async getProductFromSavedList({productUuid, styleGuideUuid, sampleCode}: IParamsSavedProduct) {
+            const product = await getProduct({uuid: productUuid})
+            const [properties] = await getProperties(EntityEnum.PRODUCT)
+            const styleGuide = await viewStyleGuide({uuid: styleGuideUuid})
+            this.confirmedProduct = new ConfirmedProduct(product, styleGuide, properties, sampleCode)
         },
 
         confirmProduct() {

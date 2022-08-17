@@ -7,7 +7,7 @@
       >
         <v-row>
           <v-col>
-            <div class="text-h5">{{ scanProductStore.confirmedProduct?.product_code }}</div>
+            <div class="text-h5">{{ scanProductStore.confirmedProduct?.product.product_code }}</div>
             <div class="d-flex mt-4">
               <v-menu v-model="isOpenMenu">
                 <template v-slot:activator="{ props }">
@@ -31,7 +31,7 @@
               </button-white>
             </div>
             <div class="text-h6 mt-4">Sample Code</div>
-            <div class="text-grey-lighten-1">{{ scanProductStore.confirmedProduct?.sample_code }}</div>
+            <div class="text-grey-lighten-1">{{ scanProductStore.confirmedProduct?.sampleCode }}</div>
             <div class="text-h6 mt-4">Product Properties</div>
             <div class="properties-wrap">
               <div v-for="property in scanProductStore.confirmedProductPropertiesList" class="mt-2">
@@ -46,11 +46,11 @@
                   class="bg-grey-darken-1"
                   width="100%"
                   aspect-ratio="1"
-                  :src="scanProductStore.styleGuide?.coverFile?.url">
+                  :src="scanProductStore.confirmedProduct.styleGuide?.coverFile?.url">
               </v-img>
               <v-card-item class="bg-grey-darken-3">
-                <div class="text-h5">{{ scanProductStore.product?.product_code }}</div>
-                <div>{{ scanProductStore.product?.product_name }}</div>
+                <div class="text-h5">{{ scanProductStore.confirmedProduct.product?.product_code }}</div>
+                <div>{{ scanProductStore.confirmedProduct.product?.product_name }}</div>
               </v-card-item>
             </v-card>
           </v-col>

@@ -6,6 +6,8 @@ import {PropertyModel} from "../api/models/responses/Properties/PropertyModel";
 import {EntityModel} from "../api/models/responses/Properties/EntityModel";
 import {AddPropertyRequest} from "../api/models/requests/Properties/AddPropertyRequest";
 import Notifications from "../view/components/ui-notifications/models/Notifications";
+import {getProperties} from "./methods/Properties";
+import {EntityEnum} from "../api/models/responses/Properties/EntityEnum";
 
 interface IState {
     isLoadingProperties: boolean;
@@ -45,20 +47,14 @@ export const usePropertiesStore = defineStore("properties", {
     },
 
     actions: {
-        async getProperties(entityId: string | number = 1) {
+        async getProperties(entityId: EntityEnum = EntityEnum.JOB) {
             this.isLoadingProperties = true;
             this.isLoadingEntities = true;
-            try {
-                const res = await PropertiesService.getProperties(entityId);
-                if (res) {
-                    this.properties = res.properties;
-                    this.entities = res.entities;
-                    return res.properties;
-                }
-            } finally {
-                this.isLoadingProperties = false;
-                this.isLoadingEntities = false;
-            }
+            const [properties, entities] = await getProperties(entityId)
+            this.properties = properties
+            this.entities = entities
+            this.isLoadingProperties = false;
+            this.isLoadingEntities = false;
         },
 
         async getAllProperties() {
