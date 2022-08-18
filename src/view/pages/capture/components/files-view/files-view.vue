@@ -61,12 +61,14 @@ const getWatchedFolder = async () => {
 getWatchedFolder()
 
 const getFilesInFolder = async () => {
-  const files = fs.readdirSync(watchedFolder.value)
+  const files = fs.readdirSync(watchedFolder.value, {withFileTypes: true})
   const normalizedPath = path.normalize(watchedFolder.value)
+  console.log(files)
   const pushFiles = () => {
     filesInFolder.splice(0)
     for (const file of files) {
-      filesInFolder.push(new FileModel({path: normalizedPath + "/" + file, name: file}))
+      if (file.isDirectory()) continue
+      filesInFolder.push(new FileModel({path: normalizedPath + "/" + file.name, name: file.name}))
     }
   }
   pushFiles()
