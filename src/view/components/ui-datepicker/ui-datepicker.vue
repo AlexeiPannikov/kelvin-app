@@ -1,7 +1,6 @@
 <template>
   <datepicker :transitions="false"
               dark
-              :format="formatDate"
   >
 
   </datepicker>

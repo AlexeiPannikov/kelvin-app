@@ -3,13 +3,13 @@
   <v-card-item class="position-relative"
                style="min-height: 100px"
   >
-    <ui-preloader :is-loading="isLoading"
+    <ui-preloader :is-loading="scanProductStore.isLoadingProduct"
                   :transition="null"
                   contained
     >
       <v-row>
         <v-col>
-          <div class="text-h5">{{ scanProductStore.product?.product_code }}</div>
+          <div class="text-h5">{{ scanProductStore.product?.product.product_code }}</div>
           <div class="d-flex mt-4">
             <v-menu v-model="isOpenMenu">
               <template v-slot:activator="{ props }">
@@ -29,7 +29,7 @@
             </v-menu>
             <button-white size="small"
                           class="ml-3"
-                          @click="isOpenEditModal = true"
+                          @click="openEditor"
             >Edit
             </button-white>
           </div>
@@ -37,9 +37,11 @@
           <div class="text-grey-lighten-1">{{ scanProductStore.selectedSample?.sample_code }}</div>
           <div class="text-h6 mt-4">Product Properties</div>
           <div class="properties-wrap">
-            <div v-for="property in scanProductStore.productPropertiesList" class="mt-2">
-              <div class="text-grey-lighten-1 text-uppercase description">{{ property.name }}</div>
-              <div class="description">{{ property.value }}</div>
+            <div v-for="property in scanProductStore.product?.properties" class="mt-2">
+              <template v-if="property.value">
+                <div class="text-grey-lighten-1 text-uppercase description">{{ property.name }}</div>
+                <div class="description">{{ property.value }}</div>
+              </template>
             </div>
           </div>
         </v-col>
@@ -49,11 +51,11 @@
                 class="bg-grey-darken-1"
                 width="100%"
                 aspect-ratio="1"
-                :src="scanProductStore.styleGuide?.coverFile?.url">
+                :src="scanProductStore.product?.styleGuide?.coverFile?.url">
             </v-img>
             <v-card-item class="bg-grey-darken-3">
-              <div class="text-h5">{{ scanProductStore.product?.product_code }}</div>
-              <div>{{ scanProductStore.product?.product_name }}</div>
+              <div class="text-h5">{{ scanProductStore.product?.product.product_code }}</div>
+              <div>{{ scanProductStore.product?.product.product_name }}</div>
             </v-card-item>
           </v-card>
         </v-col>
@@ -71,20 +73,18 @@
     <button-blue @click="sendEvent('confirm')">Confirm</button-blue>
   </v-card-actions>
 
-<!--  <edit-product-modal v-model="isOpenEditModal"-->
-<!--                      @cancel="isOpenEditModal = false"-->
-<!--  >-->
-<!--  </edit-product-modal>-->
+  <edit-product-modal v-model="isOpenEditModal"
+                      @cancel="closeEditor"
+  >
+  </edit-product-modal>
 </template>
 
 <script lang="ts" setup>
 import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
 import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
-import {defineAsyncComponent, onActivated, onDeactivated, ref} from "vue";
+import {defineAsyncComponent, onActivated, onDeactivated, onUnmounted, ref} from "vue";
 import UiPreloader from "../../../../../../../components/ui-preloader/ui-preloader.vue";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
-import {ProductModel} from "../../../../../../../../api/models/responses/Products/ProductModel";
-import {StyleGuide} from "../../../../../../../../api/models/responses/StyleGuides/StyleGuide";
 
 const EditProductModal = defineAsyncComponent(() => import("../edit-product-modal/edit-product-modal.vue"));
 
@@ -92,17 +92,7 @@ const emit = defineEmits(["cancel", "confirm", "back"])
 
 const scanProductStore = useScanProductStore()
 const isOpenMenu = ref(false)
-const isLoading = ref(false)
 const isOpenEditModal = ref(false)
-
-const init = async () => {
-  isLoading.value = true
-  try {
-    await scanProductStore.getSelectedProductData()
-  } finally {
-    isLoading.value = false
-  }
-}
 
 const sendEvent = (event: "cancel" | "confirm" | "back") => {
   unsubscribe()
@@ -110,23 +100,27 @@ const sendEvent = (event: "cancel" | "confirm" | "back") => {
 }
 
 const keyDownHandler = (e: KeyboardEvent) => {
+  if (isOpenEditModal.value) return
   if (e.key === "Enter") sendEvent("confirm")
   if (e.key === "Backspace") sendEvent("back")
 }
 
+const openEditor = () => {
+  scanProductStore.copyProduct()
+  isOpenEditModal.value = true
+}
+
+const closeEditor = () => {
+  isOpenEditModal.value = false
+}
+
 const unsubscribe = () => removeEventListener("keydown", keyDownHandler)
 
-onActivated(() => {
-  addEventListener("keydown", keyDownHandler)
-  init()
-})
+onActivated(() => addEventListener("keydown", keyDownHandler))
 
-onDeactivated(() => {
-  scanProductStore.product = new ProductModel()
-  scanProductStore.styleGuide = new StyleGuide()
-  scanProductStore.productProperties = []
-  unsubscribe()
-})
+onDeactivated(() => unsubscribe())
+
+onUnmounted(() => scanProductStore.resetData())
 </script>
 
 <style lang="scss" scoped>

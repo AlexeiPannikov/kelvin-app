@@ -27,13 +27,20 @@
 </template>
 
 <script lang="ts" setup>
-import {defineAsyncComponent, reactive, ref, useAttrs, watch} from "vue";
+import {defineAsyncComponent, defineProps, reactive, ref, useAttrs, watch} from "vue";
 import {ConfirmStepEnum} from "./ConfirmStepEnum";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import ProductConfirm from "./product-confirm.vue";
 
 const SelectSample = defineAsyncComponent(() => import("./select-sample.vue"));
 const SelectTask = defineAsyncComponent(() => import("./select-task.vue"))
+
+const props = defineProps({
+  viewMode: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const emit = defineEmits(["cancel"])
 
@@ -46,12 +53,12 @@ const stepList = reactive<ConfirmStepEnum[]>([])
 const initStep = () => {
   const length = scanProductStore.samples.length
   switch (true) {
-    case length > 1:
+    case length > 1 && !props.viewMode:
       stepList.push(ConfirmStepEnum.SelectTask)
       stepList.push(ConfirmStepEnum.SelectSample)
       stepList.push(ConfirmStepEnum.ConfirmProduct)
       break;
-    case length === 1:
+    case length === 1 || props.viewMode:
       stepList.push(ConfirmStepEnum.ConfirmProduct)
       break;
   }
@@ -81,7 +88,6 @@ watch(() => attrs.modelValue, () => {
 
 const confirmProduct = () => {
   scanProductStore.confirmProduct()
-  resetState()
   emit("cancel")
 }
 </script>

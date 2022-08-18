@@ -2,17 +2,18 @@ import {PropertyModel} from "../api/models/responses/Properties/PropertyModel";
 import {SampleModel} from "../api/models/responses/Samples/SampleModel";
 import {defineStore} from "pinia";
 import {ProductModel} from "../api/models/responses/Products/ProductModel";
-import {StyleGuide} from "../api/models/responses/StyleGuides/StyleGuide";
 import {viewStyleGuide} from "./methods/StyleGuides";
 import {getProduct, getProducts} from "./methods/Products";
 import {search} from "./methods/Samples";
-import {ConfirmedProduct} from "./models/ConfirmedProduct";
+import {ProductFullData} from "./models/ProductFullData";
 import {getProperties} from "./methods/Properties";
 import {EntityEnum} from "../api/models/responses/Properties/EntityEnum";
 import ProductsService from "../api/services/ProductsService";
 import {EditProductRequest} from "../api/models/requests/Products/EditProductRequest";
 import {PropertyRequestModel} from "../api/models/requests/Properties/PropertyRequestModel";
 import Notifications from "../view/components/ui-notifications/models/Notifications";
+import {reactive} from "vue";
+import {useStudioStore} from "./StudioStore";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -20,54 +21,44 @@ interface IParamsSavedProduct {
     sampleCode: string
 }
 
+export interface ISavedProduct {
+    product: {
+        code: string,
+        uuid: string
+    }
+    styleGuide: {
+        name: string,
+        uuid: string,
+        url: string
+    }
+    productionType: {
+        name: string,
+        uuid: string
+    }
+    sampleCode: string
+}
+
 export const useScanProductStore = defineStore("scan-product", {
     state: () => {
         return {
             isLoadingScan: false,
-            isLoadingProducts: false,
             isLoadingProduct: false,
             isLoadingEditProduct: false,
-            isLoadingStyleGuide: false,
             samples: new Array<SampleModel>(),
             products: new Array<ProductModel>(),
-            product: new ProductModel(),
-            productProperties: new Array<PropertyModel>(),
             selectedJobCode: "",
             selectedSample: null,
-            styleGuide: new StyleGuide(),
             barcode: "",
-            confirmedProduct: null as ConfirmedProduct,
-            confirmedProductCopy: null as ConfirmedProduct
+            product: null as ProductFullData,
+            confirmedProduct: null as ProductFullData,
+            productCopy: null as ProductFullData,
+            productsIsStore: JSON.parse(localStorage.getItem("products")) as ISavedProduct[] || new Array<ISavedProduct>()
         };
     },
 
     getters: {
-        productPropertiesList(): { internal_name: string, name: string, value: any }[] {
-            if (!this.product) return []
-            return this.productProperties.map(prop => {
-                    return {
-                        internal_name: prop.internal_name,
-                        name: prop.name,
-                        value: this.product[prop.internal_name as keyof ProductModel]
-                    }
-                }
-            ).filter(item => item.value);
-        },
-
-        confirmedProductPropertiesList(): { internal_name: string, name: string, value: any }[] {
-            if (!this.confirmedProduct) return []
-            return this.confirmedProduct.properties.map(prop => {
-                    return {
-                        internal_name: prop.internal_name,
-                        name: prop.name,
-                        value: this.confirmedProduct.product[prop.internal_name as keyof ProductModel]
-                    }
-                }
-            ).filter(item => item.value);
-        },
-
-        isChangedConfirmedProduct(): boolean {
-            return JSON.stringify(this.confirmedProduct) !== JSON.stringify(this.confirmedProductCopy)
+        isChangedProduct(): boolean {
+            return JSON.stringify(this.product) !== JSON.stringify(this.productCopy)
         }
     },
 
@@ -79,23 +70,25 @@ export const useScanProductStore = defineStore("scan-product", {
         },
 
         async getProducts(free_text: string) {
-            this.isLoadingProducts = true;
-            const [products, properties] = await getProducts({free_text})
+            const [products] = await getProducts({free_text})
             this.products = products
-            this.productProperties = properties
-            this.isLoadingProducts = false;
         },
 
         async getProduct(uuid: string) {
-            this.isLoadingProduct = true;
-            this.product = await getProduct({uuid})
-            this.isLoadingProduct = false;
+            this.isLoadingProduct = true
+            this.product = new ProductFullData()
+            this.product.product = await getProduct({uuid})
+            const [properties] = await getProperties(EntityEnum.PRODUCT)
+            this.product.properties = properties.map(item => new PropertyModel({
+                ...item,
+                value: this.product.product[item.internal_name as keyof ProductModel]?.toString() || ""
+            }))
+            this.isLoadingProduct = false
         },
 
-        async editConfirmedProduct() {
+        async editProduct() {
             this.isLoadingEditProduct = true;
-            const {properties, product} = this.confirmedProduct
-            console.log(properties)
+            const {properties, product} = this.product
             try {
                 const res = await ProductsService.editProduct(
                     product.product_uuid,
@@ -115,41 +108,40 @@ export const useScanProductStore = defineStore("scan-product", {
                     })
                 );
                 if (res) {
-                    this.copyConfirmedProduct()
+                    this.copyProduct()
+                    if (this.confirmedProduct)
+                        this.confirmProduct()
                     Notifications.newMessage("Product edited successfully");
-                } else this.resetConfirmedProduct()
+                } else this.resetProduct()
             } finally {
                 this.isLoadingEditProduct = false;
             }
         },
 
-        async viewStyleGuide(uuid: string) {
-            this.isLoadingStyleGuide = true
-            this.styleGuide = await viewStyleGuide({uuid})
-            this.isLoadingStyleGuide = false
-        },
-
-        async getSelectedProductData() {
+        async getProductData(product_uuid?: string) {
+            this.isLoadingProduct = true
             if (this.samples.length === 1) {
                 this.selectedSample = this.samples[0]
                 this.selectedJobCode = this.selectedSample.job_code
             }
             if (!this.selectedSample?.product_code) return
-            await this.getProducts(this.selectedSample?.product_code)
-            if (!this.selectedJobCode) return
-            const productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code)
-            if (!productInSelectedTask) return
-            await this.getProduct(productInSelectedTask.product_uuid)
-            this.productProperties = this.productProperties.map(item => new PropertyModel({
-                ...item,
-                value: this.product[item.internal_name as keyof ProductModel]?.toString() || ""
-            }))
-            if (this.product.styleguide_uuid) {
-                await this.viewStyleGuide(this.product.styleguide_uuid)
+            let productInSelectedTask: ProductModel = null
+            if (!product_uuid) {
+                await this.getProducts(this.selectedSample?.product_code)
+                if (!this.selectedJobCode) return
+                productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code)
+                if (!productInSelectedTask) return
             }
+            await this.getProduct(productInSelectedTask?.product_uuid || product_uuid)
+            if (this.product.product.styleguide_uuid) {
+                this.product.styleGuide = await viewStyleGuide({uuid: this.product.product.styleguide_uuid})
+            }
+            this.copyProduct()
+            this.isLoadingProduct = false
         },
 
         async getProductFromSavedList({productUuid, styleGuideUuid, sampleCode}: IParamsSavedProduct) {
+            this.isLoadingProduct = true
             const product = await getProduct({uuid: productUuid})
             const [properties] = await getProperties(EntityEnum.PRODUCT)
             const mappedProperties = properties.map(item => new PropertyModel({
@@ -157,42 +149,66 @@ export const useScanProductStore = defineStore("scan-product", {
                 value: product[item.internal_name as keyof ProductModel]?.toString() || ""
             }))
             const styleGuide = await viewStyleGuide({uuid: styleGuideUuid})
-            this.confirmedProduct = new ConfirmedProduct({
+            this.confirmedProduct = new ProductFullData({
                 product,
                 styleGuide,
                 properties: mappedProperties,
                 sampleCode
             })
-            this.copyConfirmedProduct()
+            this.isLoadingProduct = false
         },
 
         confirmProduct() {
-            this.confirmedProduct = new ConfirmedProduct({
-                product: this.product,
-                styleGuide: this.styleGuide,
-                properties: this.productProperties,
-                sampleCode: this.selectedSample.sample_code
-            })
-            this.copyConfirmedProduct()
+            this.confirmedProduct = new ProductFullData(JSON.parse(JSON.stringify(this.product)))
         },
 
-        copyConfirmedProduct() {
-            this.confirmedProductCopy = new ConfirmedProduct(JSON.parse(JSON.stringify(this.confirmedProduct)))
+        copyProduct() {
+            this.productCopy = new ProductFullData(JSON.parse(JSON.stringify(this.product)))
         },
 
-        resetConfirmedProduct() {
-            this.confirmedProduct = new ConfirmedProduct(JSON.parse(JSON.stringify(this.confirmedProductCopy)))
+        resetProduct() {
+            this.product = new ProductFullData(JSON.parse(JSON.stringify(this.productCopy)))
+        },
+
+        initProductFromConfirmedProduct() {
+            this.product = new ProductFullData(JSON.parse(JSON.stringify(this.confirmedProduct)))
         },
 
         resetData() {
             this.samples = new Array<SampleModel>()
-            this.products = new Array<ProductModel>()
-            this.product = new ProductModel()
-            this.productProperties = new Array<PropertyModel>()
             this.selectedJobCode = ""
             this.selectedSample = null
-            this.styleGuide = new StyleGuide()
             this.barcode = ""
-        }
+            this.product = null
+            this.productCopy = null
+        },
+
+        saveInStorage() {
+            localStorage.setItem("products", JSON.stringify(this.productsIsStore))
+        },
+
+        saveProduct() {
+            const studioStore = useStudioStore()
+            const {product, styleGuide, sampleCode} = this.confirmedProduct
+            const {selectedProductionTypeUuid} = studioStore
+            const productToSave: ISavedProduct = {
+                product: {code: product.product_code, uuid: product.product_uuid},
+                productionType: {
+                    name: studioStore.productionTypes.find(({uuid}) => selectedProductionTypeUuid === uuid)?.name,
+                    uuid: selectedProductionTypeUuid
+                },
+                styleGuide: {name: styleGuide.name, uuid: styleGuide.uuid, url: styleGuide.coverFile.url},
+                sampleCode: sampleCode
+            }
+            if (!this.productsIsStore?.length) {
+                this.productsIsStore.push(productToSave)
+            }
+            if (this.productsIsStore?.length) {
+                const index = this.productsIsStore.findIndex(({product: {uuid}}) => product.product_uuid === uuid)
+                index ? this.productsIsStore.push(productToSave) : this.productsIsStore.splice(index, 1, productToSave)
+            }
+            this.saveInStorage()
+            this.confirmedProduct = null
+        },
     },
 });

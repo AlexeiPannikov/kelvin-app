@@ -1,5 +1,5 @@
 <template>
-  <v-col v-for="property in scanProductStore.confirmedProduct.customProperties"
+  <v-col v-for="property in scanProductStore.product.customProperties"
          :key="property.id"
          class="mt-4"
          cols="6"
@@ -12,7 +12,7 @@
           v-model="property.value"
           hide-details
           class="mt-1"
-          :disabled="!scanProductStore.confirmedProduct.product.state"
+          :disabled="!scanProductStore.product.product.state"
       >
       </v-text-field>
     </template>
@@ -22,12 +22,12 @@
               class="mt-1"
               v-model="property.value"
               :items="property.optionsSelectList"
-              :disabled="!scanProductStore.confirmedProduct.product.state"
+              :disabled="!scanProductStore.product.product.state"
     >
     </v-select>
     <ui-datepicker v-if="property.type === 'date'"
                    v-model="property.value"
-                   :disabled="!scanProductStore.confirmedProduct.product.state"
+                   :disabled="!scanProductStore.product.product.state"
     >
     </ui-datepicker>
   </v-col>
@@ -40,7 +40,6 @@ import {ref} from "vue";
 import UiDatepicker from "../../../../../../../components/ui-datepicker/ui-datepicker.vue";
 
 const scanProductStore = useScanProductStore()
-const datepicker = ref(null)
 </script>
 
 <style lang="scss" scoped>

@@ -7,7 +7,7 @@ export class PropertyModel {
     entity_id: number = null;
     type: string = "";
     name: string = "";
-    value: string | number = "";
+    value: string = "";
     internal_name: string = "";
     is_default: number = 0;
     options: Option[] = null;

@@ -2,7 +2,7 @@ import {ProductModel} from "../../api/models/responses/Products/ProductModel";
 import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 import {PropertyModel} from "../../api/models/responses/Properties/PropertyModel";
 
-export class ConfirmedProduct {
+export class ProductFullData {
     product = new ProductModel()
     properties = new Array<PropertyModel>()
     styleGuide = new StyleGuide()
@@ -16,7 +16,7 @@ export class ConfirmedProduct {
         return this.properties.filter(({is_default}) => !is_default)
     }
 
-    constructor(obj?: Partial<ConfirmedProduct>) {
+    constructor(obj?: Partial<ProductFullData>) {
         if (obj)
             Object.assign(this, obj)
     }

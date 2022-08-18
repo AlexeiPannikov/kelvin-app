@@ -27,7 +27,7 @@
     <div class="product mt-2 position-relative"
          @mouseover="isVisibleCopyProduct = true"
          @mouseleave="isVisibleCopyProduct = false"
-         @click="isOpenConfirmProductModal = true"
+         @click="openConfirmModal"
     >
       <div class="title">PRODUCT</div>
       <div class="text">
@@ -46,10 +46,10 @@
     <style-guide-detail></style-guide-detail>
   </v-navigation-drawer>
 
-  <confirm-product-modal v-model="isOpenConfirmProductModal"
-                         @cancel="isOpenConfirmProductModal = false"
-                         @confirm="isOpenConfirmProductModal = false"
-  ></confirm-product-modal>
+  <confirm-modal v-model="isOpenConfirmProductModal"
+                 @cancel="isOpenConfirmProductModal = false"
+                 view-mode
+  ></confirm-modal>
 </template>
 
 <script lang="ts" setup>
@@ -57,7 +57,7 @@ import {useScanProductStore} from "../../../../../../../../store/ScanProductStor
 import CopyTooltip from "../../../../../../../components/copy-tooltip/copy-tooltip.vue";
 import {ref} from "vue";
 import StyleGuideDetail from "./style-guide-detail.vue";
-import ConfirmProductModal from "./confirm-product-modal.vue";
+import ConfirmModal from "../../modal-windows/confirm-modal/confirm-modal.vue";
 
 const scanProductStore = useScanProductStore()
 const isVisibleCopyStyleGuide = ref(false)
@@ -67,6 +67,11 @@ const isOpenConfirmProductModal = ref(false)
 
 const rescan = () => {
   scanProductStore.confirmedProduct = null
+}
+
+const openConfirmModal = () => {
+  scanProductStore.initProductFromConfirmedProduct()
+  isOpenConfirmProductModal.value = true
 }
 </script>
 

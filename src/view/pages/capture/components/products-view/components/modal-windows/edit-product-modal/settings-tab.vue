@@ -1,14 +1,14 @@
 <template>
   <div>
     <ui-select :items="statusList"
-               v-model="scanProductStore.confirmedProduct.product.status"
+               v-model="scanProductStore.product.product.status"
                :disabled="isDisabled"
                variant="plain"
                class="w-25 rounded px-2"
                :class="selectStatusClassList"
     ></ui-select>
   </div>
-  <div v-for="property in scanProductStore.confirmedProduct.defaultProperties"
+  <div v-for="property in scanProductStore.product.defaultProperties"
        :key="property.id"
        class="mt-4"
   >
@@ -43,7 +43,7 @@
                :disabled="!isOverride"
                variant="outlined"
                :items="styleGuidesStore.styleGuidesSelectList"
-               v-model="scanProductStore.confirmedProduct.product.styleguide_uuid"
+               v-model="scanProductStore.product.product.styleguide_uuid"
     ></ui-select>
     <div>
       <v-switch density="compact"
@@ -59,7 +59,7 @@
 <script lang="ts" setup>
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import UiDatepicker from "../../../../../../../components/ui-datepicker/ui-datepicker.vue";
-import {computed, reactive, ref} from "vue";
+import {computed, onActivated, reactive, ref} from "vue";
 import {ProductStatusEnum} from "../../../../../../../../api/models/requests/Products/ProductStatusEnum";
 import UiSelect from "../../../../../../../components/ui-select/ui-select.vue";
 import {useStyleGuidesStore} from "../../../../../../../../store/StyleGuidesStore";
@@ -68,7 +68,7 @@ const scanProductStore = useScanProductStore()
 const styleGuidesStore = useStyleGuidesStore()
 const isOverride = ref(false)
 
-styleGuidesStore.getStyleGuides(scanProductStore.confirmedProduct.product.client_id)
+styleGuidesStore.getStyleGuides(scanProductStore.product.product.client_id)
 
 const statusList = reactive([
   {title: "BACKLOG", value: ProductStatusEnum.Backlog},
@@ -77,15 +77,15 @@ const statusList = reactive([
 
 const isDisabled = computed(() => {
   return (
-      scanProductStore.confirmedProduct.product.status === ProductStatusEnum.Done ||
-      scanProductStore.confirmedProduct.product.status === ProductStatusEnum.Progress ||
-      !scanProductStore.confirmedProduct.product.state
+      scanProductStore.product.product.status === ProductStatusEnum.Done ||
+      scanProductStore.product.product.status === ProductStatusEnum.Progress ||
+      !scanProductStore.product.product.state
   );
 })
 
 const initStatusList = () => {
-  if (scanProductStore.confirmedProduct.product.status === ProductStatusEnum.Done ||
-      scanProductStore.confirmedProduct.product.status === ProductStatusEnum.Progress) {
+  if (scanProductStore.product.product.status === ProductStatusEnum.Done ||
+      scanProductStore.product.product.status === ProductStatusEnum.Progress) {
     statusList.push(
         {title: "IN PROGRESS", value: ProductStatusEnum.Progress},
         {title: "DONE", value: ProductStatusEnum.Done},
@@ -99,10 +99,9 @@ const initStatusList = () => {
       statusList.splice(doneIndex, 1)
   }
 }
-initStatusList()
 
 const selectStatusClassList = computed(() => {
-  switch (scanProductStore.confirmedProduct.product.status) {
+  switch (scanProductStore.product.product.status) {
     case ProductStatusEnum.Backlog:
       return ["bg-grey"]
     case ProductStatusEnum.Done:
@@ -113,6 +112,8 @@ const selectStatusClassList = computed(() => {
       return ["bg-primary"]
   }
 })
+
+onActivated(() => initStatusList())
 </script>
 
 <style lang="scss" scoped>

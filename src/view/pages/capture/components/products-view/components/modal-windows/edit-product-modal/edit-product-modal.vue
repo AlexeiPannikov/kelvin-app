@@ -7,11 +7,11 @@
         <div>
           <v-switch density="compact"
                     hide-details
-                    :label="scanProductStore.confirmedProduct.product.state ? 'active' : 'inactive'"
+                    :label="scanProductStore.product.product.state ? 'active' : 'inactive'"
                     color="primary"
                     :false-value="0"
                     :true-value="1"
-                    v-model="scanProductStore.confirmedProduct.product.state"
+                    v-model="scanProductStore.product.product.state"
           ></v-switch>
         </div>
       </v-card-title>
@@ -65,7 +65,7 @@
         </button-white>
         <button-blue @click="save"
                      :is-loading="scanProductStore.isLoadingEditProduct"
-                     :disabled="!scanProductStore.isChangedConfirmedProduct"
+                     :disabled="!scanProductStore.isChangedProduct"
         >
           Save
         </button-blue>
@@ -77,18 +77,10 @@
 <script lang="ts" setup>
 import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
 import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
-import {computed, defineProps, onMounted, ref} from "vue";
+import {ref} from "vue";
 import SettingsTab from "./settings-tab.vue";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import PropertiesTab from "./properties-tab.vue";
-
-interface IProps {
-  storeName: "scan" | "product"
-}
-
-const props = withDefaults(defineProps<IProps>(), {
-  storeName: "scan"
-})
 
 const emit = defineEmits(['cancel'])
 
@@ -96,22 +88,17 @@ type TabName = "Settings" | "Production" | "Properties"
 const selectedTab = ref<TabName>("Settings")
 const scanProductStore = useScanProductStore()
 
-const store = computed(() => {
-  if (props.storeName === "scan")
-    return scanProductStore
-})
-
 const setTab = (tabName: TabName) => {
   selectedTab.value = tabName
 }
 
 const save = async () => {
-  await scanProductStore.editConfirmedProduct()
+  await scanProductStore.editProduct()
   emit("cancel")
 }
 
 const cancel = () => {
-  scanProductStore.resetConfirmedProduct()
+  scanProductStore.resetProduct()
   emit('cancel')
 }
 </script>

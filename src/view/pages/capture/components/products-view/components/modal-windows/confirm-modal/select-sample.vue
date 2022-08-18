@@ -67,6 +67,7 @@ const selectSample = (i?: number) => {
   if (i) selectedSampleId.value = i
   scanProductStore.selectedSample = scanProductStore.samples[i || selectedSampleId.value]
   sendEvent("select")
+  scanProductStore.getProductData()
 }
 
 onActivated(() => addEventListener("keydown", keyDownHandler))
