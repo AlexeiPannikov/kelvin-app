@@ -1,10 +1,8 @@
 <template>
-  <v-row>
-    <v-col cols="12">
-      <product-selections>
+  <v-row class="fill-height">
+    <v-col class="d-flex flex-column pb-0 fill-height">
+      <product-selections class="mb-4">
       </product-selections>
-    </v-col>
-    <v-col cols="12">
       <barcode-scan v-if="!scanProductStore.confirmedProduct"
                     @scan="scanHandler"
       ></barcode-scan>

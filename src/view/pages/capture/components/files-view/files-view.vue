@@ -11,15 +11,21 @@
         <div class="text-h4 text-uppercase">{{ endFolder.toLocaleUpperCase() }}</div>
       </v-col>
     </v-row>
-    <v-row class="flex-wrap overflow-auto mt-2">
-      <v-col v-for="(file, i) in filesInFolder" :key="file.name" cols="auto">
+    <v-row class="flex-wrap overflow-auto mt-2" v-click-outside="resetSelect">
+      <v-col v-for="(file, i) in images.list"
+             :key="file.name"
+             cols="auto"
+      >
         <image-box :file="file"
+                   :id="file.id"
                    @dblclick="openModal(i)"
+                   @click="selectFile($event, file.name)"
+                   @mousedown.prevent="dragStart"
         ></image-box>
       </v-col>
 
       <ui-modal-fullscreen-image-crop v-if="isOpenModal"
-                                      :file-list="filesInFolder"
+                                      :file-list="images.list"
                                       :index="fileIndex"
                                       @change="cropChange"
                                       @reset-crop="resetCrop"
@@ -31,24 +37,26 @@
 
 <script lang="ts" setup>
 import UiSearch from "../../../../components/search/ui-search.vue";
-import {computed, reactive, ref} from "vue";
+import {computed, onMounted, onUnmounted, reactive, ref} from "vue";
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "../../../../../store/CurrentUserStore";
 import {PrimarySettings} from "../../../auth/models/PrimarySettings";
 import * as fs from "fs";
 import * as path from "path";
-import {FileModel} from "./FileModel";
+import {ImageModel} from "./ImageModel";
 import UiModalFullscreenImageCrop from "../../../../components/modal-windows/ui-modal-fullscreen-image-crop.vue";
 import {CropperResult} from "vue-advanced-cropper";
 import ImageBox from "./image-box.vue";
+import {ImagesListModel} from "./ImagesListModel";
 
 const currentUserStore = useCurrentUserStore()
 const watchedFolder = ref("")
 const watchedFolderWithoutEnd = ref("")
 const endFolder = ref("")
 const isOpenModal = ref(false)
-const filesInFolder = reactive(new Array<FileModel>())
+const images = reactive(new ImagesListModel())
 const fileIndex = ref(0)
+const dragMode = ref(false)
 
 const getWatchedFolder = async () => {
   const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
@@ -63,12 +71,11 @@ getWatchedFolder()
 const getFilesInFolder = async () => {
   const files = fs.readdirSync(watchedFolder.value, {withFileTypes: true})
   const normalizedPath = path.normalize(watchedFolder.value)
-  console.log(files)
   const pushFiles = () => {
-    filesInFolder.splice(0)
+    images.list.splice(0)
     for (const file of files) {
       if (file.isDirectory()) continue
-      filesInFolder.push(new FileModel({path: normalizedPath + "/" + file.name, name: file.name}))
+      images.list.push(new ImageModel({path: normalizedPath + "/" + file.name, name: file.name}))
     }
   }
   pushFiles()
@@ -81,15 +88,29 @@ const openModal = (index: number) => {
 }
 
 const cropChange = (data: CropperResult) => {
-  filesInFolder[fileIndex.value].cropImage = data.canvas.toDataURL()
-  filesInFolder[fileIndex.value].cropCoords = data.coordinates
-  console.log(filesInFolder[fileIndex.value])
+  images.list[fileIndex.value].cropImage = data.canvas.toDataURL()
+  images.list[fileIndex.value].cropCoords = data.coordinates
 }
 
 const resetCrop = () => {
-  filesInFolder[fileIndex.value].cropImage = null
+  images.list[fileIndex.value].cropImage = null
   isOpenModal.value = false
 }
+
+const selectFile = (event: MouseEvent, name: string) => {
+  images.selectFile(event, name)
+}
+
+const resetSelect = () => {
+  images.resetSelect()
+}
+
+const dragStart = (e: MouseEvent) => {
+  images.dragStart(e)
+}
+
+onMounted(() => images.subscribes())
+onUnmounted(() => images.unsubscribes())
 </script>
 
 <style lang="scss" scoped>

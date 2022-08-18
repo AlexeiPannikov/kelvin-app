@@ -53,11 +53,11 @@
 </template>
 
 <script lang="ts" setup>
-import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
-import CopyTooltip from "../../../../../../../components/copy-tooltip/copy-tooltip.vue";
+import {useScanProductStore} from "../../../../../../../../../store/ScanProductStore";
+import CopyTooltip from "../../../../../../../../components/copy-tooltip/copy-tooltip.vue";
 import {ref} from "vue";
 import StyleGuideDetail from "./style-guide-detail.vue";
-import ConfirmModal from "../../modal-windows/confirm-modal/confirm-modal.vue";
+import ConfirmModal from "../../../modal-windows/confirm-modal/confirm-modal.vue";
 
 const scanProductStore = useScanProductStore()
 const isVisibleCopyStyleGuide = ref(false)

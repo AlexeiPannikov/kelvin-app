@@ -3,7 +3,7 @@
     <v-col cols="8" class="border-e fill-height overflow-hidden">
       <files-view></files-view>
     </v-col>
-    <v-col cols="4">
+    <v-col cols="4" class="pb-0">
       <products-view></products-view>
     </v-col>
   </v-row>

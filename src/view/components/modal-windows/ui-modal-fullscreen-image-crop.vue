@@ -82,10 +82,10 @@ import UiCropImage from "../ui-crop-image/ui-crop-image.vue";
 import {CropperResult} from "vue-advanced-cropper";
 import ButtonWhite from "../buttons/button-white.vue";
 import ButtonBlue from "../buttons/button-blue.vue";
-import {FileModel} from "../../pages/capture/components/files-view/FileModel";
+import {ImageModel} from "../../pages/capture/components/files-view/ImageModel";
 
 interface IProps {
-  fileList: FileModel[]
+  fileList: ImageModel[]
   index: number
 }
 

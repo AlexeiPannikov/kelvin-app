@@ -54,7 +54,7 @@
 import {Position} from "../../../../api/models/requests/StyleGuides/Position";
 import UiModalFullscreenImageCrop from "../../../components/modal-windows/ui-modal-fullscreen-image-crop.vue";
 import {reactive, ref} from "vue";
-import {FileModel} from "../../capture/components/files-view/FileModel";
+import {ImageModel} from "../../capture/components/files-view/ImageModel";
 import FileLink from "./file--link.vue";
 import {openInBrowser} from "../../../../functions/openInBrowser"
 
@@ -66,7 +66,7 @@ const props = withDefaults(defineProps<IProps>(), {
   position: () => new Position()
 })
 
-const selectedImage = reactive(new FileModel())
+const selectedImage = reactive(new ImageModel())
 const isOpenModal = ref(false)
 const isOpenDescription = ref(false)
 const isOpenFiles = ref(false)

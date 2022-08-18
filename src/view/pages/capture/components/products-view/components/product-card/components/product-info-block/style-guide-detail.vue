@@ -51,12 +51,12 @@
 </template>
 
 <script lang="ts" setup>
-import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
+import {useScanProductStore} from "../../../../../../../../../store/ScanProductStore";
 import {reactive, ref, toRefs} from "vue";
-import {useStudioStore} from "../../../../../../../../store/StudioStore";
-import FileLink from "../../../../../../style-guides/components/file--link.vue";
-import PositionImgBox from "../../../../../../style-guides/components/position-img-box.vue";
-import {openInBrowser} from "../../../../../../../../functions/openInBrowser"
+import {useStudioStore} from "../../../../../../../../../store/StudioStore";
+import FileLink from "../../../../../../../style-guides/components/file--link.vue";
+import PositionImgBox from "../../../../../../../style-guides/components/position-img-box.vue";
+import {openInBrowser} from "../../../../../../../../../functions/openInBrowser"
 
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
