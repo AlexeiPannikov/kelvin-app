@@ -25,7 +25,8 @@
                       label="Email"
                       required
                       @keydown.enter="focusOnPassword"
-                      ref="loginInput"
+                      ref="emailInput"
+                      :autofocus="true"
                   ></v-text-field>
                 </v-col>
 
@@ -65,7 +66,7 @@
 
 <script lang="ts" setup>
 import ButtonBlue from "../../components/buttons/button-blue.vue";
-import {ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {isEmail, required} from "../../../functions/ValidationRules"
 import {useCurrentUserStore} from "../../../store/CurrentUserStore";
 import {useRouter} from "vue-router";
@@ -77,7 +78,7 @@ const isValid = ref(false)
 const showPass = ref(false)
 const form = ref(null)
 const passwordInput = ref(null)
-const loginInput = ref(null)
+const emailInput = ref(null)
 const buttonEnter = ref(null)
 const store = useCurrentUserStore()
 
@@ -107,7 +108,7 @@ const focusOnButton = () => {
 
 const backspaceHandler = (e: KeyboardEvent) => {
   if (e.key === "Backspace" && !loginData.password.length) {
-    const [input] = loginInput.value.$el.getElementsByTagName("input")
+    const [input] = emailInput.value.$el.getElementsByTagName("input")
     input.focus()
   }
 }
