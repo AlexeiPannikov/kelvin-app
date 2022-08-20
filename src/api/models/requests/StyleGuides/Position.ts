@@ -53,12 +53,12 @@ export class Position {
     }
 
     deleteImages() {
-        if (this.images.dragStarted) {
-            this.images.list = this.images.list.filter(({isSelected}) => !isSelected)
-        }
-        if (this.altsImages.dragStarted) {
-            this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
-        }
+        // if (this.images.dragStarted) {
+        this.images.list = this.images.list.filter(({isSelected}) => !isSelected)
+        // }
+        // if (this.altsImages.dragStarted) {
+        this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
+        // }
     }
 
     unsubscribes() {
@@ -72,7 +72,7 @@ export class Position {
         // altDropZone.removeEventListener("mouseup", this.validationAlt.bind(this))
     }
 
-    private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => isSelected)
+    private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => list.dragMode && isSelected)
         .map(item => new ImageModel({...item, uuid: uuidv4()}))
 
     private get selectedImagesInFolder() {
@@ -107,20 +107,24 @@ export class Position {
     mouseenterMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
-        this.images.list.push(
-            ...this.selectedImagesInFolder.filter(this.mainListFilter.bind(this)),
-            ...this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
-        )
-        const elements = this.getSelectedElements(this.images)
-        elements.forEach(el => {
-            if (el) el.style.display = "block"
-        })
-        this.images.list.forEach(item => item.isSelected = false)
+        const selImgInFolder = this.selectedImagesInFolder.filter(this.mainListFilter.bind(this))
+        const selImgInAlts = this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
+        if (selImgInFolder.length + selImgInAlts.length + this.images.list.length <= this.photography.maxShots) {
+            this.images.list.push(
+                ...selImgInFolder,
+                ...this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
+            )
+            const elements = this.getSelectedElements(this.images)
+            elements.forEach(el => {
+                if (el) el.style.display = "block"
+            })
+        }
+        // this.images.list.forEach(item => item.isSelected = false)
     }
 
     mouseleaveMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
-        if (this.images.dragMode) {
+        if (this.images.dragMode || imagesInFolder.dragMode) {
             const elements = this.getSelectedElements(this.images)
             elements.forEach(el => el.style.display = "none")
             const mainDropZone = document.getElementById(this.id.toString())
@@ -149,15 +153,16 @@ export class Position {
 
     mouseleaveAltZoneHandler(e: MouseEvent) {
         e.preventDefault()
-        if (this.altsImages.dragMode) {
+        if (this.altsImages.dragMode || imagesInFolder.dragMode) {
             const elements = this.getSelectedElements(this.altsImages)
             elements.forEach(el => el.style.display = "none")
             const altDropZone = document.getElementById(`alt-${this.id}`)
             const mouseupHandler = (e: MouseEvent) => {
+                debugger
                 if (!altDropZone.contains(e.target as Node))
                     this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
-                altDropZone.onmouseup = null
                 this.altsImages.list.forEach(item => item.isSelected = false)
+                altDropZone.onmouseup = null
             }
             altDropZone.onmouseup = mouseupHandler.bind(this)
         }
