@@ -59,7 +59,7 @@ import FileLink from "./file--link.vue";
 import {openInBrowser} from "../../../../functions/openInBrowser"
 
 interface IProps {
-  position: Position
+  position: Position | any
 }
 
 const props = withDefaults(defineProps<IProps>(), {

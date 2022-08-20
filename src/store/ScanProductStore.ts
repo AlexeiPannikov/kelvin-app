@@ -129,7 +129,7 @@ export const useScanProductStore = defineStore("scan-product", {
             if (!product_uuid) {
                 await this.getProducts(this.selectedSample?.product_code)
                 if (!this.selectedJobCode) return
-                productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code)
+                productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code) as ProductModel
                 if (!productInSelectedTask) return
             }
             await this.getProduct(productInSelectedTask?.product_uuid || product_uuid)
