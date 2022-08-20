@@ -17,10 +17,11 @@
              cols="auto"
       >
         <image-box :file="file"
-                   :id="file.id"
+                   :id="file.uuid"
                    @dblclick="openModal(i)"
-                   @click="selectFile($event, file.name)"
+                   @click="selectFile($event, file.uuid)"
                    @mousedown.prevent="dragStart"
+                   @mousemove="setActiveFile($event, file.uuid)"
         ></image-box>
       </v-col>
 
@@ -37,7 +38,7 @@
 
 <script lang="ts" setup>
 import UiSearch from "../../../../components/search/ui-search.vue";
-import {computed, onMounted, onUnmounted, reactive, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "../../../../../store/CurrentUserStore";
 import {PrimarySettings} from "../../../auth/models/PrimarySettings";
@@ -47,16 +48,14 @@ import {ImageModel} from "./ImageModel";
 import UiModalFullscreenImageCrop from "../../../../components/modal-windows/ui-modal-fullscreen-image-crop.vue";
 import {CropperResult} from "vue-advanced-cropper";
 import ImageBox from "./image-box.vue";
-import {ImagesListModel} from "./ImagesListModel";
+import images from "./ImagesList";
 
 const currentUserStore = useCurrentUserStore()
 const watchedFolder = ref("")
 const watchedFolderWithoutEnd = ref("")
 const endFolder = ref("")
 const isOpenModal = ref(false)
-const images = reactive(new ImagesListModel())
 const fileIndex = ref(0)
-const dragMode = ref(false)
 
 const getWatchedFolder = async () => {
   const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
@@ -97,8 +96,12 @@ const resetCrop = () => {
   isOpenModal.value = false
 }
 
-const selectFile = (event: MouseEvent, name: string) => {
-  images.selectFile(event, name)
+const selectFile = (event: MouseEvent, uuid: string) => {
+  images.selectFile(event, uuid)
+}
+
+const setActiveFile = (event: MouseEvent, uuid: string) => {
+  images.setActiveFile(event, uuid)
 }
 
 const resetSelect = () => {
@@ -109,8 +112,7 @@ const dragStart = (e: MouseEvent) => {
   images.dragStart(e)
 }
 
-onMounted(() => images.subscribes())
-onUnmounted(() => images.unsubscribes())
+onUnmounted(() => images.unsubscribes.call(images))
 </script>
 
 <style lang="scss" scoped>

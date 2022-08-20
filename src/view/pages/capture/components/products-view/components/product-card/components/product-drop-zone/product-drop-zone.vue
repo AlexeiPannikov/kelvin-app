@@ -11,27 +11,70 @@
         >
           <div class="d-flex bg-grey-darken-3">
             <div style="z-index: 5">
-              <v-img width="160"
+              <v-img width="130"
                      :src="position.coverFile.url"
                      aspect-ratio="1"
                      class="bg-black"
               ></v-img>
             </div>
-            <div class="d-flex flex-grow-1">
-              <div class="d-flex justify-space-between main-zone">
-                <div class="d-flex px-2 py-2 align-center align-self-start">
-                  <span style="font-size: 14px" class="text-uppercase font-weight-bold">{{ position.name }}</span>
-                  <span v-if="position.photography.minShots || position.photography.maxShots"
-                  >
+            <div class="d-flex flex-grow-1 overflow-hidden">
+
+              <!--      MAIN ZONE        -->
+              <div class="d-flex justify-space-between main-zone flex-column overflow-hidden">
+                <div class="d-flex px-2 py-2 align-center align-self-start zone-header justify-space-between w-100"
+                     style="font-size: 14px">
+                  <span class="text-uppercase font-weight-bold">{{ position.name }}</span>
+                  <div>
+                    <span v-if="position.photography.minShots || position.photography.maxShots"
+                    >
                 {{ position.photography.minShots }} - {{ position.photography.maxShots }}
                   </span>
+                    <v-icon class="ml-2"
+                            :color="position.images.list.length < position.photography.minShots ? 'black' : 'green'"
+                    >
+                      {{
+                        position.images.list.length < position.photography.minShots ? 'mdi-alert-circle' : 'mdi-check-circle-outline'
+                      }}
+                    </v-icon>
+                  </div>
+                </div>
+                <div :id="position.id" class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto">
+                  <image-box v-for="img in position.images.list"
+                             :id="img.uuid"
+                             :file="img"
+                             width="60"
+                             class="align-self-center"
+                             without-name
+                             @click="position.images.selectFile($event, img.uuid)"
+                             @mousedown.prevent="position.images.dragStart($event)"
+                             @mousemove="position.images.setActiveFile($event, img.uuid)"
+                  ></image-box>
                 </div>
               </div>
-              <div class="flex-grow-0 alts-zone d-flex py-2">
-                <div class="align-self-end d-flex justify-center w-100">
-                  <v-chip >ALTS</v-chip>
+
+              <!--      ALTS ZONE        -->
+              <div class="alts-zone d-flex flex-column position-relative overflow-hidden"
+                   :class="{'dirty-alt-zone': position.altsImages.list.length}">
+                <div class="d-flex px-2 py-2 align-center align-self-start zone-header">
+
+                </div>
+                <div :id="`alt-${position.id}`" class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto">
+                  <image-box v-for="img in position.altsImages.list"
+                             :id="img.uuid"
+                             :file="img"
+                             width="60"
+                             class="align-self-center"
+                             without-name
+                             @click="position.altsImages.selectFile($event, img.uuid)"
+                             @mousedown.prevent="position.altsImages.dragStart($event)"
+                             @mousemove="position.altsImages.setActiveFile($event, img.uuid)"
+                  ></image-box>
+                </div>
+                <div v-if="!position.altsImages.list.length" class="alts-chip d-flex justify-center w-100">
+                  <v-chip>ALTS</v-chip>
                 </div>
               </div>
+              {{ position.errorMessage }}
             </div>
           </div>
         </v-card-item>
@@ -43,21 +86,52 @@
 <script lang="ts" setup>
 import {useScanProductStore} from "../../../../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../../../../store/StudioStore";
+import ImageBox from "../../../../../files-view/image-box.vue";
+import {onMounted, onUnmounted} from "vue";
+import images from "../../../../../files-view/ImagesList";
 
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
+
+onMounted(() => {
+  scanProductStore.confirmedProduct.styleGuide.shootingTypes.forEach(shootingType => {
+    shootingType.positions.forEach(position => position.subscribes())
+  })
+})
+
+onUnmounted(() => {
+  scanProductStore.confirmedProduct.styleGuide.shootingTypes.forEach(shootingType => {
+    shootingType.positions.forEach(position => position.unsubscribes())
+  })
+})
 </script>
 
 <style lang="scss" scoped>
 .main-zone {
   position: relative;
-  flex: 1 0 100px;
-  box-shadow: 1px 0 12px 0px #000000;
+  flex: 1 0 50%;
+  box-shadow: 1px 0 12px 0 #000000;
   z-index: 3;
 }
 
 .alts-zone {
-  flex: 1 0 100px;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 0%;
+  min-width: 80px;
   z-index: 1;
+
+  .alts-chip {
+    position: absolute;
+    bottom: 4px;
+  }
+}
+
+.dirty-alt-zone {
+  flex-basis: 50%;
+}
+
+.zone-header {
+  height: 37px;
 }
 </style>
