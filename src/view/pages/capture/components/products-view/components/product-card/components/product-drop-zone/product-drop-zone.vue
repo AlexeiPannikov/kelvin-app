@@ -50,7 +50,7 @@
                              without-name
                              @click="position.images.selectFile($event, img.uuid)"
                              @mousedown.prevent="position.images.dragStart($event)"
-                             @mousemove="choiceInMotion(position, $event, img.uuid)"
+                             @mousemove="choiceInMotion($event, img.uuid)"
                   ></image-box>
                 </div>
               </div>
@@ -96,8 +96,7 @@ import {Position} from "../../../../../../../../../api/models/requests/StyleGuid
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 
-const choiceInMotion = (position: Position, event: MouseEvent, uuid: string) => {
-  console.log(position)
+const choiceInMotion = (event: MouseEvent, uuid: string) => {
   position.images.choiceInMotion(event, uuid)
 }
 

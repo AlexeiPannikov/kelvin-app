@@ -184,7 +184,7 @@ export const useScanProductStore = defineStore("scan-product", {
         confirmProduct() {
             this.confirmedProduct = new ProductFullData({
                 product: this.product.product as ProductModel,
-                styleGuide: this.product.styleGuide,
+                styleGuide: this.product.styleGuide as StyleGuide,
                 sampleCode: this.product.sampleCode,
                 properties: this.product.properties
             })
@@ -192,8 +192,8 @@ export const useScanProductStore = defineStore("scan-product", {
 
         copyProduct() {
             this.productCopy = new ProductFullData({
-                product: this.product.product,
-                styleGuide: this.product.styleGuide,
+                product: this.product.product as ProductModel,
+                styleGuide: this.product.styleGuide as StyleGuide,
                 sampleCode: this.product.sampleCode,
                 properties: this.product.properties
             })
@@ -201,8 +201,8 @@ export const useScanProductStore = defineStore("scan-product", {
 
         resetProduct() {
             this.product = new ProductFullData({
-                product: this.productCopy.product,
-                styleGuide: this.productCopy.styleGuide,
+                product: this.productCopy.product as ProductModel,
+                styleGuide: this.productCopy.styleGuide as StyleGuide,
                 sampleCode: this.productCopy.sampleCode,
                 properties: this.productCopy.properties
             })
@@ -210,8 +210,8 @@ export const useScanProductStore = defineStore("scan-product", {
 
         initProductFromConfirmedProduct() {
             this.product = new ProductFullData({
-                product: this.confirmedProduct.product,
-                styleGuide: this.confirmedProduct.styleGuide,
+                product: this.confirmedProduct.product as ProductModel,
+                styleGuide: this.confirmedProduct.styleGuide as StyleGuide,
                 sampleCode: this.confirmedProduct.sampleCode,
                 properties: this.confirmedProduct.properties
             })
