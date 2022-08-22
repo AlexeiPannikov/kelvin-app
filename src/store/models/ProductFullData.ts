@@ -17,7 +17,11 @@ export class ProductFullData {
     }
 
     constructor(obj?: Partial<ProductFullData>) {
-        if (obj)
+        if (obj) {
             Object.assign(this, obj)
+            this.styleGuide = new StyleGuide(obj.styleGuide)
+            this.product = new ProductModel(obj.product)
+            this.properties = obj.properties.map(item => new PropertyModel(item))
+        }
     }
 }

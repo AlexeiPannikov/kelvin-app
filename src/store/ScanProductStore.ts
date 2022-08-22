@@ -12,8 +12,8 @@ import ProductsService from "../api/services/ProductsService";
 import {EditProductRequest} from "../api/models/requests/Products/EditProductRequest";
 import {PropertyRequestModel} from "../api/models/requests/Properties/PropertyRequestModel";
 import Notifications from "../view/components/ui-notifications/models/Notifications";
-import {reactive} from "vue";
 import {useStudioStore} from "./StudioStore";
+import {StyleGuide} from "../api/models/responses/StyleGuides/StyleGuide";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -59,6 +59,11 @@ export const useScanProductStore = defineStore("scan-product", {
     getters: {
         isChangedProduct(): boolean {
             return JSON.stringify(this.product) !== JSON.stringify(this.productCopy)
+        },
+
+        isHasSelectedProdType(): boolean {
+            const studioStore = useStudioStore()
+            return !!this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
         }
     },
 
@@ -76,13 +81,15 @@ export const useScanProductStore = defineStore("scan-product", {
 
         async getProduct(uuid: string) {
             this.isLoadingProduct = true
-            this.product = new ProductFullData()
-            this.product.product = await getProduct({uuid})
+            const product = await getProduct({uuid})
             const [properties] = await getProperties(EntityEnum.PRODUCT)
-            this.product.properties = properties.map(item => new PropertyModel({
-                ...item,
-                value: this.product.product[item.internal_name as keyof ProductModel]?.toString() || ""
-            }))
+            this.product = new ProductFullData({
+                product,
+                properties: properties.map(item => new PropertyModel({
+                    ...item,
+                    value: this.product.product[item.internal_name as keyof ProductModel]?.toString() || ""
+                }))
+            })
             this.isLoadingProduct = false
         },
 
@@ -119,25 +126,41 @@ export const useScanProductStore = defineStore("scan-product", {
         },
 
         async getProductData(product_uuid?: string) {
+            debugger
             this.isLoadingProduct = true
-            if (this.samples.length === 1) {
-                this.selectedSample = this.samples[0]
-                this.selectedJobCode = this.selectedSample.job_code
+            try {
+                if (this.samples.length === 1) {
+                    this.selectedSample = this.samples[0]
+                    this.selectedJobCode = this.selectedSample.job_code
+                }
+                if (!this.selectedSample?.product_code) return
+                let productInSelectedTask: ProductModel = null
+                if (!product_uuid) {
+                    await this.getProducts(this.selectedSample?.product_code)
+                    if (!this.selectedJobCode) return
+                    productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code) as ProductModel
+                    if (!productInSelectedTask) return
+                }
+                const product = await getProduct({uuid: productInSelectedTask?.product_uuid || product_uuid})
+                const [properties] = await getProperties(EntityEnum.PRODUCT)
+                const mappedProperties = properties.map(item => new PropertyModel({
+                    ...item,
+                    value: product[item.internal_name as keyof ProductModel]?.toString() || ""
+                }))
+                let styleGuide = new StyleGuide()
+                if (product.styleguide_uuid) {
+                    styleGuide = await viewStyleGuide({uuid: product.styleguide_uuid})
+                }
+                this.product = new ProductFullData({
+                    product,
+                    styleGuide,
+                    properties: mappedProperties,
+                    sampleCode: this.selectedSample.sample_code
+                })
+                this.copyProduct()
+            } finally {
+                this.isLoadingProduct = false
             }
-            if (!this.selectedSample?.product_code) return
-            let productInSelectedTask: ProductModel = null
-            if (!product_uuid) {
-                await this.getProducts(this.selectedSample?.product_code)
-                if (!this.selectedJobCode) return
-                productInSelectedTask = this.products.find(({job_code}) => this.selectedJobCode === job_code) as ProductModel
-                if (!productInSelectedTask) return
-            }
-            await this.getProduct(productInSelectedTask?.product_uuid || product_uuid)
-            if (this.product.product.styleguide_uuid) {
-                this.product.styleGuide = await viewStyleGuide({uuid: this.product.product.styleguide_uuid})
-            }
-            this.copyProduct()
-            this.isLoadingProduct = false
         },
 
         async getProductFromSavedList({productUuid, styleGuideUuid, sampleCode}: IParamsSavedProduct) {
@@ -159,19 +182,39 @@ export const useScanProductStore = defineStore("scan-product", {
         },
 
         confirmProduct() {
-            this.confirmedProduct = new ProductFullData(JSON.parse(JSON.stringify(this.product)))
+            this.confirmedProduct = new ProductFullData({
+                product: this.product.product as ProductModel,
+                styleGuide: this.product.styleGuide,
+                sampleCode: this.product.sampleCode,
+                properties: this.product.properties
+            })
         },
 
         copyProduct() {
-            this.productCopy = new ProductFullData(JSON.parse(JSON.stringify(this.product)))
+            this.productCopy = new ProductFullData({
+                product: this.product.product,
+                styleGuide: this.product.styleGuide,
+                sampleCode: this.product.sampleCode,
+                properties: this.product.properties
+            })
         },
 
         resetProduct() {
-            this.product = new ProductFullData(JSON.parse(JSON.stringify(this.productCopy)))
+            this.product = new ProductFullData({
+                product: this.productCopy.product,
+                styleGuide: this.productCopy.styleGuide,
+                sampleCode: this.productCopy.sampleCode,
+                properties: this.productCopy.properties
+            })
         },
 
         initProductFromConfirmedProduct() {
-            this.product = new ProductFullData(JSON.parse(JSON.stringify(this.confirmedProduct)))
+            this.product = new ProductFullData({
+                product: this.confirmedProduct.product,
+                styleGuide: this.confirmedProduct.styleGuide,
+                sampleCode: this.confirmedProduct.sampleCode,
+                properties: this.confirmedProduct.properties
+            })
         },
 
         resetData() {

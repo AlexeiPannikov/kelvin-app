@@ -8,7 +8,7 @@
         <v-card-item v-for="position in shootingTypes.positions"
                      :key="position.id"
                      class="pl-0 py-0"
-                     v-click-outside="position.resetSelect.bind(position)"
+                     v-click-outside="position.resetSelect?.bind(position)"
         >
           {{ position.errorMessage }}
 
@@ -50,7 +50,7 @@
                              without-name
                              @click="position.images.selectFile($event, img.uuid)"
                              @mousedown.prevent="position.images.dragStart($event)"
-                             @mousemove="position.images.choiceInMotion($event, img.uuid)"
+                             @mousemove="choiceInMotion(position, $event, img.uuid)"
                   ></image-box>
                 </div>
               </div>
@@ -89,21 +89,26 @@
 import {useScanProductStore} from "../../../../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../../../../store/StudioStore";
 import ImageBox from "../../../../../files-view/image-box.vue";
-import {onMounted, onUnmounted} from "vue";
+import {onMounted, onUnmounted, onUpdated, watch} from "vue";
 import images from "../../../../../files-view/ImagesList";
+import {Position} from "../../../../../../../../../api/models/requests/StyleGuides/Position";
 
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 
+const choiceInMotion = (position: Position, event: MouseEvent, uuid: string) => {
+  console.log(position)
+  position.images.choiceInMotion(event, uuid)
+}
+
 onMounted(() => {
-  scanProductStore.confirmedProduct.styleGuide.shootingTypes.forEach(shootingType => {
-    shootingType.positions.forEach(position => position.subscribes())
-  })
+  scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.positions
+      .forEach(position => position?.subscribes())
 })
 
 onUnmounted(() => {
-  scanProductStore.confirmedProduct.styleGuide.shootingTypes.forEach(shootingType => {
-    shootingType.positions.forEach(position => position.unsubscribes())
+  scanProductStore.confirmedProduct?.styleGuide?.shootingTypes?.forEach(shootingType => {
+    shootingType.positions.forEach(position => position?.unsubscribes())
   })
 })
 </script>

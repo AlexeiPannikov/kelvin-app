@@ -56,7 +56,7 @@ const sendEvent = (event: "cancel" | "select") => {
   emit(event)
 }
 
-const selectTask = (i?: number) => {
+const selectTask = async (i?: number) => {
   if (i) selectedTaskId.value = i
   scanProductStore.selectedJobCode = scanProductStore.samples[i || selectedTaskId.value].job_code
   sendEvent("select")

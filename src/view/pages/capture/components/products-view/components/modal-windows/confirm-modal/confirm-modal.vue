@@ -16,6 +16,13 @@
         </select-sample>
       </keep-alive>
       <keep-alive>
+        <select-production-type v-if="currentStep === ConfirmStepEnum.SelectProductionType"
+                                @cancel="emit('cancel')"
+                                @select="next"
+                                @back="prev"
+        ></select-production-type>
+      </keep-alive>
+      <keep-alive>
         <product-confirm v-if="currentStep === ConfirmStepEnum.ConfirmProduct"
                          @cancel="emit('cancel')"
                          @confirm="confirmProduct"
@@ -31,6 +38,7 @@ import {defineAsyncComponent, defineProps, reactive, ref, useAttrs, watch} from 
 import {ConfirmStepEnum} from "./ConfirmStepEnum";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import ProductConfirm from "./product-confirm.vue";
+import SelectProductionType from "./select-production-type.vue";
 
 const SelectSample = defineAsyncComponent(() => import("./select-sample.vue"));
 const SelectTask = defineAsyncComponent(() => import("./select-task.vue"))
@@ -56,6 +64,9 @@ const initStep = () => {
     case length > 1 && !props.viewMode:
       stepList.push(ConfirmStepEnum.SelectTask)
       stepList.push(ConfirmStepEnum.SelectSample)
+      if (!scanProductStore.isHasSelectedProdType) {
+        stepList.push(ConfirmStepEnum.SelectProductionType)
+      }
       stepList.push(ConfirmStepEnum.ConfirmProduct)
       break;
     case length === 1 || props.viewMode:
@@ -66,8 +77,8 @@ const initStep = () => {
 }
 
 const next = () => {
-  if (currentStep.value < stepList.length - 1)
-    currentStep.value = stepList[currentStep.value] + 1
+  if (currentStep.value >= stepList.length - 1) return;
+  currentStep.value = stepList[currentStep.value] + 1
 }
 
 const prev = () => {

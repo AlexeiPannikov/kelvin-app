@@ -30,7 +30,7 @@
     </button-white>
     <v-spacer></v-spacer>
     <button-white @click="sendEvent('cancel')">cancel</button-white>
-    <button-blue @click="sendEvent('select')">Continue</button-blue>
+    <button-blue @click="sendEvent('select')" :is-loading="scanProductStore.isLoadingProduct">Continue</button-blue>
   </v-card-actions>
 </template>
 
@@ -63,11 +63,11 @@ const sendEvent = (event: "cancel" | "select" | "back") => {
   emit(event)
 }
 
-const selectSample = (i?: number) => {
+const selectSample = async (i?: number) => {
   if (i) selectedSampleId.value = i
   scanProductStore.selectedSample = scanProductStore.samples[i || selectedSampleId.value]
+  await scanProductStore.getProductData()
   sendEvent("select")
-  scanProductStore.getProductData()
 }
 
 onActivated(() => addEventListener("keydown", keyDownHandler))

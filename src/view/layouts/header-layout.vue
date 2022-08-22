@@ -24,15 +24,13 @@ import UiSelect from "../components/ui-select/ui-select.vue";
 const route = useRoute()
 const studioStore = useStudioStore()
 
-studioStore.getProductionTypes()
+studioStore.getProductionTypes().then()
 
 const title = computed(() => {
   return (route.meta.title as string).toLocaleUpperCase()
 })
 
-watch(() => studioStore.enabledProductionTypesSelectList,
-    () => studioStore.selectedProductionTypeUuid = studioStore.enabledProductionTypesSelectList[0].value
-)
+watch(() => studioStore.selectedProductionTypeUuid, () => studioStore.setAndSaveProductionType())
 </script>
 
 <style lang="scss" scoped>
