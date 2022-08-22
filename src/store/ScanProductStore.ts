@@ -126,7 +126,6 @@ export const useScanProductStore = defineStore("scan-product", {
         },
 
         async getProductData(product_uuid?: string) {
-            debugger
             this.isLoadingProduct = true
             try {
                 if (this.samples.length === 1) {
@@ -248,7 +247,7 @@ export const useScanProductStore = defineStore("scan-product", {
             }
             if (this.productsIsStore?.length) {
                 const index = this.productsIsStore.findIndex(({product: {uuid}}) => product.product_uuid === uuid)
-                index ? this.productsIsStore.push(productToSave) : this.productsIsStore.splice(index, 1, productToSave)
+                index ? this.productsIsStore.splice(index, 1, productToSave) : this.productsIsStore.push(productToSave)
             }
             this.saveInStorage()
             this.confirmedProduct = null

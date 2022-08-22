@@ -20,9 +20,11 @@ import {useRoute} from "vue-router";
 import {computed, watch} from "vue";
 import {useStudioStore} from "../../store/StudioStore";
 import UiSelect from "../components/ui-select/ui-select.vue";
+import {useScanProductStore} from "../../store/ScanProductStore";
 
 const route = useRoute()
 const studioStore = useStudioStore()
+const scanProductStore = useScanProductStore()
 
 studioStore.getProductionTypes().then()
 
@@ -30,7 +32,10 @@ const title = computed(() => {
   return (route.meta.title as string).toLocaleUpperCase()
 })
 
-watch(() => studioStore.selectedProductionTypeUuid, () => studioStore.setAndSaveProductionType())
+watch(() => studioStore.selectedProductionTypeUuid, () => {
+  studioStore.setAndSaveProductionType()
+  scanProductStore.confirmedProduct = null
+})
 </script>
 
 <style lang="scss" scoped>

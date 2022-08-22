@@ -36,7 +36,7 @@
         </v-col>
         <v-col cols="12">
           <v-row>
-            <v-col v-for="position in shootingType.positions"
+            <v-col v-for="position in shootingType?.positions"
                    :key="position.id"
                    cols="6"
             >
@@ -62,7 +62,7 @@ const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 const {confirmedProduct} = toRefs(scanProductStore)
 const shootingType = reactive(scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid))
-const productionTypeName = ref(studioStore.productionTypes.find(({uuid}) => shootingType.production_type_uuid === uuid)?.name)
+const productionTypeName = ref(studioStore?.productionTypes.find(({uuid}) => shootingType?.production_type_uuid === uuid)?.name)
 </script>
 
 <style lang="scss" scoped>
