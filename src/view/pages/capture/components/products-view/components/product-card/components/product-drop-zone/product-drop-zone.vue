@@ -8,7 +8,10 @@
         <v-card-item v-for="position in shootingTypes.positions"
                      :key="position.id"
                      class="pl-0 py-0"
+                     v-click-outside="position.resetSelect.bind(position)"
         >
+          {{ position.errorMessage }}
+
           <div class="d-flex bg-grey-darken-3">
             <div style="z-index: 5">
               <v-img width="130"
@@ -47,7 +50,7 @@
                              without-name
                              @click="position.images.selectFile($event, img.uuid)"
                              @mousedown.prevent="position.images.dragStart($event)"
-                             @mousemove="position.images.setActiveFile($event, img.uuid)"
+                             @mousemove="position.images.choiceInMotion($event, img.uuid)"
                   ></image-box>
                 </div>
               </div>
@@ -67,14 +70,13 @@
                              without-name
                              @click="position.altsImages.selectFile($event, img.uuid)"
                              @mousedown.prevent="position.altsImages.dragStart($event)"
-                             @mousemove="position.altsImages.setActiveFile($event, img.uuid)"
+                             @mousemove="position.altsImages.choiceInMotion($event, img.uuid)"
                   ></image-box>
                 </div>
                 <div v-if="!position.altsImages.list.length" class="alts-chip d-flex justify-center w-100">
                   <v-chip>ALTS</v-chip>
                 </div>
               </div>
-              {{ position.errorMessage }}
             </div>
           </div>
         </v-card-item>

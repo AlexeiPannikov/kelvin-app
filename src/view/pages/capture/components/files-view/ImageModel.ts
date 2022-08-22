@@ -7,6 +7,7 @@ export class ImageModel {
     path = ""
     name = ""
     isSelected = false
+    isConfirmed = false
     cropImage: any = null
     cropCoords: Coordinates = <Coordinates>{}
 

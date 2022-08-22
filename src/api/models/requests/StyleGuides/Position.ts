@@ -49,16 +49,6 @@ export class Position {
         if (!altDropZone) return;
         altDropZone.onmouseenter = this.mouseenterAltZoneHandler.bind(this)
         altDropZone.onmouseleave = this.mouseleaveAltZoneHandler.bind(this)
-        window.onmouseup = this.deleteImages.bind(this)
-    }
-
-    deleteImages() {
-        // if (this.images.dragStarted) {
-        this.images.list = this.images.list.filter(({isSelected}) => !isSelected)
-        // }
-        // if (this.altsImages.dragStarted) {
-        this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
-        // }
     }
 
     unsubscribes() {
@@ -66,13 +56,14 @@ export class Position {
         const altDropZone = document.getElementById(`alt-${this.id}`)
         mainDropZone.onmouseenter = null
         mainDropZone.onmouseleave = null
-        // mainDropZone.removeEventListener("mouseup", this.validationMain.bind(this))
         altDropZone.onmouseenter = null
         altDropZone.onmouseleave = null
-        // altDropZone.removeEventListener("mouseup", this.validationAlt.bind(this))
+        // window.onmouseup = null
     }
 
-    private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => list.dragMode && isSelected)
+    private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => {
+        return list.dragMode && isSelected
+    })
         .map(item => new ImageModel({...item, uuid: uuidv4()}))
 
     private get selectedImagesInFolder() {
@@ -91,85 +82,142 @@ export class Position {
         return !imagesInFolder.dragMode && !this.images.dragMode && !this.altsImages.dragMode
     }
 
+    private isCheckedList = false
+
     private mainListFilter(image: ImageModel) {
-        return !this.images.list.find(item => item.id === image.id)
+        const isFileExist = !!this.images.list.find(item => item.id === image.id)
+        if (isFileExist) {
+            this.setErrorMessage("exist")
+        }
+        return !isFileExist
     }
 
     private altListFilter(image: ImageModel) {
-        return !this.altsImages.list.find(item => item.id === image.id)
+        const isFileExist = !!this.altsImages.list.find(item => item.id === image.id)
+        if (isFileExist) {
+            this.setErrorMessage("exist")
+        }
+        return !isFileExist
     }
 
-    private getSelectedElements(list: ImagesList) {
-        const uuidList = list.list.filter(({isSelected}) => isSelected).map(({uuid}) => uuid)
-        return uuidList.map(uuid => document.getElementById(uuid))
+    setErrorMessage(type: "many" | "exist") {
+        if (this.errorMessage) return
+        if (type === "many")
+            this.errorMessage = "To many files"
+        if (type === "exist")
+            this.errorMessage = "Some files already exist"
+        setTimeout(() => this.errorMessage = "", 2000)
+    }
+
+    globalMouseupHandler(e: MouseEvent) {
+        const mainDropZone = document.getElementById(this.id.toString())
+        const altDropZone = document.getElementById(`alt-${this.id}`)
+        if (!altDropZone.contains(e.target as Node)) {
+            const deleteSelected = () => {
+                if (this.altsImages.dragMode)
+                    this.altsImages.list = this.altsImages.list.filter(({
+                                                                            isSelected
+                                                                        }) => !isSelected)
+                this.altsImages.list.forEach(item => {
+                    item.isSelected = false
+                    item.isConfirmed = true
+                })
+            }
+            if (mainDropZone.contains(e.target as Node)) {
+                const isInTheRange = (this.altsImages.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots) &&
+                    (imagesInFolder.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots)
+                const isFileExist = !!this.images.list.find(item => !!this.altsImages.list.filter(({
+                                                                                                       isSelected,
+                                                                                                       id
+                                                                                                   }) => this.altsImages.dragMode && isSelected && item.id === id).length)
+                if (isFileExist) return;
+                isInTheRange ? deleteSelected() : this.setErrorMessage("many")
+                return
+            }
+            deleteSelected()
+        }
+        if (!mainDropZone.contains(e.target as Node)) {
+            const deleteSelected = () => {
+                if (this.images.dragMode)
+                    this.images.list = this.images.list.filter(({
+                                                                    isSelected
+                                                                }) => !isSelected)
+                this.images.list.forEach(item => {
+                    item.isSelected = false
+                    item.isConfirmed = true
+                })
+            }
+            if (altDropZone.contains(e.target as Node)) {
+                const isFileExist = !!this.altsImages.list.find(item => !!this.images.list.filter(({
+                                                                                                       isSelected,
+                                                                                                       id
+                                                                                                   }) => this.images.dragMode && isSelected && item.id === id).length)
+                !isFileExist ? deleteSelected() : this.setErrorMessage("exist")
+                return;
+            }
+            deleteSelected()
+        }
+        window.onmouseup = null
     }
 
     mouseenterMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
-        const selImgInFolder = this.selectedImagesInFolder.filter(this.mainListFilter.bind(this))
-        const selImgInAlts = this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
-        if (selImgInFolder.length + selImgInAlts.length + this.images.list.length <= this.photography.maxShots) {
-            this.images.list.push(
-                ...selImgInFolder,
-                ...this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
-            )
-            const elements = this.getSelectedElements(this.images)
-            elements.forEach(el => {
-                if (el) el.style.display = "block"
+        const mainDropZone = document.getElementById(this.id.toString())
+        const mouseupHandler = (e: MouseEvent) => {
+            const selImgInFolder = this.selectedImagesInFolder.filter(this.mainListFilter.bind(this))
+            const selImgInAlts = this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
+            if (selImgInFolder.length + selImgInAlts.length + this.images.list.length <= this.photography.maxShots) {
+                this.images.list.push(
+                    ...selImgInFolder,
+                    ...selImgInAlts
+                )
+            }
+            this.images.list.forEach(item => {
+                item.isSelected = false
+                item.isConfirmed = true
             })
+            mainDropZone.onmouseup = null
         }
-        // this.images.list.forEach(item => item.isSelected = false)
+        window.onmouseup = this.globalMouseupHandler.bind(this)
+        mainDropZone.onmouseup = mouseupHandler.bind(this)
     }
 
     mouseleaveMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.images.dragMode || imagesInFolder.dragMode) {
-            const elements = this.getSelectedElements(this.images)
-            elements.forEach(el => el.style.display = "none")
-            const mainDropZone = document.getElementById(this.id.toString())
-            const mouseupHandler = (e: MouseEvent) => {
-                if (!mainDropZone.contains(e.target as Node))
-                    this.images.list = this.images.list.filter(({isSelected}) => !isSelected)
-                this.images.list.forEach(item => item.isSelected = false)
-                mainDropZone.onmouseup = null
-            }
-            mainDropZone.onmouseup = mouseupHandler.bind(this)
+            window.onmouseup = this.globalMouseupHandler.bind(this)
         }
     }
 
     mouseenterAltZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
-        this.altsImages.list.push(
-            ...this.selectedImagesInFolder.filter(this.altListFilter.bind(this)),
-            ...this.selectedImagesInMain.filter(this.altListFilter.bind(this))
-        )
-        const elements = this.getSelectedElements(this.altsImages)
-        elements.forEach(el => {
-            if (el) el.style.display = "block"
-        })
+        const altDropZone = document.getElementById(`alt-${this.id}`)
+        const mouseupHandler = (e: MouseEvent) => {
+            this.altsImages.list.push(
+                ...this.selectedImagesInFolder.filter(this.altListFilter.bind(this)),
+                ...this.selectedImagesInMain.filter(this.altListFilter.bind(this))
+            )
+            this.altsImages.list.forEach(item => {
+                item.isSelected = false
+                item.isConfirmed = true
+            })
+            altDropZone.onmouseup = null
+        }
+        altDropZone.onmouseup = mouseupHandler.bind(this)
+        window.onmouseup = this.globalMouseupHandler.bind(this)
     }
 
     mouseleaveAltZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.altsImages.dragMode || imagesInFolder.dragMode) {
-            const elements = this.getSelectedElements(this.altsImages)
-            elements.forEach(el => el.style.display = "none")
-            const altDropZone = document.getElementById(`alt-${this.id}`)
-            const mouseupHandler = (e: MouseEvent) => {
-                debugger
-                if (!altDropZone.contains(e.target as Node))
-                    this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
-                this.altsImages.list.forEach(item => item.isSelected = false)
-                altDropZone.onmouseup = null
-            }
-            altDropZone.onmouseup = mouseupHandler.bind(this)
+            window.onmouseup = this.globalMouseupHandler.bind(this)
         }
     }
 
     resetSelect() {
-        this.images.list.forEach(item => item.isSelected = false)
-        this.altsImages.list.forEach(item => item.isSelected = false)
+        this.images?.list.forEach(item => item.isSelected = false)
+        this.altsImages?.list.forEach(item => item.isSelected = false)
     }
 }

@@ -21,7 +21,7 @@
                    @dblclick="openModal(i)"
                    @click="selectFile($event, file.uuid)"
                    @mousedown.prevent="dragStart"
-                   @mousemove="setActiveFile($event, file.uuid)"
+                   @mousemove="choiceInMotion($event, file.uuid)"
         ></image-box>
       </v-col>
 
@@ -100,8 +100,8 @@ const selectFile = (event: MouseEvent, uuid: string) => {
   images.selectFile(event, uuid)
 }
 
-const setActiveFile = (event: MouseEvent, uuid: string) => {
-  images.setActiveFile(event, uuid)
+const choiceInMotion = (event: MouseEvent, uuid: string) => {
+  images.choiceInMotion(event, uuid)
 }
 
 const resetSelect = () => {

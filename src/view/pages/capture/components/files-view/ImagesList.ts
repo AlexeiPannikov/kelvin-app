@@ -4,7 +4,8 @@ import {reactive} from "vue";
 export class ImagesList {
     list: ImageModel[] = []
     dragMode = false
-    dragStarted = false
+    private isElCreated = false
+    private madeAChoiceInMotion = false
     private imageCopyNode: Node = null
     private imageCopyWrap: HTMLDivElement = null
     private shiftX = 0;
@@ -30,10 +31,10 @@ export class ImagesList {
             })
     }
 
-    setActiveFile(event: MouseEvent, uuid: string) {
+    choiceInMotion(event: MouseEvent, uuid: string) {
         const departureFromStartX = Math.abs(event.pageX - this.startX)
         const departureFromStartY = Math.abs(event.pageY - this.startY)
-        if (!this.dragStarted && (departureFromStartX < 2 || departureFromStartY < 2)) return
+        if (!this.madeAChoiceInMotion && (departureFromStartX < 2 || departureFromStartY < 2)) return
         if (this.isMouseDown && !event.ctrlKey && this.list.filter(({isSelected}) => isSelected).length < 2) {
             this.list.forEach(item => {
                 if (item.uuid === uuid) {
@@ -42,6 +43,7 @@ export class ImagesList {
             })
             this.isMouseDown = false
         }
+        this.madeAChoiceInMotion = true
     }
 
     resetSelect() {
@@ -64,8 +66,9 @@ export class ImagesList {
         if (!this.dragMode) return
         const departureFromStartX = Math.abs(e.pageX - this.startX)
         const departureFromStartY = Math.abs(e.pageY - this.startY)
-        if (!this.dragStarted && (departureFromStartX > 8 || departureFromStartY > 8)) {
+        if (!this.isElCreated && (departureFromStartX > 8 || departureFromStartY > 8)) {
             const selectedImages = this.list.filter(({isSelected}) => isSelected)
+            if (!selectedImages.length) return;
             this.imageCopyWrap = document.createElement("div")
             this.imageCopyWrap.appendChild(this.imageCopyNode)
             this.imageCopyWrap.style.position = "fixed"
@@ -92,8 +95,7 @@ export class ImagesList {
             counterEl.innerText = selectedImages.length.toString()
             this.imageCopyWrap.appendChild(counterEl)
             document.body.appendChild(this.imageCopyWrap)
-            this.dragStarted = true
-            this.isMouseDown = false
+            this.isElCreated = true
         }
         if (!this.imageCopyWrap) return;
         this.imageCopyWrap.style.left = e.pageX - 65 + "px";
@@ -102,15 +104,16 @@ export class ImagesList {
 
     dragEnd() {
         if (!this.dragMode) return
+        this.isElCreated = false
         this.isMouseDown = false
-        this.dragMode = false
         if (this.imageCopyWrap) {
             this.imageCopyWrap.remove()
         }
         this.imageCopyNode = null
         this.imageCopyWrap = null
+        this.madeAChoiceInMotion = true
         this.unsubscribes.call(this)
-        setTimeout(() => this.dragStarted = false, 0)
+        setTimeout(() => this.dragMode = false, 0)
     }
 
     subscribes() {
