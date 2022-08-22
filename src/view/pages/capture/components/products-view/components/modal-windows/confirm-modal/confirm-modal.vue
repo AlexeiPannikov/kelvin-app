@@ -64,9 +64,6 @@ const initStep = () => {
     case length > 1 && !props.viewMode:
       stepList.push(ConfirmStepEnum.SelectTask)
       stepList.push(ConfirmStepEnum.SelectSample)
-      if (!scanProductStore.isHasSelectedProdType) {
-        stepList.push(ConfirmStepEnum.SelectProductionType)
-      }
       stepList.push(ConfirmStepEnum.ConfirmProduct)
       break;
     case length === 1 || props.viewMode:
@@ -77,13 +74,16 @@ const initStep = () => {
 }
 
 const next = () => {
+  if (currentStep.value === ConfirmStepEnum.SelectSample && !scanProductStore.isHasSelectedProdType) {
+    stepList.splice(2, 0, ConfirmStepEnum.SelectProductionType)
+  }
   if (currentStep.value >= stepList.length - 1) return;
-  currentStep.value = stepList[currentStep.value] + 1
+  currentStep.value = stepList[currentStep.value + 1]
 }
 
 const prev = () => {
   if (currentStep.value > 0)
-    currentStep.value -= 1
+    currentStep.value = stepList[currentStep.value - 1]
 }
 
 const resetState = () => {

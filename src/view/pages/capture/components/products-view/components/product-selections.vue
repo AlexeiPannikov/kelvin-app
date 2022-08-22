@@ -3,12 +3,12 @@
     <div class="rounded-circle bg-grey-lighten-1 px-2 py-2 mr-4 d-none d-md-flex">
       <v-icon color="grey-darken-4" size="40">mdi-upload</v-icon>
       <v-badge color="black"
-               :content="scanProductStore.productsIsStore.length"
-               v-if="scanProductStore.productsIsStore.length"
+               :content="filteredProductsInStore.length"
+               v-if="filteredProductsInStore.length"
       ></v-badge>
     </div>
     <v-menu
-        v-if="!scanProductStore.confirmedProduct && scanProductStore.productsIsStore?.length"
+        v-if="!scanProductStore.confirmedProduct && filteredProductsInStore?.length"
         v-model="isOpenMenu"
     >
       <template v-slot:activator="{ props }">
@@ -21,9 +21,9 @@
       </template>
 
       <v-card min-width="300">
-        <v-list v-if="scanProductStore.productsIsStore?.length"
+        <v-list v-if="filteredProductsInStore?.length"
         >
-          <v-list-item v-for="product in scanProductStore.productsIsStore"
+          <v-list-item v-for="product in filteredProductsInStore"
                        @click="selectProduct(product)"
           >
             <div class="d-flex align-center">
@@ -46,7 +46,7 @@
         </v-list>
       </v-card>
     </v-menu>
-    <span class="text-h5" v-if="!scanProductStore.confirmedProduct && !scanProductStore.productsIsStore?.length">SELECTION</span>
+    <span class="text-h5" v-if="!scanProductStore.confirmedProduct && !filteredProductsInStore?.length">SELECTION</span>
     <span class="text-h5" v-if="scanProductStore.confirmedProduct">PRE-SELECTION</span>
     <v-spacer></v-spacer>
     <v-btn class="ml-3"
@@ -60,11 +60,17 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import {ISavedProduct, useScanProductStore} from "../../../../../../store/ScanProductStore";
+import {useStudioStore} from "../../../../../../store/StudioStore";
 
 const scanProductStore = useScanProductStore()
+const studioStore = useStudioStore()
 const isOpenMenu = ref(false)
+
+const filteredProductsInStore = computed(() =>
+    scanProductStore.productsIsStore.filter(({productionType: {uuid}}) => studioStore.selectedProductionTypeUuid === uuid)
+)
 
 const selectProduct = async ({product, styleGuide, sampleCode}: ISavedProduct) => {
   await scanProductStore.getProductFromSavedList({

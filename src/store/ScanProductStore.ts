@@ -63,6 +63,7 @@ export const useScanProductStore = defineStore("scan-product", {
 
         isHasSelectedProdType(): boolean {
             const studioStore = useStudioStore()
+            console.log(this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid))
             return !!this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
         }
     },
