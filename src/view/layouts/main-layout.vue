@@ -3,7 +3,7 @@
     <sidebar-layout></sidebar-layout>
     <header-layout></header-layout>
     <v-main>
-      <v-container fluid class="bg-main-content-back fill-height main-container">
+      <v-container fluid class="bg-main-content-back fill-height main-container px-0 py-0">
         <router-view></router-view>
       </v-container>
     </v-main>

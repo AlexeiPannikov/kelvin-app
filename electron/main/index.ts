@@ -3,7 +3,7 @@ import {release} from 'os'
 import {join} from 'path'
 import {Window} from "./Window";
 import {UserSettingsStore} from "./store/UserSettings"
-import {PrimarySettings} from "../../src/view/pages/auth/models/PrimarySettings";
+import {PrimarySettings} from "../../src/store/models/PrimarySettings";
 import installExtension, {VUEJS3_DEVTOOLS} from 'electron-devtools-installer';
 
 // Disable GPU Acceleration for Windows 7

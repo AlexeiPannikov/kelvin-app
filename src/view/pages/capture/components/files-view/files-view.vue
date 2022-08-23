@@ -7,23 +7,28 @@
     </v-row>
     <v-row class="flex-grow-0" no-gutters>
       <v-col>
-        <div class="text-uppercase description">{{ watchedFolder }}</div>
-        <div class="text-h4 text-uppercase">{{ endFolder.toLocaleUpperCase() }}</div>
+        <div class="text-uppercase description">{{ userSettingsStore.selectedWithoutEndpoint }}</div>
+        <div class="text-h4 text-uppercase">{{ userSettingsStore.endpoint?.toLocaleUpperCase() }}</div>
       </v-col>
     </v-row>
-    <v-row class="flex-wrap overflow-auto mt-2" v-click-outside="resetSelect">
-      <v-col v-for="(file, i) in images.list"
-             :key="file.name"
-             cols="auto"
-      >
-        <image-box :file="file"
-                   :id="file.uuid"
-                   @dblclick="openModal(i)"
-                   @click="selectFile($event, file.uuid)"
-                   @mousedown.prevent="dragStart"
-                   @mousemove="choiceInMotion($event, file.uuid)"
-        ></image-box>
-      </v-col>
+    <v-row class="flex-wrap overflow-auto mt-2 mb-12" v-click-outside="resetSelect">
+      <template v-if="images.list.length">
+        <v-col v-for="(file, i) in images.list"
+               :key="file.name"
+               cols="auto"
+        >
+          <image-box :file="file"
+                     :id="file.uuid"
+                     @dblclick="openModal(i)"
+                     @click="selectFile($event, file.uuid)"
+                     @mousedown.prevent="dragStart"
+                     @mousemove="choiceInMotion($event, file.uuid)"
+          ></image-box>
+        </v-col>
+      </template>
+      <div v-else class="w-100 d-flex align-center justify-center">
+        There are no photos in this directory
+      </div>
 
       <ui-modal-fullscreen-image-crop v-if="isOpenModal"
                                       :file-list="images.list"
@@ -38,48 +43,25 @@
 
 <script lang="ts" setup>
 import UiSearch from "../../../../components/search/ui-search.vue";
-import {onMounted, onUnmounted, ref} from "vue";
-import {ipcRenderer} from "electron"
-import {useCurrentUserStore} from "../../../../../store/CurrentUserStore";
-import {PrimarySettings} from "../../../auth/models/PrimarySettings";
-import * as fs from "fs";
-import * as path from "path";
+import {onUnmounted, ref} from "vue";
 import {ImageModel} from "./ImageModel";
 import UiModalFullscreenImageCrop from "../../../../components/modal-windows/ui-modal-fullscreen-image-crop.vue";
 import {CropperResult} from "vue-advanced-cropper";
 import ImageBox from "./image-box.vue";
 import images from "./ImagesList";
+import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 
-const currentUserStore = useCurrentUserStore()
-const watchedFolder = ref("")
-const watchedFolderWithoutEnd = ref("")
-const endFolder = ref("")
+const userSettingsStore = useUserSettingsStore()
 const isOpenModal = ref(false)
 const fileIndex = ref(0)
 
-const getWatchedFolder = async () => {
-  const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
-  watchedFolder.value = settings.folder
-  const index = watchedFolder.value.lastIndexOf("\\")
-  endFolder.value = watchedFolder.value.substring(index + 1, watchedFolder.value.length)
-  watchedFolderWithoutEnd.value = watchedFolder.value.substring(0, index)
-  await getFilesInFolder()
+const initFiles = async () => {
+  await userSettingsStore.getFilesInFolder(({name, path}) => images.list.push(new ImageModel({
+    path,
+    name
+  })), images.list)
 }
-getWatchedFolder()
-
-const getFilesInFolder = async () => {
-  const files = fs.readdirSync(watchedFolder.value, {withFileTypes: true})
-  const normalizedPath = path.normalize(watchedFolder.value)
-  const pushFiles = () => {
-    images.list.splice(0)
-    for (const file of files) {
-      if (file.isDirectory()) continue
-      images.list.push(new ImageModel({path: normalizedPath + "/" + file.name, name: file.name}))
-    }
-  }
-  pushFiles()
-  fs.watch(normalizedPath, async () => pushFiles())
-}
+initFiles()
 
 const openModal = (index: number) => {
   fileIndex.value = index

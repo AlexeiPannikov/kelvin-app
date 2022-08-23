@@ -147,29 +147,24 @@
 
 <script lang="ts" setup>
 import ButtonBlue from "../../components/buttons/button-blue.vue";
-import {ipcRenderer} from "electron"
-import OpenDialogReturnValue = Electron.OpenDialogReturnValue;
 import {ref} from "vue";
 import ButtonWhite from "../../components/buttons/button-white.vue";
-import {PrimarySettings} from "./models/PrimarySettings";
 import {useCurrentUserStore} from "../../../store/CurrentUserStore";
-import {primarySettings} from "./state/PrimarySettingsState"
 import {useRouter} from "vue-router";
+import {useUserSettingsStore} from "../../../store/UserSettingsStore";
 
 const router = useRouter()
 
 const step = ref(1)
 const store = useCurrentUserStore()
+const userSettingsStore = useUserSettingsStore()
 
 const selectDirectory = async () => {
-  const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-directory-dialog")
-  if (dialogRes)
-    console.log(dialogRes)
-    primarySettings.folder = dialogRes.filePaths[0]
+  await userSettingsStore.selectDirectory()
 }
 
 const saveDirectory = () => {
-  ipcRenderer.send("set-user-settings", store.currentUser.id, new PrimarySettings({folder: primarySettings.folder}))
+  userSettingsStore.saveSettings()
   step.value = 2
 }
 

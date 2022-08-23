@@ -1,5 +1,5 @@
 import Store, {Options} from "electron-store"
-import {PrimarySettings} from "../../../src/view/pages/auth/models/PrimarySettings";
+import {PrimarySettings} from "../../../src/store/models/PrimarySettings";
 import {app} from "electron"
 import * as fs from "fs";
 

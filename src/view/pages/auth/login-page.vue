@@ -72,7 +72,7 @@ import {useCurrentUserStore} from "../../../store/CurrentUserStore";
 import {useRouter} from "vue-router";
 import {loginData} from "./state/LoginDataState"
 import {ipcRenderer} from "electron";
-import {PrimarySettings} from "./models/PrimarySettings";
+import {PrimarySettings} from "../../../store/models/PrimarySettings";
 
 const isValid = ref(false)
 const showPass = ref(false)
