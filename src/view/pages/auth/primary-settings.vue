@@ -12,14 +12,14 @@
         <div class="d-flex justify-center py-16 px-16">
           <button-blue @click="selectDirectory"
                        size="large"
-                       v-if="!primarySettings.folder"
+                       v-if="!userSettingsStore.primarySettings.folder"
           >
             Select
           </button-blue>
           <div v-else class="d-flex align-center w-100">
             <v-text-field variant="outlined"
                           density="compact"
-                          v-model="primarySettings.folder"
+                          v-model="userSettingsStore.primarySettings.folder"
                           readonly
                           hide-details
             >
@@ -33,7 +33,7 @@
         <v-card-item class="justify-center">
           <button-blue @click="saveDirectory"
                        size="large"
-                       v-if="primarySettings.folder"
+                       v-if="userSettingsStore.primarySettings.folder"
           >
             Continue
           </button-blue>
@@ -56,7 +56,7 @@
                           density="compact"
                           hide-details
                           class="ml-5 mr-5"
-                          v-model="primarySettings.transferHistory"
+                          v-model="userSettingsStore.primarySettings.transferHistory"
             >
             </v-text-field>
           </div>
@@ -66,7 +66,7 @@
         <v-card-item class="justify-center">
           <button-blue @click="saveTransferHistory"
                        size="large"
-                       :disabled="!primarySettings.transferHistory"
+                       :disabled="!userSettingsStore.primarySettings.transferHistory"
           >
             Continue
           </button-blue>
@@ -87,7 +87,7 @@
               <span>Adobe Photoshop</span>
               <v-text-field variant="outlined"
                             density="compact"
-                            v-model="primarySettings.adobeApplications.ps"
+                            v-model="userSettingsStore.primarySettings.adobeApplications.ps"
                             readonly
                             hide-details
               >
@@ -97,7 +97,7 @@
               <span>Adobe Bridge</span>
               <v-text-field variant="outlined"
                             density="compact"
-                            v-model="primarySettings.adobeApplications.br"
+                            v-model="userSettingsStore.primarySettings.adobeApplications.br"
                             readonly
                             hide-details
               >
