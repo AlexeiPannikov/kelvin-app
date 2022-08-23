@@ -37,7 +37,6 @@ const initFolders = async () => {
   const initChildrenFolders = (treeItems: TreeItem[], folderItems: IFolder[]) => {
     if (!folderItems) return
     for (const {children, name, path} of folderItems) {
-      treeItems.splice(0)
       const newItem = new TreeItem({
         name,
         value: path,
