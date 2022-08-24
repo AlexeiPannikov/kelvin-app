@@ -1,6 +1,7 @@
 <template>
   <div class="tree-item-wrap">
-    <div class="tree-item pointer rounded"
+    <div class="tree-item pointer rounded
+px-2"
          :class="{expanded: props.item.isExpanded, selected: props.item.isSelected}"
          @click.stop="select"
     >
@@ -57,6 +58,8 @@ const childSelectHandler = (item: TreeItem) => {
 
 <style lang="scss" scoped>
 .tree-item {
+  min-width: max-content;
+  width: 100%;
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   transition: color 0.1s ease-in-out;

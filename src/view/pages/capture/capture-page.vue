@@ -2,7 +2,7 @@
   <v-row class="fill-height overflow-hidden mb-0" no-gutters>
     <transition name="fade" appear>
       <v-col v-if="isVisibleDirectories" :cols="isVisibleDirectories ? 2 : 0"
-             class="overflow-hidden position-relative border-e flex-grow-0"
+             class="overflow-hidden position-relative fill-height border-e flex-grow-0 pb-10"
       >
         <folders-view></folders-view>
         <bottom-panel without-buttons
@@ -17,8 +17,11 @@
       >
       </bottom-panel>
     </v-col>
-    <v-col cols="4" class="pb-0">
+    <v-col cols="4" class="pb-0 fill-height overflow-hidden position-relative">
       <products-view></products-view>
+      <bottom-panel without-buttons
+      >
+      </bottom-panel>
     </v-col>
   </v-row>
 </template>

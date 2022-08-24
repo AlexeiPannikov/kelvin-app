@@ -1,6 +1,6 @@
 <template>
-  <v-row class="fill-height">
-    <v-col class="d-flex flex-column pb-0 fill-height">
+  <v-row class="fill-height" no-gutters>
+    <v-col class="d-flex flex-column pb-0 fill-height px-4 pt-4">
       <product-selections class="mb-4">
       </product-selections>
       <barcode-scan v-if="!scanProductStore.confirmedProduct"

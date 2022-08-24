@@ -1,9 +1,11 @@
 <template>
-  <div class="w-100 fill-height px-4 py-4">
-    <ui-tree :tree="foldersTree"
-             @select="selectItem"
-    >
-    </ui-tree>
+  <div class="overflow-auto fill-height w-100">
+    <div class="w-100 pt-4 px-4">
+      <ui-tree :tree="foldersTree"
+               @select="selectItem"
+      >
+      </ui-tree>
+    </div>
   </div>
 </template>
 
