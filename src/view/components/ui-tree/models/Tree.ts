@@ -23,14 +23,33 @@ export class Tree implements ITree {
     }
 
     expandToSelected() {
-        const findSelectedAndExpand = (list: TreeItem[]) => {
+        let selectedItem: TreeItem = null
+        const findSelected = (list: TreeItem[]) => {
             for (const item of list) {
-                if (item.isSelected) return
-                item.isExpanded = true
-                findSelectedAndExpand(item.children)
+                if (item.isSelected) {
+                    selectedItem = item
+                    return
+                }
+                findSelected(item.children)
             }
         }
-        findSelectedAndExpand(this.items)
+        findSelected(this.items)
+        const itemsArr = (selectedItem.value as string).split('\\')
+        const rootItem = (this.items[0].value as string).split("\\").at(-1)
+        const rootItemIndex = itemsArr.indexOf(rootItem)
+        itemsArr.splice(0, rootItemIndex)
+        const expand = (list: TreeItem[]) => {
+            for (const item of list) {
+                if (itemsArr.find(name => item.name === name)) {
+                    if (item.isSelected) return
+                    item.isExpanded = true
+                }
+                if (item.children.length) {
+                    expand(item.children)
+                }
+            }
+        }
+        expand(this.items)
     }
 
     constructor(obj?: Partial<Tree>) {

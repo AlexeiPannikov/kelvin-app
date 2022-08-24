@@ -36,6 +36,7 @@ const initFolders = async () => {
   selectedItem.value = foldersTree.items[0]
   const initChildrenFolders = (treeItems: TreeItem[], folderItems: IFolder[]) => {
     if (!folderItems) return
+    treeItems.splice(0)
     for (const {children, name, path} of folderItems) {
       const newItem = new TreeItem({
         name,
@@ -45,15 +46,17 @@ const initFolders = async () => {
       if (path === userSettingsStore.selectedFolder) {
         newItem.selectItem()
         foldersTree.leaveOneSelected(newItem.id)
+        selectedItem.value = newItem
       }
       treeItems.push(newItem)
-      initChildrenFolders(treeItems[treeItems.length - 1].children, children)
+      initChildrenFolders(treeItems.at(-1).children, children)
     }
   }
   initChildrenFolders(foldersTree.items[0].children, folder.children)
   foldersTree.expandToSelected()
 }
 initFolders()
+fs.watch(userSettingsStore.rootFolder, {recursive: true}, () => initFolders())
 
 const selectItem = async (item: TreeItem) => {
   selectedItem.value = item
@@ -63,6 +66,8 @@ const selectItem = async (item: TreeItem) => {
     path,
     name
   })), images.list)
+  userSettingsStore.primarySettings.lastOpenedFolder = item.value
+  userSettingsStore.saveSettings()
 }
 </script>
 

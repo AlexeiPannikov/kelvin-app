@@ -31,8 +31,6 @@ export const useUserSettingsStore = defineStore("user-settings", {
             const currentUserStore = useCurrentUserStore()
             const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
             this.rootFolder = settings.folder
-            if (this.firstLoading)
-                this.selectedFolder = settings.folder
             this.parseFolder(this.selectedFolder)
             this.firstLoading = false
         },
@@ -50,8 +48,10 @@ export const useUserSettingsStore = defineStore("user-settings", {
 
         async getFilesInFolder(callback: (args: { name: string, path: string }) => void, list?: any[]) {
             await this.getRootFolder()
+            if (!fs.existsSync(this.selectedFolder || this.rootFolder)) return
             const getFiles = () => {
                 const innerFolder = this.selectedFolder || this.rootFolder
+                if (!fs.existsSync(innerFolder)) return
                 list?.splice(0)
                 const allFiles = fs.readdirSync(innerFolder, {withFileTypes: true})
                 for (const file of allFiles) {
@@ -97,6 +97,16 @@ export const useUserSettingsStore = defineStore("user-settings", {
             const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-directory-dialog")
             if (dialogRes)
                 userSettingsStore.primarySettings.folder = dialogRes.filePaths[0]
+        },
+
+        async getSettings() {
+            const currentUserStore = useCurrentUserStore()
+            this.primarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
+            if (fs.existsSync(this.primarySettings.lastOpenedFolder)) {
+                this.selectedFolder = this.primarySettings.lastOpenedFolder
+            } else {
+                this.selectedFolder = this.primarySettings.folder
+            }
         },
 
         saveSettings() {

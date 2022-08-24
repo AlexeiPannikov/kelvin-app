@@ -5,6 +5,7 @@ export class PrimarySettings {
         ps: "",
         br: ""
     }
+    lastOpenedFolder = ""
 
     constructor(obj?: Partial<PrimarySettings>) {
         if (obj) {
