@@ -35,7 +35,7 @@
                 class="settings-list w-100"
         >
           <v-list-item @click="isOpenComputerLocation = true">Computer Location</v-list-item>
-          <v-list-item>Settings</v-list-item>
+          <v-list-item @click="isOpenAppSettings = true">Settings</v-list-item>
           <v-list-item>Debug info</v-list-item>
           <v-list-item @click="logout">Logout</v-list-item>
         </v-list>
@@ -47,6 +47,10 @@
                            @cancel="isOpenComputerLocation = false"
   >
   </computer-location-modal>
+
+  <app-settings v-model="isOpenAppSettings"
+                @cancel="isOpenAppSettings = false"
+  ></app-settings>
 </template>
 
 <script lang="ts" setup>
@@ -55,12 +59,13 @@ import {useFirstNameLetters} from "../../../../functions/useFirstNameLetters";
 import {ref, toRefs} from "vue";
 import {useRouter} from "vue-router";
 import ComputerLocationModal from "./computer-location-modal.vue";
-import {ipcRenderer} from "electron"
+import AppSettings from "./app-settings/app-settings.vue";
 
 const currentUserStore = useCurrentUserStore()
 const {currentUser} = toRefs(currentUserStore)
 const isOpenSettingsMenu = ref(false)
 const isOpenComputerLocation = ref(false)
+const isOpenAppSettings = ref(false)
 const nameFirstLetters = useFirstNameLetters(currentUser.value.name)
 const router = useRouter()
 

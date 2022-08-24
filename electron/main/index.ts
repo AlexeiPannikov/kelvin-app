@@ -1,10 +1,15 @@
-import {app, BrowserWindow, shell, ipcMain, session, dialog, safeStorage, contextBridge, ipcRenderer} from 'electron'
+import {
+    app,
+    BrowserWindow,
+    ipcMain,
+    dialog,
+    FileFilter
+} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
 import {Window} from "./Window";
 import {UserSettingsStore} from "./store/UserSettings"
 import {PrimarySettings} from "../../src/store/models/PrimarySettings";
-import installExtension, {VUEJS3_DEVTOOLS} from 'electron-devtools-installer';
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -37,7 +42,10 @@ const url = `http://${process.env['VITE_DEV_SERVER_HOST']}:${process.env['VITE_D
 const indexHtml = join(ROOT_PATH.dist, 'index.html')
 
 async function createMainWindow() {
-    const mainWin = new Window(indexHtml, url)
+    const mainWin = new Window(indexHtml, url, {
+        icon: ROOT_PATH.public + "/RED_Pixel-Moda-Hue-And-Kelvin-Icons.png",
+        title: "Kelvin" + " v" + app.getVersion()
+    })
 }
 
 app.whenReady().then(createMainWindow)
@@ -67,6 +75,10 @@ ipcMain.handle("open-set-directory-dialog", async (event) => {
     return await dialog.showOpenDialog({properties: ['openDirectory', "createDirectory"]})
 })
 
+ipcMain.handle("open-set-filter-dialog", async (event, filters: FileFilter[]) => {
+    return await dialog.showOpenDialog({properties: ['openFile'], filters})
+})
+
 ipcMain.on("set-user-settings", (event, userId: string | number, data: PrimarySettings) => {
     const userSettingsStore = new UserSettingsStore(userId)
     userSettingsStore.saveSettings(data)
@@ -76,3 +88,10 @@ ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
     const userSettingsStore = new UserSettingsStore(userId)
     return userSettingsStore.getAllSettings().data
 })
+
+ipcMain.once("restart-app", async () => {
+    app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
+    app.exit(0)
+})
+
+console.log(ROOT_PATH.public + "/RED_Pixel-Moda-Hue-And-Kelvin-Icons.png")

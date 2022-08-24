@@ -1,10 +1,11 @@
 import {defineStore} from "pinia";
 import {PrimarySettings} from "./models/PrimarySettings";
-import {ipcRenderer} from "electron";
+import {ipcRenderer, FileFilter} from "electron";
 import fs from "fs";
 import nodePath from "path";
 import {useCurrentUserStore} from "./CurrentUserStore";
 import {OpenDialogReturnValue} from "electron"
+import {ref} from "vue";
 
 export interface IFolder {
     name: string,
@@ -17,10 +18,12 @@ export const useUserSettingsStore = defineStore("user-settings", {
         return {
             primarySettings: new PrimarySettings(),
             rootFolder: "",
+            newRootFolder: "",
             selectedFolder: "",
             selectedWithoutEndpoint: "",
             endpoint: "",
-            firstLoading: true
+            isValidPhotoshopPath: true,
+            isValidBridgePath: true,
         };
     },
 
@@ -32,7 +35,6 @@ export const useUserSettingsStore = defineStore("user-settings", {
             const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
             this.rootFolder = settings.folder
             this.parseFolder(this.selectedFolder)
-            this.firstLoading = false
         },
 
         getEndpoint(folder: string): [string, number] {
@@ -93,10 +95,15 @@ export const useUserSettingsStore = defineStore("user-settings", {
         },
 
         async selectDirectory() {
-            const userSettingsStore = useUserSettingsStore()
             const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-directory-dialog")
             if (dialogRes)
-                userSettingsStore.primarySettings.folder = dialogRes.filePaths[0]
+                return dialogRes.filePaths[0]
+        },
+
+        async selectFile(filters?: FileFilter[]) {
+            const dialogRes: OpenDialogReturnValue = await ipcRenderer.invoke("open-set-filter-dialog", JSON.parse(JSON.stringify(filters)))
+            if (dialogRes)
+                return dialogRes.filePaths[0]
         },
 
         async getSettings() {

@@ -81,34 +81,12 @@
           Certain functions in Kelvin use Adobe Photoshop and Adobe Bridge.
           Please point Kelvin to the right application paths if you wish to use these functions.
         </v-card-text>
-        <div class="d-flex justify-center align-center py-16 px-16">
-          <div class="w-100 d-flex flex-column">
-            <div class="flex-grow-1">
-              <span>Adobe Photoshop</span>
-              <v-text-field variant="outlined"
-                            density="compact"
-                            v-model="userSettingsStore.primarySettings.adobeApplications.ps"
-                            readonly
-                            hide-details
-              >
-              </v-text-field>
-            </div>
-            <div class="flex-grow-1 mt-5">
-              <span>Adobe Bridge</span>
-              <v-text-field variant="outlined"
-                            density="compact"
-                            v-model="userSettingsStore.primarySettings.adobeApplications.br"
-                            readonly
-                            hide-details
-              >
-              </v-text-field>
-            </div>
-          </div>
-        </div>
-
+        <select-external-applications
+        ></select-external-applications>
         <v-card-item class="justify-center">
           <button-blue @click="saveAdobeApps"
                        size="large"
+                       :disabled="!userSettingsStore.isValidPhotoshopPath || !userSettingsStore.isValidBridgePath"
           >
             Continue
           </button-blue>
@@ -152,6 +130,7 @@ import ButtonWhite from "../../components/buttons/button-white.vue";
 import {useCurrentUserStore} from "../../../store/CurrentUserStore";
 import {useRouter} from "vue-router";
 import {useUserSettingsStore} from "../../../store/UserSettingsStore";
+import SelectExternalApplications from "../components/select-external-applications.vue";
 
 const router = useRouter()
 
@@ -160,7 +139,9 @@ const store = useCurrentUserStore()
 const userSettingsStore = useUserSettingsStore()
 
 const selectDirectory = async () => {
-  await userSettingsStore.selectDirectory()
+  const newDir = await userSettingsStore.selectDirectory()
+  if (newDir)
+    userSettingsStore.primarySettings.folder = newDir
 }
 
 const saveDirectory = () => {
@@ -173,6 +154,7 @@ const saveTransferHistory = () => {
 }
 
 const saveAdobeApps = () => {
+  userSettingsStore.saveSettings()
   step.value = 4
 }
 

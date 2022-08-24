@@ -9,6 +9,7 @@ declare module '*.vue' {
 
 declare module 'webfontloader';
 declare module '*.png';
+declare module '*.svg';
 
 declare global {
     interface Window {

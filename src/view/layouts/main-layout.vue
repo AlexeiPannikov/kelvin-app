@@ -18,10 +18,18 @@ import {useStyleGuidesStore} from "../../store/StyleGuidesStore";
 import {useStudioStore} from "../../store/StudioStore";
 import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 import {useUserSettingsStore} from "../../store/UserSettingsStore";
+import {onMounted} from "vue";
+import {useRouter} from "vue-router";
 
+const router = useRouter()
 const userSettingsStore = useUserSettingsStore()
-userSettingsStore.getSettings()
-
+userSettingsStore.getSettings().then(() => {
+  userSettingsStore.getRootFolder().then(() => {
+    if (!userSettingsStore.primarySettings.folder) {
+      router.push("primary-settings")
+    }
+  })
+})
 </script>
 
 <style lang="scss">
