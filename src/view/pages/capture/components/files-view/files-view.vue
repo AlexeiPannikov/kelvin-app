@@ -2,7 +2,7 @@
   <div class="fill-height d-flex flex-column">
     <v-row class="flex-grow-0" justify="end" no-gutters>
       <v-col cols="auto">
-        <ui-search></ui-search>
+        <ui-search v-model="searchText"></ui-search>
       </v-col>
     </v-row>
     <v-row class="flex-grow-0" no-gutters>
@@ -13,7 +13,7 @@
     </v-row>
     <v-row class="flex-wrap overflow-auto mt-2 mb-12" v-click-outside="resetSelect">
       <template v-if="images.list.length">
-        <v-col v-for="(file, i) in images.list"
+        <v-col v-for="(file, i) in filteredImagesList"
                :key="file.name"
                cols="auto"
         >
@@ -26,8 +26,11 @@
           ></image-box>
         </v-col>
       </template>
-      <div v-else class="w-100 d-flex align-center justify-center">
+      <div v-if="!images.list.length" class="w-100 d-flex align-center justify-center">
         There are no photos in this directory
+      </div>
+      <div v-if="images.list.length && !filteredImagesList.length" class="w-100 d-flex align-center justify-center">
+        Images not found
       </div>
 
       <ui-modal-fullscreen-image-crop v-if="isOpenModal"
@@ -43,17 +46,21 @@
 
 <script lang="ts" setup>
 import UiSearch from "../../../../components/search/ui-search.vue";
-import {onUnmounted, ref} from "vue";
+import {computed, onUnmounted, ref} from "vue";
 import {ImageModel} from "./ImageModel";
 import UiModalFullscreenImageCrop from "../../../../components/modal-windows/ui-modal-fullscreen-image-crop.vue";
 import {CropperResult} from "vue-advanced-cropper";
 import ImageBox from "./image-box.vue";
 import images from "./ImagesList";
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
+import {useSearchFilter} from "../../../../../functions/useSearch";
 
 const userSettingsStore = useUserSettingsStore()
 const isOpenModal = ref(false)
 const fileIndex = ref(0)
+const searchText = ref("")
+
+const filteredImagesList = computed(() => useSearchFilter(searchText.value, images.list, ["name"]))
 
 const initFiles = async () => {
   await userSettingsStore.getFilesInFolder(({name, path}) => images.list.push(new ImageModel({
