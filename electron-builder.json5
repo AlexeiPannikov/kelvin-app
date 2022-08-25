@@ -9,7 +9,7 @@
     "buildResources": "dist"
   },
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   //  "mac": {
   //    "artifactName": "mac_${productName}_${version}.${ext}",
