@@ -1,7 +1,7 @@
 export class FullscreenImage {
-    private img: HTMLImageElement = null;
+    private img: HTMLElement = null;
     private imgWrap: HTMLDivElement = null;
-    private imgs: HTMLImageElement[] = [];
+    private imgs: HTMLElement[] = [];
     private imgsWrap: HTMLDivElement = null;
     currentImgIdx: number = 0;
     private width: number = null;
@@ -17,6 +17,9 @@ export class FullscreenImage {
     private startWidth = 0;
     private startHeight = 0;
     isStopResize = false
+    options = {
+        resized: true
+    }
 
     get imgWidth() {
         return this.width;
@@ -42,26 +45,28 @@ export class FullscreenImage {
         return isMoreScreen;
     }
 
-    get hasNotStartWidth() {
-        if (!this.imgWidth) return
-        return this.imgWidth > this.img.naturalWidth
-    }
+    // get hasNotStartWidth() {
+    //     // if (!this.imgWidth) return
+    //     // return this.imgWidth > this.img.naturalWidth
+    //     return false
+    // }
 
-    init(imgs: HTMLImageElement[], idx = 0) {
+    init(imgs: HTMLElement[], idx = 0) {
         this.currentImgIdx = idx
         this.imgs = imgs;
         this.imgsWrap = this.imgs[idx].parentElement.parentElement as HTMLDivElement;
         this.setSlidePosition()
-        this.imgWidth = this.img.naturalWidth;
-        this.imgHeight = this.img.naturalHeight;
-        this.startWidth = this.img.naturalWidth;
-        this.startHeight = this.img.naturalHeight;
+        // this.imgWidth = this.img.naturalWidth;
+        // this.imgHeight = this.img.naturalHeight;
+        // this.startWidth = this.img.naturalWidth;
+        // this.startHeight = this.img.naturalHeight;
         this.subscribeOnWheel();
         this.subscribeOnMousedownOnWrap()
         this.imgsWrap.style.transition = "all 0.3s linear"
     }
 
     private subscribeOnWheel() {
+        if (!this.options.resized) return
         window.addEventListener("wheel", this.setWidth.bind(this));
         document.addEventListener("touchmove", this.setWidth.bind(this));
     }
@@ -81,24 +86,23 @@ export class FullscreenImage {
     }
 
     flipForward() {
-        if (this.currentImgIdx + 1 < this.imgs.length && !this.hasNotStartWidth) {
+        if (this.currentImgIdx + 1 < this.imgs.length) {
             this.currentImgIdx += 1
             this.setSlidePosition()
         }
     }
 
     flipBack() {
-        if (this.currentImgIdx > 0 && !this.hasNotStartWidth) {
+        if (this.currentImgIdx > 0) {
             this.currentImgIdx -= 1
             this.setSlidePosition()
         }
     }
 
     private startFlipping(e: MouseEvent | TouchEvent) {
-        if (this.hasNotStartWidth) return;
         if (this.imgs.length < 2) return
-        const foundImg = ((e.target as HTMLElement).getElementsByTagName("img")[0] || e.target) as HTMLImageElement
-        this.currentImgIdx = this.imgs.indexOf(foundImg)
+        // const foundImg = ((e.target as HTMLElement).getElementsByTagName("img")[0] || e.target) as HTMLImageElement
+        // this.currentImgIdx = this.imgs.indexOf(foundImg)
         this.isStartFlipping = true
         if (e instanceof MouseEvent) {
             e.preventDefault();
@@ -109,8 +113,8 @@ export class FullscreenImage {
             this.startPointX = e.changedTouches[0].clientX;
             this.shiftX = e.changedTouches[0].clientX - this.imgsWrap.getBoundingClientRect().left;
         }
-        this.imgsWrap.addEventListener("mousemove", this.flipping.bind(this))
-        document.addEventListener("mouseup", this.stopFlipping.bind(this))
+        this.imgsWrap.onmousemove = this.flipping.bind(this)
+        document.onmouseup = this.stopFlipping.bind(this)
     }
 
     private flipping(e: MouseEvent | TouchEvent) {
@@ -136,6 +140,8 @@ export class FullscreenImage {
             }
         }
         this.setSlidePosition()
+        this.imgsWrap.onmousemove = null
+        document.onmouseup = null
     }
 
     private setWidth(e: WheelEvent | TouchEvent) {
@@ -319,7 +325,10 @@ export class FullscreenImage {
         this.unsubscribeOnMove();
     }
 
-    constructor(imgs?: HTMLImageElement[]) {
+    constructor(imgs?: HTMLElement[], options?: { resized: boolean }) {
+        if (options) {
+            this.options = {...this.options, ...options}
+        }
         if (imgs) {
             this.init(imgs);
         }

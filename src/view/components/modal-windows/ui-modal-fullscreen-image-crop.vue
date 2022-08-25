@@ -45,18 +45,20 @@
                v-for="item in props.fileList"
                :key="item.name"
           >
-            <img
-                v-if="mode === 'select'"
-                :id="item.name"
-                :src="item.path"
-                alt="image"
-                :style="{
-            width: fullscreenImage.imgWidth,
-            height: fullscreenImage.imgHeight,
-            maxWidth: '100vw',
-            maxHeight: '100vh',
+            <div class="img-container" :style="{
+            // width: fullscreenImage.imgWidth,
+            // height: fullscreenImage.imgHeight,
+            maxWidth: '100%'
           }"
-            />
+                 v-if="mode === 'select'"
+                 :id="item.name"
+            >
+              <img
+                  :src="item.path"
+                  alt="image"
+                  style="aspect-ratio: 1; width: 100%; height: 100%; object-fit: contain"
+              />
+            </div>
             <ui-crop-image v-if="mode === 'crop'"
                            :src="item.path"
                            @change="cropChange"
@@ -64,7 +66,7 @@
             </ui-crop-image>
           </div>
         </div>
-        <div v-if="fullscreenImage.currentImgIdx < props.fileList.length - 1 && !fullscreenImage.hasNotStartWidth"
+        <div v-if="fullscreenImage.currentImgIdx < props.fileList.length - 1"
              @click="fullscreenImage.flipForward"
              class="position-absolute right-arrow">
           <v-icon>mdi-arrow-right</v-icon>
@@ -96,7 +98,7 @@ const props = withDefaults(defineProps<IProps>(), {
 
 const emit = defineEmits(["close", "change", "resetCrop"]);
 
-const fullscreenImage = reactive(new FullscreenImage());
+const fullscreenImage = reactive(new FullscreenImage(null, {resized: false}));
 const isFullScreenBrowserMode = ref(false)
 const isChangedImage = ref(false)
 
@@ -116,9 +118,9 @@ watch(mode, () => {
 
 onMounted(() => {
   setTimeout(() => {
-    const images: HTMLImageElement[] = []
+    const images: HTMLElement[] = []
     props.fileList.forEach(({name}) => {
-      images.push(document.getElementById(name) as HTMLImageElement);
+      images.push(document.getElementById(name) as HTMLElement);
     })
     console.log(images)
     fullscreenImage.init(images, props.index);
@@ -167,6 +169,11 @@ onUnmounted(() => fullscreenImage.unsubscribe());
     .image-wrap {
       width: 100vw;
       height: 100vh;
+
+      .img-container {
+        height: calc(100% - 70px);
+        margin-bottom: -48px;
+      }
     }
   }
 
