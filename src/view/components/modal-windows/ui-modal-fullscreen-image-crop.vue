@@ -2,7 +2,7 @@
   <teleport to=".v-application">
     <transition name="fade" appear>
       <div class="overlay align-center justify-center d-flex overflow-hidden">
-        <div v-if="fullscreenImage.currentImgIdx !== 0 && !fullscreenImage.hasNotStartWidth"
+        <div v-if="fullscreenImage.currentImgIdx !== 0"
              @click="fullscreenImage.flipBack"
              class="position-absolute left-arrow">
           <v-icon>mdi-arrow-left</v-icon>
