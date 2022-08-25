@@ -1,10 +1,16 @@
 <template>
-  <v-row class="fill-height overflow-hidden">
-    <v-col cols="4" class="border-e fill-height pb-0">
+  <v-row class="fill-height overflow-hidden" no-gutters>
+    <v-col cols="4" class="border-e fill-height pb-0 position-relative">
       <style-guide-select></style-guide-select>
+      <bottom-panel without-buttons
+      >
+      </bottom-panel>
     </v-col>
-    <v-col cols="8" class="fill-height" style="overflow-y: overlay">
+    <v-col cols="8" class="fill-height position-relative">
       <style-guide-detail></style-guide-detail>
+      <bottom-panel without-buttons
+      >
+      </bottom-panel>
     </v-col>
   </v-row>
 </template>
@@ -15,6 +21,7 @@ import StyleGuideDetail from "./components/style-guide-detail.vue";
 import {useClientsStore} from "../../../store/ClientsStore";
 import {useStyleGuidesStore} from "../../../store/StyleGuidesStore";
 import {ref} from "vue";
+import BottomPanel from "../../layouts/components/bottom-panel.vue";
 
 const clientsStore = useClientsStore()
 const styleGuidesStore = useStyleGuidesStore()

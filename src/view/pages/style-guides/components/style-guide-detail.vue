@@ -1,8 +1,8 @@
 <template>
-  <v-container v-if="styleGuide.uuid" fluid class="position-relative fill-height">
+  <div v-if="styleGuide.uuid" class="position-relative overflow-y-auto fill-height px-4 pt-4 pb-10">
     <ui-preloader :is-loading="styleGuidesStore.isLoadingStyleGuide" contained>
       <div>
-        <v-row>
+        <v-row no-gutters>
           <v-col cols="12">
             <div class="d-flex">
               <div class="bg-white mr-4">
@@ -24,7 +24,7 @@
           </v-col>
         </v-row>
 
-        <v-row justify="end">
+        <v-row no-gutters justify="end">
           <v-col cols="auto">
             <ui-select :items="styleGuidesStore.getStyleGuideProductionTypesSelectList"
                        v-model="styleGuidesStore.selectedShootingTypeUuid"
@@ -42,7 +42,7 @@
             </file-link>
           </v-col>
           <v-col cols="12">
-            <v-row>
+            <v-row no-gutters>
               <v-col v-for="position in positions"
                      :key="position.id"
                      cols="6"
@@ -55,7 +55,7 @@
         </v-row>
       </div>
     </ui-preloader>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
