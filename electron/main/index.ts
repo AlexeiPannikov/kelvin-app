@@ -43,7 +43,7 @@ const indexHtml = join(ROOT_PATH.dist, 'index.html')
 
 async function createMainWindow() {
     const mainWin = new Window(indexHtml, url, {
-        icon: ROOT_PATH.public + "/RED_Pixel-Moda-Hue-And-Kelvin-Icons.png",
+        icon: ROOT_PATH.public + "/icon.png",
         title: "Kelvin" + " v" + app.getVersion()
     })
 }
@@ -93,5 +93,3 @@ ipcMain.once("restart-app", async () => {
     app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
     app.exit(0)
 })
-
-console.log(ROOT_PATH.public + "/RED_Pixel-Moda-Hue-And-Kelvin-Icons.png")

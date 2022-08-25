@@ -5,17 +5,32 @@
   "appId": "YourAppID",
   "asar": true,
   "directories": {
-    "output": "release/${version}"
+    "output": "release/${version}",
+    "buildResources": "dist"
   },
   "files": [
-    "dist"
+    "dist/**/*"
   ],
-  "mac": {
-    "artifactName": "${productName}_${version}.${ext}",
-    "target": [
-      "dmg"
-    ]
-  },
+  //  "mac": {
+  //    "artifactName": "mac_${productName}_${version}.${ext}",
+  //    "target": [
+  //      "dmg"
+  //    ]
+  //  },
+  //  "dmg": {
+  //    "contents": [
+  //      {
+  //        "x": 110,
+  //        "y": 150
+  //      },
+  //      {
+  //        "x": 240,
+  //        "y": 150,
+  //        "type": "link",
+  //        "path": "/Applications"
+  //      }
+  //    ]
+  //  },
   "win": {
     "target": [
       {
@@ -25,12 +40,17 @@
         ]
       },
     ],
-    "artifactName": "${productName}_${version}.${ext}"
+    "artifactName": "${productName}_${version}.${ext}",
+    "icon": "dist/icon.ico"
   },
   "nsis": {
     "oneClick": false,
-    "perMachine": false,
+    "perMachine": true,
+    "allowElevation": true,
     "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false
+    "deleteAppDataOnUninstall": true,
+    "createDesktopShortcut": true,
+    "installerIcon": "dist/icon.ico",
+    "installerHeaderIcon": "dist/icon.ico"
   }
 }
