@@ -26,8 +26,8 @@
               <div class="d-flex justify-space-between main-zone flex-column overflow-hidden">
                 <div class="d-flex px-2 py-2 align-center align-self-start zone-header justify-space-between w-100"
                      style="font-size: 14px">
-                  <span class="text-uppercase font-weight-bold">{{ position.name }}</span>
-                  <div>
+                  <span class="text-uppercase font-weight-bold text-ellipsis">{{ position.name }}</span>
+                  <div class="text-no-wrap">
                     <span v-if="position.photography.minShots || position.photography.maxShots"
                     >
                 {{ position.photography.minShots }} - {{ position.photography.maxShots }}
@@ -114,6 +114,13 @@ onUnmounted(() => {
   flex: 1 0 50%;
   box-shadow: 1px 0 12px 0 #000000;
   z-index: 3;
+
+  .text-ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: block;
+    white-space: nowrap;
+  }
 }
 
 .alts-zone {
