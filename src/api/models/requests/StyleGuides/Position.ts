@@ -40,6 +40,10 @@ export class Position {
         this.asset = new Asset(obj.asset)
     }
 
+    get isValidNumberOfPictures() {
+        return this.images.list.length >= this.photography.minShots && this.images.list.length <= this.photography.maxShots
+    }
+
     subscribes() {
         const mainDropZone = document.getElementById(this.id.toString())
         const altDropZone = document.getElementById(`alt-${this.id}`)
@@ -54,11 +58,14 @@ export class Position {
     unsubscribes() {
         const mainDropZone = document.getElementById(this.id.toString())
         const altDropZone = document.getElementById(`alt-${this.id}`)
-        mainDropZone.onmouseenter = null
-        mainDropZone.onmouseleave = null
-        altDropZone.onmouseenter = null
-        altDropZone.onmouseleave = null
-        // window.onmouseup = null
+        if (mainDropZone) {
+            mainDropZone.onmouseenter = null
+            mainDropZone.onmouseleave = null
+        }
+        if (altDropZone) {
+            altDropZone.onmouseenter = null
+            altDropZone.onmouseleave = null
+        }
     }
 
     private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => {
@@ -81,8 +88,6 @@ export class Position {
     private get isDisabledDragMode() {
         return !imagesInFolder.dragMode && !this.images.dragMode && !this.altsImages.dragMode
     }
-
-    private isCheckedList = false
 
     private mainListFilter(image: ImageModel) {
         const isFileExist = !!this.images.list.find(item => item.id === image.id)

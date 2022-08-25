@@ -8,7 +8,7 @@ const preload = join(__dirname, '../preload/index.js')
 const defaultSettings: BrowserWindowConstructorOptions = {
     width: 1200,
     height: 800,
-    minWidth: 900,
+    minWidth: 1200,
     webPreferences: {
         preload,
         // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production

@@ -8,6 +8,10 @@ export class ShootingType {
     filesInner: FileDataModel[] = []
     positions = new Array<Position>()
 
+    get isValidNumberOfPictures() {
+        return !this.positions.find(({isValidNumberOfPictures}) => !isValidNumberOfPictures)
+    }
+
     constructor(obj?: Partial<ShootingType>) {
         if (obj) {
             Object.assign(this, obj)

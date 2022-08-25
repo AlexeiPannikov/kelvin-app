@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex align-center">
-    <div class="rounded-circle bg-grey-lighten-1 px-2 py-2 mr-4 d-none d-md-flex">
+    <div class="rounded-circle bg-grey-lighten-1 px-2 py-2 mr-4 d-none d-lg-flex">
       <v-icon color="grey-darken-4" size="40">mdi-upload</v-icon>
       <v-badge color="black"
                :content="scanProductStore.productsInStore.length"
@@ -50,12 +50,17 @@
     <span class="text-h5" v-if="scanProductStore.confirmedProduct">PRE-SELECTION</span>
     <v-spacer></v-spacer>
     <v-btn class="ml-3"
-           prepend-icon="mdi-content-save-outline"
            @click="scanProductStore.saveProduct()"
            v-if="scanProductStore.confirmedProduct"
     >
-      Save
+      <v-icon>mdi-content-save-outline</v-icon>
+      <span class="ml-2">{{ isVisibleTransfer ? "" : "Save" }}</span>
     </v-btn>
+    <button-blue class="ml-3"
+                 v-if="isVisibleTransfer"
+    >
+      Transfer
+    </button-blue>
   </div>
 </template>
 
@@ -63,9 +68,17 @@
 import {computed, ref} from "vue";
 import {ISavedProduct, useScanProductStore} from "../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../store/StudioStore";
+import ButtonBlue from "../../../../../components/buttons/button-blue.vue";
 
 const scanProductStore = useScanProductStore()
+const studioStore = useStudioStore()
 const isOpenMenu = ref(false)
+
+const isVisibleTransfer = computed(() => {
+  const currentShootingType = scanProductStore.confirmedProduct?.styleGuide?.shootingTypes
+      .find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
+  return currentShootingType?.isValidNumberOfPictures
+})
 
 const selectProduct = async (productUuid: string, prodTypeUuid: string) => {
   await scanProductStore.getProductFromSavedList(productUuid, prodTypeUuid)
