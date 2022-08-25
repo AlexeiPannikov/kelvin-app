@@ -3,10 +3,14 @@
     <v-col class="d-flex flex-column pb-0 fill-height px-4 pt-4">
       <product-selections class="mb-4">
       </product-selections>
-      <barcode-scan v-if="!scanProductStore.confirmedProduct"
-                    @scan="scanHandler"
-      ></barcode-scan>
-      <product-card v-else></product-card>
+      <transition name="fade" appear>
+        <barcode-scan v-if="!scanProductStore.confirmedProduct"
+                      @scan="scanHandler"
+        ></barcode-scan>
+      </transition>
+      <transition name="fade" appear>
+        <product-card v-if="scanProductStore.confirmedProduct"></product-card>
+      </transition>
     </v-col>
   </v-row>
 
@@ -35,5 +39,17 @@ const scanHandler = () => {
 </script>
 
 <style lang="scss" scoped>
+.fade-enter-active {
+  transition: all 0.7s ease;
+}
 
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
 </style>

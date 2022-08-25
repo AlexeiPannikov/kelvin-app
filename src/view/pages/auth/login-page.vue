@@ -91,6 +91,7 @@ const login = async () => {
     if (res) {
       await store.getCurrentUser()
       const userId = store.currentUser?.id
+      if (!userId) return
       const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", userId)
       settings.folder ? await router.push("/") : await router.push("/primary-settings")
     }

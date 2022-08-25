@@ -1,5 +1,6 @@
 import axios from "axios";
 import Notifications from "../view/components/ui-notifications/models/Notifications";
+import {useRouter} from "vue-router";
 
 const $api = axios.create({
     // withCredentials: true,
@@ -36,7 +37,9 @@ $api.interceptors.response.use(
                 localStorage.setItem("token", `${response.data.Value.accessToken}`);
                 return $api.request(originalRequest);
             } catch (e) {
+                const router = useRouter()
                 console.log("Not authorized");
+                await router.push("/login")
             }
         }
         if (error.response.status !== 401) {

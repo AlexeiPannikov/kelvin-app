@@ -20,9 +20,12 @@ import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 import {useUserSettingsStore} from "../../store/UserSettingsStore";
 import {onMounted} from "vue";
 import {useRouter} from "vue-router";
+import {useCurrentUserStore} from "../../store/CurrentUserStore";
 
 const router = useRouter()
 const userSettingsStore = useUserSettingsStore()
+const currentUserStore = useCurrentUserStore()
+
 userSettingsStore.getSettings().then(() => {
   userSettingsStore.getRootFolder().then(() => {
     if (!userSettingsStore.primarySettings.folder) {
@@ -30,6 +33,8 @@ userSettingsStore.getSettings().then(() => {
     }
   })
 })
+
+currentUserStore.getCurrentUser()
 </script>
 
 <style lang="scss">
