@@ -18,7 +18,7 @@ import {StyleGuide} from "../api/models/responses/StyleGuides/StyleGuide";
 interface IParamsSavedProduct {
     productUuid: string,
     styleGuideUuid: string,
-    sampleCode: string
+    sampleCode: string,
 }
 
 export interface ISavedProduct {
@@ -52,7 +52,7 @@ export const useScanProductStore = defineStore("scan-product", {
             product: null as ProductFullData,
             confirmedProduct: null as ProductFullData,
             productCopy: null as ProductFullData,
-            productsIsStore: JSON.parse(localStorage.getItem("products")) as ISavedProduct[] || new Array<ISavedProduct>()
+            productsInStore: JSON.parse(localStorage.getItem("products")) as ISavedProduct[] || new Array<ISavedProduct>()
         };
     },
 
@@ -71,8 +71,17 @@ export const useScanProductStore = defineStore("scan-product", {
     actions: {
         async search(barcode?: string) {
             this.isLoadingScan = true;
-            this.samples = await search({barcode: barcode || this.barcode})
-            this.isLoadingScan = false;
+            const studioStore = useStudioStore()
+            const foundedProduct = this.productsInStore.find(item => item.product.code === (barcode || this.barcode) && studioStore.selectedProductionTypeUuid === item.productionType.uuid)
+            if (foundedProduct) {
+                await this.getProductFromSavedList(foundedProduct.product.uuid, foundedProduct.productionType.uuid)
+                return
+            }
+            try {
+                this.samples = await search({barcode: barcode || this.barcode})
+            } finally {
+                this.isLoadingScan = false;
+            }
         },
 
         async getProducts(free_text: string) {
@@ -163,22 +172,29 @@ export const useScanProductStore = defineStore("scan-product", {
             }
         },
 
-        async getProductFromSavedList({productUuid, styleGuideUuid, sampleCode}: IParamsSavedProduct) {
+        async getProductFromSavedList(productUuid: string, prodTypeUuid: string) {
             this.isLoadingProduct = true
-            const product = await getProduct({uuid: productUuid})
-            const [properties] = await getProperties(EntityEnum.PRODUCT)
-            const mappedProperties = properties.map(item => new PropertyModel({
-                ...item,
-                value: product[item.internal_name as keyof ProductModel]?.toString() || ""
-            }))
-            const styleGuide = await viewStyleGuide({uuid: styleGuideUuid})
-            this.confirmedProduct = new ProductFullData({
-                product,
-                styleGuide,
-                properties: mappedProperties,
-                sampleCode
-            })
-            this.isLoadingProduct = false
+            try {
+                const foundedProduct = this.productsInStore.find(item => item.product.uuid === productUuid && item.productionType.uuid === prodTypeUuid)
+                if (!foundedProduct) return
+                const studioStore = useStudioStore()
+                studioStore.selectedProductionTypeUuid = foundedProduct.productionType.uuid
+                const product = await getProduct({uuid: productUuid})
+                const [properties] = await getProperties(EntityEnum.PRODUCT)
+                const mappedProperties = properties.map(item => new PropertyModel({
+                    ...item,
+                    value: product[item.internal_name as keyof ProductModel]?.toString() || ""
+                }))
+                const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
+                this.confirmedProduct = new ProductFullData({
+                    product,
+                    styleGuide,
+                    properties: mappedProperties,
+                    sampleCode: foundedProduct.sampleCode
+                })
+            } finally {
+                this.isLoadingProduct = false
+            }
         },
 
         confirmProduct() {
@@ -227,7 +243,7 @@ export const useScanProductStore = defineStore("scan-product", {
         },
 
         saveInStorage() {
-            localStorage.setItem("products", JSON.stringify(this.productsIsStore))
+            localStorage.setItem("products", JSON.stringify(this.productsInStore))
         },
 
         saveProduct() {
@@ -243,15 +259,27 @@ export const useScanProductStore = defineStore("scan-product", {
                 styleGuide: {name: styleGuide.name, uuid: styleGuide.uuid, url: styleGuide.coverFile.url},
                 sampleCode: sampleCode
             }
-            if (!this.productsIsStore?.length) {
-                this.productsIsStore.push(productToSave)
+            if (!this.productsInStore?.length) {
+                this.productsInStore.push(productToSave)
             }
-            if (this.productsIsStore?.length) {
-                const index = this.productsIsStore.findIndex(({product: {uuid}}) => product.product_uuid === uuid)
-                index ? this.productsIsStore.splice(index, 1, productToSave) : this.productsIsStore.push(productToSave)
+            if (this.productsInStore?.length) {
+                const index = this.productsInStore.findIndex(({
+                                                                  product: {uuid},
+                                                                  productionType
+                                                              }) => product.product_uuid === uuid && productionType.uuid === selectedProductionTypeUuid)
+                index > -1 ? this.productsInStore.splice(index, 1, productToSave) : this.productsInStore.push(productToSave)
             }
             this.saveInStorage()
             this.confirmedProduct = null
         },
+
+        deleteProduct(productUuid: string, prodTypeUuid: string) {
+            const index = this.productsInStore.findIndex(({
+                                                              product,
+                                                              productionType
+                                                          }) => product.uuid === productUuid && productionType.uuid === prodTypeUuid)
+            this.productsInStore.splice(index, 1)
+            this.saveInStorage()
+        }
     },
 });
