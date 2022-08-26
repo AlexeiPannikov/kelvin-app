@@ -7,7 +7,7 @@ export class Transfer {
     productCode: string = null
     productionTypeName: string = null
     files = new Array<ImageModel>()
-    date: Date = null
+    date: string = null
     uploading = false
     uploadSuccessfully = false
 

@@ -5,12 +5,15 @@ import {useStudioStore} from "./StudioStore";
 import {Transfer} from "./models/Transfer";
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "./CurrentUserStore";
+import moment from "moment";
 
 
 export const useTransferStore = defineStore("transfer", {
     state: () => {
         return {
+            isLoading: false,
             transferList: new TransferHistoryList(),
+            isFirstLoading: true
         };
     },
 
@@ -18,6 +21,7 @@ export const useTransferStore = defineStore("transfer", {
 
     actions: {
         async transfer() {
+            this.isLoading = true
             const scanProductStore = useScanProductStore()
             const studioStore = useStudioStore()
             const {shootingTypes} = scanProductStore.confirmedProduct.styleGuide
@@ -27,7 +31,7 @@ export const useTransferStore = defineStore("transfer", {
                     productionTypeName: studioStore.productionTypeName,
                     productCode: product_code,
                     files: JSON.parse(JSON.stringify([...images.list, ...altsImages.list])),
-                    date: new Date()
+                    date: moment().format()
                 })
             )
             this.transferList.historyList.push(...this.transferList.itemsToTransfer.map(item => new Transfer(item)))
@@ -36,17 +40,27 @@ export const useTransferStore = defineStore("transfer", {
                 const res = await new Promise<boolean>((resolve) => {
                     setTimeout(() => {
                         resolve(true)
-                    }, 1000)
+                    }, 2000)
                 })
                 if (res) {
                     this.transferList.successUpload()
                     const currentUserStore = useCurrentUserStore()
                     await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.transferList.itemsToTransfer)))
-                    // const response = await ipcRenderer.invoke("get-transfers", currentUserStore.currentUser.id)
-                    // console.log(response)
+                    return true
                 }
             } catch (e) {
                 this.transferList.errorUpload()
+            } finally {
+                this.isLoading = true
+            }
+        },
+
+        async getTransferHistory() {
+            if (!this.isFirstLoading) return
+            const currentUserStore = useCurrentUserStore()
+            const res: Transfer[] = await ipcRenderer.invoke("get-transfers", currentUserStore.currentUser.id)
+            if (res) {
+                this.transferList.historyList.push(...res)
             }
         }
     },

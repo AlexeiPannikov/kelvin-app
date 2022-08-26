@@ -67,15 +67,20 @@
 
 <script lang="ts" setup>
 import {computed, ref} from "vue";
-import {ISavedProduct, useScanProductStore} from "../../../../../../store/ScanProductStore";
+import {useScanProductStore} from "../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../store/StudioStore";
 import ButtonBlue from "../../../../../components/buttons/button-blue.vue";
 import {useTransferStore} from "../../../../../../store/TransferStore";
+import {useUserSettingsStore} from "../../../../../../store/UserSettingsStore";
+import {BehaviourAfterTransferEnum} from "../../../../../../store/models/BehaviourAfterTransferEnum";
+import {useRouter} from "vue-router";
 
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 const transfersStore = useTransferStore()
+const userSettingsStore = useUserSettingsStore()
 const isOpenMenu = ref(false)
+const router = useRouter()
 
 const isVisibleTransfer = computed(() => {
   const currentShootingType = scanProductStore.confirmedProduct?.styleGuide?.shootingTypes
@@ -92,6 +97,8 @@ const deleteProduct = (productUuid: string, prodTypeUuid: string) => {
 }
 
 const transfer = () => {
+  if (userSettingsStore.primarySettings.behaviourAfterTransfer === BehaviourAfterTransferEnum.Go)
+    router.push({name: "transfer"})
   transfersStore.transfer()
 }
 </script>
