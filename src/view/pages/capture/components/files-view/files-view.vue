@@ -18,11 +18,11 @@
                cols="auto"
         >
           <image-box :file="file"
-                     :id="file.uuid"
+                     :id="file.name"
                      @dblclick="openModal(i)"
-                     @click="selectFile($event, file.uuid)"
+                     @click="selectFile($event, file.name)"
                      @mousedown.prevent="dragStart"
-                     @mousemove="choiceInMotion($event, file.uuid)"
+                     @mousemove="choiceInMotion($event, file.name)"
           ></image-box>
         </v-col>
       </template>
@@ -86,12 +86,12 @@ const resetCrop = () => {
   isOpenModal.value = false
 }
 
-const selectFile = (event: MouseEvent, uuid: string) => {
-  images.selectFile(event, uuid)
+const selectFile = (event: MouseEvent, name: string) => {
+  images.selectFile(event, name)
 }
 
-const choiceInMotion = (event: MouseEvent, uuid: string) => {
-  images.choiceInMotion(event, uuid)
+const choiceInMotion = (event: MouseEvent, name: string) => {
+  images.choiceInMotion(event, name)
 }
 
 const resetSelect = () => {

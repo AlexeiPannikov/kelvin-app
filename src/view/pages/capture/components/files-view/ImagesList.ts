@@ -18,26 +18,26 @@ export class ImagesList {
         if (obj) Object.assign(this, obj)
     }
 
-    selectFile(event: MouseEvent, uuid: string) {
+    selectFile(event: MouseEvent, name: string) {
         if (event.ctrlKey)
             this.list.forEach(item => {
-                if (item.uuid === uuid) {
+                if (item.name === name) {
                     item.isSelected = !item.isSelected
                 }
             })
         else
             this.list.forEach(item => {
-                item.uuid === uuid && !item.isSelected ? item.isSelected = true : item.isSelected = false
+                item.name === name && !item.isSelected ? item.isSelected = true : item.isSelected = false
             })
     }
 
-    choiceInMotion(event: MouseEvent, uuid: string) {
+    choiceInMotion(event: MouseEvent, name: string) {
         const departureFromStartX = Math.abs(event.pageX - this.startX)
         const departureFromStartY = Math.abs(event.pageY - this.startY)
         if (!this.madeAChoiceInMotion && (departureFromStartX < 2 || departureFromStartY < 2)) return
         if (this.isMouseDown && !event.ctrlKey && this.list.filter(({isSelected}) => isSelected).length < 2) {
             this.list.forEach(item => {
-                if (item.uuid === uuid) {
+                if (item.name === name) {
                     item.isSelected = true
                 }
             })

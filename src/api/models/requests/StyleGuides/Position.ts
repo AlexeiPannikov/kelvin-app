@@ -71,18 +71,18 @@ export class Position {
     private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => {
         return list.dragMode && isSelected
     })
-        .map(item => new ImageModel({...item, uuid: uuidv4()}))
+        .map(item => new ImageModel({...item}))
 
     private get selectedImagesInFolder() {
-        return this.getSelectedImages(imagesInFolder)
+        return [...this.getSelectedImages(imagesInFolder)]
     }
 
     private get selectedImagesInMain() {
-        return this.getSelectedImages(this.images)
+        return [...this.getSelectedImages(this.images)]
     }
 
     private get selectedImagesInAlts() {
-        return this.getSelectedImages(this.altsImages)
+        return [...this.getSelectedImages(this.altsImages)]
     }
 
     private get isDisabledDragMode() {
@@ -90,7 +90,8 @@ export class Position {
     }
 
     private mainListFilter(image: ImageModel) {
-        const isFileExist = !!this.images.list.find(item => item.id === image.id)
+        const isFileExist = !!this.images.list.find(item => item.name === image.name) ||
+            !!this.altsImages.list.find(item => item.name === image.name)
         if (isFileExist) {
             this.setErrorMessage("exist")
         }
@@ -98,7 +99,8 @@ export class Position {
     }
 
     private altListFilter(image: ImageModel) {
-        const isFileExist = !!this.altsImages.list.find(item => item.id === image.id)
+        const isFileExist = !!this.altsImages.list.find(item => item.name === image.name) ||
+            !!this.images.list.find(item => item.name === image.name)
         if (isFileExist) {
             this.setErrorMessage("exist")
         }
@@ -114,78 +116,108 @@ export class Position {
         setTimeout(() => this.errorMessage = "", 2000)
     }
 
+    isFileExist() {
+        const isFileExist = this.selectedImagesInFolder.find(item =>
+            !!this.images.list.find(img => img.name === item.name) ||
+            !!this.altsImages.list.find(img => img.name === item.name)
+        )
+        if (isFileExist) {
+            this.setErrorMessage("exist")
+            return true
+        }
+    }
+
+    isToManyFiles() {
+        const isInTheRange = (this.altsImages.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots) &&
+            (imagesInFolder.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots)
+        if (!isInTheRange) {
+            this.setErrorMessage("many")
+            return true
+        }
+    }
+
     globalMouseupHandler(e: MouseEvent) {
         const mainDropZone = document.getElementById(this.id.toString())
         const altDropZone = document.getElementById(`alt-${this.id}`)
-        if (!altDropZone.contains(e.target as Node)) {
-            const deleteSelected = () => {
-                if (this.altsImages.dragMode)
-                    this.altsImages.list = this.altsImages.list.filter(({
-                                                                            isSelected
-                                                                        }) => !isSelected)
-                this.altsImages.list.forEach(item => {
-                    item.isSelected = false
-                    item.isConfirmed = true
-                })
-            }
+        if (mainDropZone.contains(e.target as Node) || altDropZone.contains(e.target as Node)) {
+            if (this.isFileExist()) return
             if (mainDropZone.contains(e.target as Node)) {
-                const isInTheRange = (this.altsImages.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots) &&
-                    (imagesInFolder.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots)
-                const isFileExist = !!this.images.list.find(item => !!this.altsImages.list.filter(({
-                                                                                                       isSelected,
-                                                                                                       id
-                                                                                                   }) => this.altsImages.dragMode && isSelected && item.id === id).length)
-                if (isFileExist) return;
-                isInTheRange ? deleteSelected() : this.setErrorMessage("many")
-                return
-            }
-            deleteSelected()
-        }
-        if (!mainDropZone.contains(e.target as Node)) {
-            const deleteSelected = () => {
-                if (this.images.dragMode)
-                    this.images.list = this.images.list.filter(({
-                                                                    isSelected
-                                                                }) => !isSelected)
-                this.images.list.forEach(item => {
-                    item.isSelected = false
-                    item.isConfirmed = true
-                })
+                if (this.isToManyFiles()) return;
+                this.images.list.push(...this.selectedImagesInFolder, ...this.selectedImagesInAlts)
+                this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
             }
             if (altDropZone.contains(e.target as Node)) {
-                const isFileExist = !!this.altsImages.list.find(item => !!this.images.list.filter(({
-                                                                                                       isSelected,
-                                                                                                       id
-                                                                                                   }) => this.images.dragMode && isSelected && item.id === id).length)
-                !isFileExist ? deleteSelected() : this.setErrorMessage("exist")
-                return;
+                this.altsImages.list.push(...this.selectedImagesInFolder, ...this.selectedImagesInMain)
+                this.images.list = this.images.list.filter(({isSelected}) => !isSelected)
             }
-            deleteSelected()
+        } else {
+            if (this.altsImages.dragMode)
+                this.altsImages.list = this.altsImages.list.filter(({
+                                                                        isSelected
+                                                                    }) => !isSelected)
+            this.altsImages.list.forEach(item =>
+                item.isSelected = false
+            )
+            if (this.images.dragMode)
+                this.images.list = this.images.list.filter(({
+                                                                isSelected
+                                                            }) => !isSelected)
+            this.images.list.forEach(item =>
+                item.isSelected = false
+            )
         }
+        // if (!altDropZone.contains(e.target as Node)) {
+        //     const deleteSelected = () => {
+        //         if (this.altsImages.dragMode)
+        //             this.altsImages.list = this.altsImages.list.filter(({
+        //                                                                     isSelected
+        //                                                                 }) => !isSelected)
+        //         this.altsImages.list.forEach(item => {
+        //             item.isSelected = false
+        //             item.isConfirmed = true
+        //         })
+        //     }
+        //     if (mainDropZone.contains(e.target as Node)) {
+        //         const isInTheRange = (this.altsImages.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots) &&
+        //             (imagesInFolder.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots)
+        //         const isFileExist = !!this.images.list.find(item => !!this.altsImages.list.filter(({
+        //                                                                                                isSelected,
+        //                                                                                                name
+        //                                                                                            }) => this.altsImages.dragMode && isSelected && item.name === name).length)
+        //         if (isFileExist) return;
+        //         isInTheRange ? deleteSelected() : this.setErrorMessage("many")
+        //         return
+        //     }
+        //     deleteSelected()
+        // }
+        // if (!mainDropZone.contains(e.target as Node)) {
+        //     const deleteSelected = () => {
+        //         if (this.images.dragMode)
+        //             this.images.list = this.images.list.filter(({
+        //                                                             isSelected
+        //                                                         }) => !isSelected)
+        //         this.images.list.forEach(item => {
+        //             item.isSelected = false
+        //             item.isConfirmed = true
+        //         })
+        //     }
+        //     if (altDropZone.contains(e.target as Node)) {
+        //         const isFileExist = !!this.altsImages.list.find(item => !!this.images.list.filter(({
+        //                                                                                                isSelected,
+        //                                                                                                name
+        //                                                                                            }) => this.images.dragMode && isSelected && item.name === name).length)
+        //         !isFileExist ? deleteSelected() : this.setErrorMessage("exist")
+        //         return;
+        //     }
+        //     deleteSelected()
+        // }
         window.onmouseup = null
     }
 
     mouseenterMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
-        const mainDropZone = document.getElementById(this.id.toString())
-        const mouseupHandler = (e: MouseEvent) => {
-            const selImgInFolder = this.selectedImagesInFolder.filter(this.mainListFilter.bind(this))
-            const selImgInAlts = this.selectedImagesInAlts.filter(this.mainListFilter.bind(this))
-            if (selImgInFolder.length + selImgInAlts.length + this.images.list.length <= this.photography.maxShots) {
-                this.images.list.push(
-                    ...selImgInFolder,
-                    ...selImgInAlts
-                )
-            }
-            this.images.list.forEach(item => {
-                item.isSelected = false
-                item.isConfirmed = true
-            })
-            mainDropZone.onmouseup = null
-        }
         window.onmouseup = this.globalMouseupHandler.bind(this)
-        mainDropZone.onmouseup = mouseupHandler.bind(this)
     }
 
     mouseleaveMainZoneHandler(e: MouseEvent) {
@@ -198,19 +230,6 @@ export class Position {
     mouseenterAltZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
-        const altDropZone = document.getElementById(`alt-${this.id}`)
-        const mouseupHandler = (e: MouseEvent) => {
-            this.altsImages.list.push(
-                ...this.selectedImagesInFolder.filter(this.altListFilter.bind(this)),
-                ...this.selectedImagesInMain.filter(this.altListFilter.bind(this))
-            )
-            this.altsImages.list.forEach(item => {
-                item.isSelected = false
-                item.isConfirmed = true
-            })
-            altDropZone.onmouseup = null
-        }
-        altDropZone.onmouseup = mouseupHandler.bind(this)
         window.onmouseup = this.globalMouseupHandler.bind(this)
     }
 

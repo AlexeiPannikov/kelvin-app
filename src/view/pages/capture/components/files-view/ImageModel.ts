@@ -2,8 +2,6 @@ import {Coordinates} from "vue-advanced-cropper";
 import {v4 as uuidv4} from "uuid"
 
 export class ImageModel {
-    id = Number(Math.random().toFixed(3)) * 100
-    uuid = uuidv4()
     path = ""
     name = ""
     image: File = null

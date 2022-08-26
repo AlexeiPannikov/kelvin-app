@@ -23,7 +23,6 @@ export const useTransferStore = defineStore("transfer", {
             const {shootingTypes} = scanProductStore.confirmedProduct.styleGuide
             const {product_code} = scanProductStore.confirmedProduct.product
             const shootingType = shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
-            const currentDate = new Date()
             this.transferList.itemsToTransfer = shootingType.positions.map(({images, altsImages}) => new Transfer({
                     productionTypeName: studioStore.productionTypeName,
                     productCode: product_code,

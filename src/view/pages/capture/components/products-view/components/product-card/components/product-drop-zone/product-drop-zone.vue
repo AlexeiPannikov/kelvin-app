@@ -43,14 +43,14 @@
                 </div>
                 <div :id="position.id" class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto">
                   <image-box v-for="img in position.images.list"
-                             :id="img.uuid"
+                             :id="img.name"
                              :file="img"
                              width="60"
                              class="align-self-center"
                              without-name
-                             @click="position.images.selectFile($event, img.uuid)"
+                             @click="position.images.selectFile($event, img.name)"
                              @mousedown.prevent="position.images.dragStart($event)"
-                             @mousemove="position.images.choiceInMotion($event, img.uuid)"
+                             @mousemove="position.images.choiceInMotion($event, img.name)"
                   ></image-box>
                 </div>
               </div>
@@ -63,14 +63,14 @@
                 </div>
                 <div :id="`alt-${position.id}`" class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto">
                   <image-box v-for="img in position.altsImages.list"
-                             :id="img.uuid"
+                             :id="img.name"
                              :file="img"
                              width="60"
                              class="align-self-center"
                              without-name
-                             @click="position.altsImages.selectFile($event, img.uuid)"
+                             @click="position.altsImages.selectFile($event, img.name)"
                              @mousedown.prevent="position.altsImages.dragStart($event)"
-                             @mousemove="position.altsImages.choiceInMotion($event, img.uuid)"
+                             @mousemove="position.altsImages.choiceInMotion($event, img.name)"
                   ></image-box>
                 </div>
                 <div v-if="!position.altsImages.list.length" class="alts-chip d-flex justify-center w-100">
