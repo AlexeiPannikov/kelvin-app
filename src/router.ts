@@ -17,6 +17,7 @@ const routes: RouteRecordRaw[] = [
         name: "app",
         component: () => import("./view/layouts/main-layout.vue"),
         redirect: "/capture",
+        meta: {requireAuth: true},
         children: [
             {
                 path: "/capture",
@@ -49,6 +50,24 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
     history: createMemoryHistory(),
     routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+    const store = useCurrentUserStore();
+    try {
+        if (to.meta?.requireAuth) {
+            const res = await store.getCurrentUser();
+            if (!res) {
+                next({name: "login"});
+            } else {
+                next();
+            }
+        } else {
+            next();
+        }
+    } catch {
+        next({name: "login"});
+    }
 });
 
 export default router;

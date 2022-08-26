@@ -20,7 +20,6 @@ $api.interceptors.response.use(
         return config;
     },
     async (error) => {
-        console.log(error);
         const originalRequest = error.config;
         if (
             error.response.status === 401 &&
@@ -33,13 +32,10 @@ $api.interceptors.response.use(
                     `${import.meta.env.VITE_BASE_API_URL}auth/refresh`,
                     {withCredentials: true}
                 );
-                console.log(response.data)
                 localStorage.setItem("token", `${response.data.Value.accessToken}`);
                 return $api.request(originalRequest);
             } catch (e) {
-                const router = useRouter()
                 console.log("Not authorized");
-                await router.push("/login")
             }
         }
         if (error.response.status !== 401) {
