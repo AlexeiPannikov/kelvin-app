@@ -58,6 +58,7 @@
     </v-btn>
     <button-blue class="ml-3"
                  v-if="isVisibleTransfer"
+                 @click="transfer"
     >
       Transfer
     </button-blue>
@@ -69,9 +70,11 @@ import {computed, ref} from "vue";
 import {ISavedProduct, useScanProductStore} from "../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../store/StudioStore";
 import ButtonBlue from "../../../../../components/buttons/button-blue.vue";
+import {useTransferStore} from "../../../../../../store/TransferStore";
 
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
+const transfersStore = useTransferStore()
 const isOpenMenu = ref(false)
 
 const isVisibleTransfer = computed(() => {
@@ -86,6 +89,10 @@ const selectProduct = async (productUuid: string, prodTypeUuid: string) => {
 
 const deleteProduct = (productUuid: string, prodTypeUuid: string) => {
   scanProductStore.deleteProduct(productUuid, prodTypeUuid)
+}
+
+const transfer = () => {
+  transfersStore.transfer()
 }
 </script>
 

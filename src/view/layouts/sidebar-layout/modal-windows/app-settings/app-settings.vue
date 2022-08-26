@@ -33,7 +33,8 @@
               <v-col class="text-h5 flex-grow-0 pl-3 pb-4">{{ selectedTab }}</v-col>
               <v-col class="flex-grow-1 overflow-y-auto">
                 <keep-alive>
-
+                  <general-settings v-if="selectedTab === 'General'"
+                  ></general-settings>
                 </keep-alive>
                 <keep-alive>
                   <workspace-settings v-if="selectedTab === 'Workspace'"
@@ -81,6 +82,7 @@ import WorkspaceSettings from "./workspace-settings.vue";
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {ipcRenderer} from "electron"
 import ExternalApplications from "./external-applications.vue";
+import GeneralSettings from "./general-settings.vue";
 
 const emit = defineEmits(['cancel'])
 

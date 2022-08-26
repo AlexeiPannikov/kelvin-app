@@ -10,6 +10,8 @@ import {join} from 'path'
 import {Window} from "./Window";
 import {UserSettingsStore} from "./store/UserSettings"
 import {PrimarySettings} from "../../src/store/models/PrimarySettings";
+import {Transfer} from "../../src/store/models/Transfer";
+import {TransferHistory} from "./store/TransferHistory";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -92,4 +94,14 @@ ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
 ipcMain.once("restart-app", async () => {
     app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
     app.exit(0)
+})
+
+ipcMain.handle("save-transfers", (event, userId: string | number, data: Transfer[]) => {
+    const transfersStore = new TransferHistory(userId)
+    return transfersStore.save(data)
+})
+
+ipcMain.handle("get-transfers", (event, userId: string | number) => {
+    const transfersStore = new TransferHistory(userId)
+    return transfersStore.getAllTransfers()
 })

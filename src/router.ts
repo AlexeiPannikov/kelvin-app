@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
                 path: "/transfer",
                 name: "transfer",
                 component: () => import("./view/pages/transfer/transfer-page.vue"),
-                meta: {title: "Reference Images"},
+                meta: {title: "Transfer"},
             },
         ]
     },

@@ -6,6 +6,7 @@ export class ImageModel {
     uuid = uuidv4()
     path = ""
     name = ""
+    image: File = null
     isSelected = false
     isConfirmed = false
     cropImage: any = null

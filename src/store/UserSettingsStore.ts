@@ -5,7 +5,8 @@ import fs from "fs";
 import nodePath from "path";
 import {useCurrentUserStore} from "./CurrentUserStore";
 import {OpenDialogReturnValue} from "electron"
-import {ref} from "vue";
+import isImage from "is-image"
+import path from "path";
 
 export interface IFolder {
     name: string,
@@ -48,22 +49,30 @@ export const useUserSettingsStore = defineStore("user-settings", {
             this.selectedWithoutEndpoint = folder.substring(0, index)
         },
 
-        async getFilesInFolder(callback: (args: { name: string, path: string }) => void, list?: any[]) {
+        async getFilesInFolder(callback: (args: { name: string, path: string, file: File }) => void, list?: any[]) {
             await this.getRootFolder()
             if (!fs.existsSync(this.selectedFolder || this.rootFolder)) return
-            const getFiles = () => {
+            const getFiles = async () => {
                 const innerFolder = this.selectedFolder || this.rootFolder
                 if (!fs.existsSync(innerFolder)) return
                 list?.splice(0)
                 const allFiles = fs.readdirSync(innerFolder, {withFileTypes: true})
                 for (const file of allFiles) {
                     if (file.isFile()) {
-                        callback({name: file.name, path: nodePath.normalize(innerFolder) + "\\" + file.name})
+                        const filePath = nodePath.normalize(innerFolder) + "\\" + file.name
+                        const extension = path.extname(file.name).substring(1, file.name.length - 1)
+                        const imageFile = await fetch(filePath).then(r => r.blob())
+                            .then(blob => new File([blob], file.name, {type: `image/${extension}`}));
+                        callback({
+                            name: file.name,
+                            path: filePath,
+                            file: imageFile
+                        })
                     }
                 }
             }
-            getFiles()
-            fs.watch(this.selectedFolder || this.rootFolder, getFiles)
+            await getFiles()
+            fs.watch(this.selectedFolder || this.rootFolder, async () => await getFiles())
         },
 
 

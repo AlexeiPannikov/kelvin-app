@@ -63,9 +63,10 @@ const searchText = ref("")
 const filteredImagesList = computed(() => useSearchFilter(searchText.value, images.list, ["name"]))
 
 const initFiles = async () => {
-  await userSettingsStore.getFilesInFolder(({name, path}) => images.list.push(new ImageModel({
+  await userSettingsStore.getFilesInFolder(({name, path, file}) => images.list.push(new ImageModel({
     path,
-    name
+    name,
+    image: file
   })), images.list)
 }
 initFiles()

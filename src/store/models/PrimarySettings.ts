@@ -1,3 +1,5 @@
+import {BehaviourAfterTransferEnum} from "./BehaviourAfterTransferEnum";
+
 export class PrimarySettings {
     folder = ""
     transferHistory = 7
@@ -6,6 +8,7 @@ export class PrimarySettings {
         br: ""
     }
     lastOpenedFolder = ""
+    behaviourAfterTransfer = BehaviourAfterTransferEnum.Go
 
     constructor(obj?: Partial<PrimarySettings>) {
         if (obj) {
