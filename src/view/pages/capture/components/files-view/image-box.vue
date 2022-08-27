@@ -28,7 +28,7 @@ const emit = defineEmits(['dblclick'])
 
 <style lang="scss" scoped>
 .image {
-  opacity: 0.7;
+  //opacity: 0.7;
   cursor: pointer;
 
   &:hover {

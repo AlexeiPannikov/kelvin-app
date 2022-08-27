@@ -26,6 +26,10 @@ export class Transfer {
         this.uploadSuccessfully = false
     }
 
+    stopUpload() {
+        this.uploading = false
+    }
+
     constructor(obj?: Partial<Transfer>) {
         if (obj) Object.assign(this, obj)
     }

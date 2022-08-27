@@ -44,11 +44,11 @@ export class TransferHistory {
         list.forEach(transfer => {
             const transferDir = this.directory + `/${transfer.uuid}`
             fs.mkdirSync(transferDir)
-            transfer.files.forEach(item => item.path = transferDir + `/${transfer.uuid}.txt`)
-            fs.writeFileSync(transferDir + `/${transfer.uuid}.txt`, JSON.stringify(transfer))
             transfer.files.forEach(file => {
                 fs.copyFileSync(file.path, transferDir + `/${file.name}`)
+                file.path = transferDir + `/${file.name}`
             })
+            fs.writeFileSync(transferDir + `/${transfer.uuid}.txt`, JSON.stringify(transfer))
         })
         this.historyList.push(...list)
         return this
@@ -56,5 +56,18 @@ export class TransferHistory {
 
     delete(uuid: string) {
         this.historyList = this.historyList.filter(item => item.uuid !== uuid)
+        const clearDirectory = (path: string) => {
+            const files = fs.readdirSync(path)
+            for (const file of files) {
+                const stat = fs.statSync(path + "/" + file)
+                if (stat.isFile())
+                    fs.rmSync(path + "/" + file)
+                if (stat.isDirectory())
+                    clearDirectory(path + "/" + file)
+            }
+        }
+        clearDirectory(this.directory + `/${uuid}`)
+        fs.rmdirSync(this.directory + `/${uuid}`)
+        return this
     }
 }

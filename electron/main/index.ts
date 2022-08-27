@@ -105,3 +105,8 @@ ipcMain.handle("get-transfers", (event, userId: string | number) => {
     const transfersStore = new TransferHistory(userId)
     return transfersStore.getAllTransfers()
 })
+
+ipcMain.handle("delete-transfers", (event, userId: string | number, uuid: string) => {
+    const transfersStore = new TransferHistory(userId)
+    return transfersStore.delete(uuid)
+})

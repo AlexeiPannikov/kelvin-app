@@ -6,14 +6,17 @@ import {Transfer} from "./models/Transfer";
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "./CurrentUserStore";
 import moment from "moment";
+import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel";
+import {useUserSettingsStore} from "./UserSettingsStore";
 
 
 export const useTransferStore = defineStore("transfer", {
     state: () => {
         return {
             isLoading: false,
+            isFirstLoading: true,
             transferList: new TransferHistoryList(),
-            isFirstLoading: true
+            selectedTransfer: null as Transfer
         };
     },
 
@@ -30,12 +33,15 @@ export const useTransferStore = defineStore("transfer", {
             this.transferList.itemsToTransfer = shootingType.positions.map(({images, altsImages}) => new Transfer({
                     productionTypeName: studioStore.productionTypeName,
                     productCode: product_code,
-                    files: JSON.parse(JSON.stringify([...images.list, ...altsImages.list])),
+                    files: (JSON.parse(JSON.stringify([...images.list, ...altsImages.list])) as ImageModel[]).map(item => new ImageModel({
+                        ...item,
+                        isSelected: false
+                    })),
                     date: moment().format()
                 })
             )
-            this.transferList.historyList.push(...this.transferList.itemsToTransfer.map(item => new Transfer(item)))
             this.transferList.startUpload()
+            this.transferList.historyList.push(...this.transferList.itemsToTransfer)
             try {
                 const res = await new Promise<boolean>((resolve) => {
                     setTimeout(() => {
@@ -43,15 +49,15 @@ export const useTransferStore = defineStore("transfer", {
                     }, 2000)
                 })
                 if (res) {
-                    this.transferList.successUpload()
                     const currentUserStore = useCurrentUserStore()
+                    this.transferList.successUpload()
                     await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.transferList.itemsToTransfer)))
                     return true
                 }
             } catch (e) {
                 this.transferList.errorUpload()
             } finally {
-                this.isLoading = true
+                this.isLoading = false
             }
         },
 
@@ -61,7 +67,29 @@ export const useTransferStore = defineStore("transfer", {
             const res: Transfer[] = await ipcRenderer.invoke("get-transfers", currentUserStore.currentUser.id)
             if (res) {
                 this.transferList.historyList.push(...res)
+                await this.clearOldTransfers()
             }
+        },
+
+        async deleteTransfer() {
+            const currentUserStore = useCurrentUserStore()
+            const res = await ipcRenderer.invoke("delete-transfers", currentUserStore.currentUser.id, this.selectedTransfer.uuid)
+            if (res) {
+                this.transferList.historyList = this.transferList.historyList.filter(item => item.uuid !== this.selectedTransfer.uuid)
+                this.selectedTransfer = null
+            }
+        },
+
+        async clearOldTransfers() {
+            const userSettingsStore = useUserSettingsStore()
+            const maxTerm = userSettingsStore.primarySettings.transferHistory
+            const oldTransferFilter = (item: Transfer) => moment(item.date).isBefore(moment().date(-maxTerm), "day")
+            const oldTransfers = this.transferList.historyList.filter(oldTransferFilter)
+            const currentUserStore = useCurrentUserStore()
+            for (const transfer of oldTransfers) {
+                await ipcRenderer.invoke("delete-transfers", currentUserStore.currentUser.id, transfer.uuid)
+            }
+            this.transferList.historyList = this.transferList.historyList.filter(item => !oldTransferFilter(item))
         }
     },
 });

@@ -11,8 +11,9 @@
       </v-col>
     </transition>
     <v-col cols="6"
-           class="border-e fill-height overflow-hidden position-relative px-4 pt-4"
+           class="border-e fill-height overflow-hidden position-relative px-4 pt-4 pb-10"
     >
+      <transfer-files-view></transfer-files-view>
       <bottom-panel without-buttons
       >
       </bottom-panel>
@@ -20,6 +21,7 @@
     <v-col cols="3"
            class="pb-0 fill-height overflow-hidden position-relative"
     >
+      <transfer-file-view></transfer-file-view>
       <bottom-panel without-buttons
       >
       </bottom-panel>
@@ -32,6 +34,8 @@ import {useTransferStore} from "../../../store/TransferStore";
 import {onMounted} from "vue";
 import BottomPanel from "../../layouts/components/bottom-panel.vue";
 import TransferList from "./components/transfer-list.vue";
+import TransferFilesView from "./components/transfer-files-view.vue";
+import TransferFileView from "./components/transfer-file-view.vue";
 
 const transferStore = useTransferStore()
 
