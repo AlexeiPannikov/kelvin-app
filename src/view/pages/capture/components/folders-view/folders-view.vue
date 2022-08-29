@@ -63,7 +63,7 @@ fs.watch(userSettingsStore.rootFolder, {recursive: true}, () => initFolders())
 const selectItem = async (item: TreeItem) => {
   selectedItem.value = item
   userSettingsStore.selectedFolder = item.value
-  userSettingsStore.parseFolder(userSettingsStore.selectedFolder)
+  userSettingsStore.parseFolder()
   await userSettingsStore.getFilesInFolder(({name, path}) => images.list.push(new ImageModel({
     path,
     name
