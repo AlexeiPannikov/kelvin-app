@@ -1,5 +1,8 @@
 <template>
-  <div :style="{width: props.width + 'px'}" :class="{active: file.isSelected}" class="image-box">
+  <div :style="{width: props.width + 'px'}"
+       :class="{active: file.isSelected}"
+       class="image-box position-relative"
+  >
     <v-img v-if="!file.cropImage" @dblclick="emit('dblclick')" class="image" :width="width" aspect-ratio="1"
            :src="file.path"></v-img>
     <v-img v-else @dblclick="emit('dblclick')" class="image" :width="width + 'px'"
@@ -24,6 +27,7 @@ const props = withDefaults(defineProps<IProps>(), {
 })
 
 const emit = defineEmits(['dblclick'])
+
 </script>
 
 <style lang="scss" scoped>

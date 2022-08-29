@@ -17,6 +17,7 @@ import {StyleGuide} from "../api/models/responses/StyleGuides/StyleGuide";
 import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel";
 import {useUserSettingsStore} from "./UserSettingsStore";
 import moment from "moment";
+import fs from "fs";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -197,8 +198,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
                 selectedShootingType.positions.forEach(position => {
-                    position.images.list = foundedProduct.photosToTransfer[position.id].images.map(item => new ImageModel(item))
-                    position.altsImages.list = foundedProduct.photosToTransfer[position.id].altImages.map(item => new ImageModel(item))
+                    position.images.list = foundedProduct.photosToTransfer[position.id].images.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item))
+                    position.altsImages.list = foundedProduct.photosToTransfer[position.id].altImages.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item))
                 })
                 this.confirmedProduct = new ProductFullData({
                     product,

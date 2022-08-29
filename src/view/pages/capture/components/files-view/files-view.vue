@@ -19,11 +19,15 @@
         >
           <image-box :file="file"
                      :id="file.name"
+                     ref="imageBox"
                      @dblclick="openModal(i)"
                      @click="selectFile($event, file.name)"
+                     @contextmenu="openContextMenu($event, file)"
                      @mousedown.prevent="dragStart"
                      @mousemove="choiceInMotion($event, file.name)"
-          ></image-box>
+                     v-click-outside="() => file.isSelected = false"
+          >
+          </image-box>
         </v-col>
       </template>
       <div v-if="!images.list.length" class="w-100 d-flex align-center justify-center">
@@ -41,6 +45,17 @@
                                       @close="isOpenModal = false"
       ></ui-modal-fullscreen-image-crop>
     </v-row>
+
+    <div class="context-menu position-fixed"
+         v-show="isOpenContextMenu"
+         ref="contextMenu"
+    >
+      <v-list density="compact" style="font-size: 13px">
+        <v-list-item @click="openInExplorer">Show In Explorer</v-list-item>
+        <v-list-item>Open In Adobe Photoshop</v-list-item>
+        <v-list-item>Open In Adobe Bridge</v-list-item>
+      </v-list>
+    </div>
   </div>
 </template>
 
@@ -54,11 +69,15 @@ import ImageBox from "./image-box.vue";
 import images from "./ImagesList";
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {useSearchFilter} from "../../../../../functions/useSearch";
+import {ipcRenderer} from "electron"
 
 const userSettingsStore = useUserSettingsStore()
 const isOpenModal = ref(false)
 const fileIndex = ref(0)
 const searchText = ref("")
+const isOpenContextMenu = ref(false)
+const imageBox = ref(null)
+const contextMenu = ref(null)
 
 const filteredImagesList = computed(() => useSearchFilter(searchText.value, images.list, ["name"]))
 
@@ -88,6 +107,7 @@ const resetCrop = () => {
 
 const selectFile = (event: MouseEvent, name: string) => {
   images.selectFile(event, name)
+  isOpenContextMenu.value = false
 }
 
 const choiceInMotion = (event: MouseEvent, name: string) => {
@@ -100,6 +120,43 @@ const resetSelect = () => {
 
 const dragStart = (e: MouseEvent) => {
   images.dragStart(e)
+}
+
+const openContextMenu = (e: MouseEvent, file: ImageModel) => {
+  file.isSelected = true
+  isOpenContextMenu.value = true
+  const contextMenuEl = (contextMenu.value as HTMLDivElement)
+  contextMenuEl.style.left = e.pageX + "px"
+  contextMenuEl.style.top = e.pageY + "px"
+  const clickOutsideHandler = (event: MouseEvent) => {
+    const checkIsNotContains = (els: any) => {
+      let rez = true
+      for (const item of els) {
+        if (item.$el.contains(event.target as Node)) rez = false
+      }
+      return rez
+    }
+    if (Array.isArray(imageBox.value)) {
+      const rez = checkIsNotContains(imageBox.value)
+      if (rez) closeContextMenu()
+    } else {
+      const rez = checkIsNotContains([imageBox.value])
+      if (rez) closeContextMenu();
+    }
+  }
+  document.onclick = clickOutsideHandler
+  document.oncontextmenu = clickOutsideHandler
+}
+
+const closeContextMenu = () => {
+  isOpenContextMenu.value = false
+  document.onclick = null
+  document.oncontextmenu = null
+}
+
+const openInExplorer = (path: string) => {
+  const selectedImages = filteredImagesList.value.filter(({isSelected}) => isSelected)
+  ipcRenderer.send("show-in-explorer", selectedImages[0].path)
 }
 
 onUnmounted(() => images.unsubscribes.call(images))

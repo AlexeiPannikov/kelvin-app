@@ -3,7 +3,8 @@ import {
     BrowserWindow,
     ipcMain,
     dialog,
-    FileFilter
+    FileFilter,
+    shell
 } from 'electron'
 import {release} from 'os'
 import {join} from 'path'
@@ -109,4 +110,8 @@ ipcMain.handle("get-transfers", (event, userId: string | number) => {
 ipcMain.handle("delete-transfers", (event, userId: string | number, uuid: string) => {
     const transfersStore = new TransferHistory(userId)
     return transfersStore.delete(uuid)
+})
+
+ipcMain.on("show-in-explorer", (event, path) => {
+    shell.showItemInFolder(path)
 })
