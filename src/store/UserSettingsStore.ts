@@ -6,7 +6,7 @@ import nodePath from "path";
 import {useCurrentUserStore} from "./CurrentUserStore";
 import {OpenDialogReturnValue} from "electron"
 import isImage from "is-image"
-import path from "path";
+import {join, parse, extname} from "path";
 
 export interface IFolder {
     name: string,
@@ -35,18 +35,13 @@ export const useUserSettingsStore = defineStore("user-settings", {
             const currentUserStore = useCurrentUserStore()
             const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", currentUserStore.currentUser.id)
             this.rootFolder = settings.folder
-            this.parseFolder(this.selectedFolder)
+            this.parseFolder()
         },
 
-        getEndpoint(folder: string): [string, number] {
-            const index = folder.lastIndexOf("\\")
-            return [folder.substring(index + 1, folder.length), index]
-        },
-
-        parseFolder(folder: string) {
-            const [endpoint, index] = this.getEndpoint(this.selectedFolder)
-            this.endpoint = endpoint
-            this.selectedWithoutEndpoint = folder.substring(0, index)
+        parseFolder() {
+            const parsedFolder = parse(this.selectedFolder)
+            this.endpoint = parsedFolder.base
+            this.selectedWithoutEndpoint = parsedFolder.dir
         },
 
         async getFilesInFolder(callback: (args: { name: string, path: string, file: File }) => void, list?: any[]) {
@@ -59,8 +54,8 @@ export const useUserSettingsStore = defineStore("user-settings", {
                 const allFiles = fs.readdirSync(innerFolder, {withFileTypes: true})
                 for (const file of allFiles) {
                     if (file.isFile()) {
-                        const filePath = nodePath.normalize(innerFolder) + "\\" + file.name
-                        const extension = path.extname(file.name).substring(1, file.name.length - 1)
+                        const filePath = nodePath.normalize(join(innerFolder, file.name))
+                        const extension = extname(file.name).substring(1, file.name.length - 1)
                         const imageFile = await fetch(filePath).then(r => r.blob())
                             .then(blob => new File([blob], file.name, {type: `image/${extension}`}));
                         callback({
@@ -78,8 +73,8 @@ export const useUserSettingsStore = defineStore("user-settings", {
 
         async getFoldersTree(rootPath: string): Promise<IFolder> {
             await this.getRootFolder()
-            const [endpoint] = this.getEndpoint(this.rootFolder)
-            const mainFolder: IFolder = {name: endpoint, path: this.rootFolder, children: []}
+            const parserPath = parse(this.rootFolder)
+            const mainFolder: IFolder = {name: parserPath.base, path: this.rootFolder, children: []}
             const getFiles = async (path: string, folders: IFolder[]) => {
                 if (!folders) return
                 const foundedFolder = folders.find((item) => item.path === path)
@@ -87,7 +82,7 @@ export const useUserSettingsStore = defineStore("user-settings", {
                 const itemsInRootPath = fs.readdirSync(path, {withFileTypes: true})
                 for (const item of itemsInRootPath) {
                     if (item.isDirectory()) {
-                        const normPath = nodePath.normalize(path) + "\\" + item.name
+                        const normPath = nodePath.normalize(join(path, item.name))
                         folders.push(<IFolder>{name: item.name, path: normPath, children: []})
                         const itemsInPath = fs.readdirSync(normPath, {withFileTypes: true})
                         if (itemsInPath?.length) {

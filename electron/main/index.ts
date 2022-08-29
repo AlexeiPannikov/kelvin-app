@@ -45,7 +45,7 @@ const indexHtml = join(ROOT_PATH.dist, 'index.html')
 
 async function createMainWindow() {
     const mainWin = new Window(indexHtml, url, {
-        icon: ROOT_PATH.public + "/icon.png",
+        icon: join(ROOT_PATH.public, "icon.png"),
         title: "Kelvin" + " v" + app.getVersion()
     })
 }
