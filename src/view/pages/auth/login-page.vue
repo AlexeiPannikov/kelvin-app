@@ -44,6 +44,7 @@
                       ref="passwordInput"
                       @keydown.enter="focusOnButton"
                       @keydown="backspaceHandler"
+                      :error-messages="errorMessage"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -81,19 +82,25 @@ const passwordInput = ref(null)
 const emailInput = ref(null)
 const buttonEnter = ref(null)
 const store = useCurrentUserStore()
+const errorMessage = ref("")
 
 const router = useRouter()
+
+watch(loginData, () => errorMessage.value = "", {deep: true})
 
 const login = async () => {
   form?.value.validate()
   if (isValid.value) {
     const res = await store.login(loginData)
     if (res) {
+      errorMessage.value = ""
       await store.getCurrentUser()
       const userId = store.currentUser?.id
       if (!userId) return
       const settings: PrimarySettings = await ipcRenderer.invoke("get-user-settings", userId)
       settings.folder ? await router.push("/") : await router.push("/primary-settings")
+    } else {
+      errorMessage.value = "wrong login or password"
     }
   }
 }

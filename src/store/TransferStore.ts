@@ -83,7 +83,16 @@ export const useTransferStore = defineStore("transfer", {
         async clearOldTransfers() {
             const userSettingsStore = useUserSettingsStore()
             const maxTerm = userSettingsStore.primarySettings.transferHistory
-            const oldTransferFilter = (item: Transfer) => moment(item.date).isBefore(moment().date(-maxTerm), "day")
+            const oldTransferFilter = (item: Transfer) => {
+                let maxDate = moment()
+                const iterations = maxTerm / 7
+                const remainder = maxTerm % 7
+                for (let i = 1; i <= iterations; i++) {
+                    maxDate = maxDate.subtract(7, "d")
+                }
+                maxDate.subtract(remainder, "d")
+                return moment(item.date).isBefore(maxDate, "d")
+            }
             const oldTransfers = this.transferList.historyList.filter(oldTransferFilter)
             const currentUserStore = useCurrentUserStore()
             for (const transfer of oldTransfers) {
