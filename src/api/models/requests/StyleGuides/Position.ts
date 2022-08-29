@@ -5,6 +5,11 @@ import imagesInFolder from "../../../../view/pages/capture/components/files-view
 import {ImagesList} from "../../../../view/pages/capture/components/files-view/ImagesList";
 import {v4 as uuidv4} from "uuid"
 import {UnwrapNestedRefs} from "vue";
+import moment from "moment";
+import {useUserSettingsStore} from "../../../../store/UserSettingsStore";
+import {Transfer} from "../../../../store/models/Transfer";
+import fs from "fs";
+import {IPositionImagesStorageData} from "../../../../store/ScanProductStore";
 
 export class Position {
     id = uuidv4()
@@ -89,24 +94,6 @@ export class Position {
         return !imagesInFolder.dragMode && !this.images.dragMode && !this.altsImages.dragMode
     }
 
-    private mainListFilter(image: ImageModel) {
-        const isFileExist = !!this.images.list.find(item => item.name === image.name) ||
-            !!this.altsImages.list.find(item => item.name === image.name)
-        if (isFileExist) {
-            this.setErrorMessage("exist")
-        }
-        return !isFileExist
-    }
-
-    private altListFilter(image: ImageModel) {
-        const isFileExist = !!this.altsImages.list.find(item => item.name === image.name) ||
-            !!this.images.list.find(item => item.name === image.name)
-        if (isFileExist) {
-            this.setErrorMessage("exist")
-        }
-        return !isFileExist
-    }
-
     setErrorMessage(type: "many" | "exist") {
         if (this.errorMessage) return
         if (type === "many")
@@ -139,6 +126,7 @@ export class Position {
     globalMouseupHandler(e: MouseEvent) {
         const mainDropZone = document.getElementById(this.id.toString())
         const altDropZone = document.getElementById(`alt-${this.id}`)
+        const resetSelection = (list: ImageModel[]) => list.forEach(item => item.isSelected = false)
         if (mainDropZone.contains(e.target as Node) || altDropZone.contains(e.target as Node)) {
             if (this.isFileExist()) return
             if (mainDropZone.contains(e.target as Node)) {
@@ -155,62 +143,13 @@ export class Position {
                 this.altsImages.list = this.altsImages.list.filter(({
                                                                         isSelected
                                                                     }) => !isSelected)
-            this.altsImages.list.forEach(item =>
-                item.isSelected = false
-            )
             if (this.images.dragMode)
                 this.images.list = this.images.list.filter(({
                                                                 isSelected
                                                             }) => !isSelected)
-            this.images.list.forEach(item =>
-                item.isSelected = false
-            )
         }
-        // if (!altDropZone.contains(e.target as Node)) {
-        //     const deleteSelected = () => {
-        //         if (this.altsImages.dragMode)
-        //             this.altsImages.list = this.altsImages.list.filter(({
-        //                                                                     isSelected
-        //                                                                 }) => !isSelected)
-        //         this.altsImages.list.forEach(item => {
-        //             item.isSelected = false
-        //             item.isConfirmed = true
-        //         })
-        //     }
-        //     if (mainDropZone.contains(e.target as Node)) {
-        //         const isInTheRange = (this.altsImages.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots) &&
-        //             (imagesInFolder.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots)
-        //         const isFileExist = !!this.images.list.find(item => !!this.altsImages.list.filter(({
-        //                                                                                                isSelected,
-        //                                                                                                name
-        //                                                                                            }) => this.altsImages.dragMode && isSelected && item.name === name).length)
-        //         if (isFileExist) return;
-        //         isInTheRange ? deleteSelected() : this.setErrorMessage("many")
-        //         return
-        //     }
-        //     deleteSelected()
-        // }
-        // if (!mainDropZone.contains(e.target as Node)) {
-        //     const deleteSelected = () => {
-        //         if (this.images.dragMode)
-        //             this.images.list = this.images.list.filter(({
-        //                                                             isSelected
-        //                                                         }) => !isSelected)
-        //         this.images.list.forEach(item => {
-        //             item.isSelected = false
-        //             item.isConfirmed = true
-        //         })
-        //     }
-        //     if (altDropZone.contains(e.target as Node)) {
-        //         const isFileExist = !!this.altsImages.list.find(item => !!this.images.list.filter(({
-        //                                                                                                isSelected,
-        //                                                                                                name
-        //                                                                                            }) => this.images.dragMode && isSelected && item.name === name).length)
-        //         !isFileExist ? deleteSelected() : this.setErrorMessage("exist")
-        //         return;
-        //     }
-        //     deleteSelected()
-        // }
+        resetSelection(this.altsImages.list)
+        resetSelection(this.images.list)
         window.onmouseup = null
     }
 

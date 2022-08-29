@@ -52,6 +52,7 @@
                           type="number"
                           label="day(s)"
                           min="0"
+                          v-model="userSettingsStore.primarySettings.selectionsForTransferHistory"
             >
             </v-text-field>
           </div>

@@ -14,11 +14,18 @@ import {PropertyRequestModel} from "../api/models/requests/Properties/PropertyRe
 import Notifications from "../view/components/ui-notifications/models/Notifications";
 import {useStudioStore} from "./StudioStore";
 import {StyleGuide} from "../api/models/responses/StyleGuides/StyleGuide";
+import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel";
+import {useUserSettingsStore} from "./UserSettingsStore";
+import moment from "moment";
 
 interface IParamsSavedProduct {
     productUuid: string,
     styleGuideUuid: string,
     sampleCode: string,
+}
+
+export interface IPositionImagesStorageData {
+    [key: string]: { images: ImageModel[], altImages: ImageModel[] }
 }
 
 export interface ISavedProduct {
@@ -35,7 +42,9 @@ export interface ISavedProduct {
         name: string,
         uuid: string
     }
-    sampleCode: string
+    sampleCode: string,
+    photosToTransfer: IPositionImagesStorageData,
+    date: string
 }
 
 export const useScanProductStore = defineStore("scan-product", {
@@ -186,12 +195,19 @@ export const useScanProductStore = defineStore("scan-product", {
                     value: product[item.internal_name as keyof ProductModel]?.toString() || ""
                 }))
                 const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
+                const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
+                selectedShootingType.positions.forEach(position => {
+                    position.images.list = foundedProduct.photosToTransfer[position.id].images.map(item => new ImageModel(item))
+                    position.altsImages.list = foundedProduct.photosToTransfer[position.id].altImages.map(item => new ImageModel(item))
+                })
                 this.confirmedProduct = new ProductFullData({
                     product,
                     styleGuide,
                     properties: mappedProperties,
                     sampleCode: foundedProduct.sampleCode
                 })
+                this.saveProduct(false)
+                console.log(this.confirmedProduct)
             } finally {
                 this.isLoadingProduct = false
             }
@@ -246,10 +262,18 @@ export const useScanProductStore = defineStore("scan-product", {
             localStorage.setItem("products", JSON.stringify(this.productsInStore))
         },
 
-        saveProduct() {
+        saveProduct(resetConfirmedProduct = true) {
             const studioStore = useStudioStore()
             const {product, styleGuide, sampleCode} = this.confirmedProduct
             const {selectedProductionTypeUuid} = studioStore
+            const selectedShootingType = styleGuide.shootingTypes.find(item => item.production_type_uuid === selectedProductionTypeUuid)
+            const photosToTransfer: IPositionImagesStorageData = {}
+            selectedShootingType.positions.forEach(({images, altsImages, id}) => {
+                photosToTransfer[id] = {
+                    images: images.list,
+                    altImages: altsImages.list
+                }
+            })
             const productToSave: ISavedProduct = {
                 product: {code: product.product_code, uuid: product.product_uuid},
                 productionType: {
@@ -257,7 +281,9 @@ export const useScanProductStore = defineStore("scan-product", {
                     uuid: selectedProductionTypeUuid
                 },
                 styleGuide: {name: styleGuide.name, uuid: styleGuide.uuid, url: styleGuide.coverFile.url},
-                sampleCode: sampleCode
+                sampleCode: sampleCode,
+                photosToTransfer,
+                date: moment().format()
             }
             if (!this.productsInStore?.length) {
                 this.productsInStore.push(productToSave)
@@ -270,7 +296,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 index > -1 ? this.productsInStore.splice(index, 1, productToSave) : this.productsInStore.push(productToSave)
             }
             this.saveInStorage()
-            this.confirmedProduct = null
+            if (resetConfirmedProduct)
+                this.confirmedProduct = null
         },
 
         deleteProduct(productUuid: string, prodTypeUuid: string) {
@@ -279,6 +306,23 @@ export const useScanProductStore = defineStore("scan-product", {
                                                               productionType
                                                           }) => product.uuid === productUuid && productionType.uuid === prodTypeUuid)
             this.productsInStore.splice(index, 1)
+            this.saveInStorage()
+        },
+
+        checkOldProductsInStore() {
+            const oldSelectedProductsFilter = ({date}: ISavedProduct) => {
+                const {primarySettings} = useUserSettingsStore()
+                const {selectionsForTransferHistory: maxTerm} = primarySettings
+                let maxDate = moment()
+                const iterations = maxTerm / 7
+                const remainder = maxTerm % 7
+                for (let i = 1; i <= iterations; i++) {
+                    maxDate = maxDate.subtract(7, "d")
+                }
+                maxDate.subtract(remainder, "d")
+                return !moment(date).isBefore(maxDate, "d")
+            }
+            this.productsInStore = this.productsInStore.filter(oldSelectedProductsFilter)
             this.saveInStorage()
         }
     },

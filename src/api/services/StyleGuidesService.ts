@@ -19,7 +19,6 @@ class StyleGuidesService {
             `styleguides/${uuid}/view`
         );
         if (res?.data?.success) {
-            console.log(res.data.data)
             return res.data.data;
         }
     }

@@ -3,6 +3,7 @@ import {BehaviourAfterTransferEnum} from "./BehaviourAfterTransferEnum";
 export class PrimarySettings {
     folder = ""
     transferHistory = 7
+    selectionsForTransferHistory = 7
     adobeApplications = {
         ps: "",
         br: ""

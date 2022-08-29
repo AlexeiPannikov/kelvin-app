@@ -1,10 +1,10 @@
 <template>
-  <div :style="{width: props.width + 'px'}" :class="{active: props.file.isSelected}" class="image-box">
+  <div :style="{width: props.width + 'px'}" :class="{active: file.isSelected}" class="image-box">
     <v-img v-if="!file.cropImage" @dblclick="emit('dblclick')" class="image" :width="width" aspect-ratio="1"
-           :src="props.file.path"></v-img>
-    <v-img v-else @dblclick="emit('dblclick')" class="image" :width="props.width + 'px'"
-           :src="props.file.cropImage"></v-img>
-    <div v-if="!withoutName" class="text-center mt-2" style="font-size: 12px">{{ props.file.name }}</div>
+           :src="file.path"></v-img>
+    <v-img v-else @dblclick="emit('dblclick')" class="image" :width="width + 'px'"
+           :src="file.cropImage"></v-img>
+    <div v-if="!withoutName" class="text-center mt-2" style="font-size: 12px">{{ file.name }}</div>
   </div>
 </template>
 
