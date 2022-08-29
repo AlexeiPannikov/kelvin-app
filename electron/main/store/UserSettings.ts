@@ -2,12 +2,13 @@ import Store, {Options} from "electron-store"
 import {PrimarySettings} from "../../../src/store/models/PrimarySettings";
 import {app} from "electron"
 import * as fs from "fs";
+import path from "path";
 
 export class UserSettingsStore extends Store {
     data: PrimarySettings = new PrimarySettings()
 
     constructor(userId: string | number, settings?: Options<any>) {
-        const userDirectory = app.getPath("userData") + `/user.${userId}`
+        const userDirectory = path.join(app.getPath("userData"), `/user.${userId}`)
         if (!fs.existsSync(userDirectory)) {
             fs.mkdirSync(userDirectory)
         }
