@@ -19,4 +19,17 @@ export class ShootingType {
     get isValidNumberOfPictures() {
         return !this.positions.find(({isValidNumberOfPictures}) => !isValidNumberOfPictures)
     }
+
+    private keydownHandler(e: KeyboardEvent) {
+        if (e.key === "Delete" || e.key === "Backspace")
+            this.positions.forEach(item => item.pressDeleteHandler.call(item))
+    }
+
+    subscribes() {
+        window.onkeydown = this.keydownHandler.bind(this)
+    }
+
+    unsubscribes() {
+        window.onkeydown = null
+    }
 }

@@ -53,13 +53,12 @@ export class Position {
 
     pressDeleteHandler() {
         const selectedImagesInMain = this.images.list.filter(({isSelected}) => isSelected)
-        const selectedImagesInAlt = this.images.list.filter(({isSelected}) => isSelected)
+        const selectedImagesInAlt = this.altsImages.list.filter(({isSelected}) => isSelected)
         this.images.deleteImages(selectedImagesInMain.map(({name}) => name))
         this.altsImages.deleteImages(selectedImagesInAlt.map(({name}) => name))
     }
 
     subscribes() {
-        window.onkeydown = this.pressDeleteHandler.bind(this)
         const mainDropZone = document.getElementById(this.id.toString())
         const altDropZone = document.getElementById(`alt-${this.id}`)
         if (!mainDropZone) return
@@ -81,7 +80,6 @@ export class Position {
             altDropZone.onmouseenter = null
             altDropZone.onmouseleave = null
         }
-        window.onkeydown = null
     }
 
     private getSelectedImages = (list: UnwrapNestedRefs<ImagesList> | ImagesList) => list.list.filter(({isSelected}) => {

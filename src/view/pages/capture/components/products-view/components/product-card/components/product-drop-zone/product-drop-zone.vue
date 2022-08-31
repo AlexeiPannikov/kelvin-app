@@ -101,12 +101,16 @@ const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 
 onMounted(() => {
-  scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.positions
+  const shootingType = scanProductStore.confirmedProduct?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
+  shootingType?.subscribes()
+  shootingType?.positions
       .forEach(item => item.subscribes())
 })
 
 onUnmounted(() => {
-  scanProductStore.confirmedProduct?.styleGuide?.shootingTypes?.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.positions
+  const shootingType = scanProductStore.confirmedProduct?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
+  shootingType?.unsubscribes()
+  shootingType?.positions
       .forEach(item => item.unsubscribes())
 })
 </script>
