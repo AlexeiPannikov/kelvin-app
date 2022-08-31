@@ -52,8 +52,16 @@
     >
       <v-list density="compact" style="font-size: 13px">
         <v-list-item @click="openInExplorer">Show In Explorer</v-list-item>
-        <v-list-item>Open In Adobe Photoshop</v-list-item>
-        <v-list-item>Open In Adobe Bridge</v-list-item>
+        <v-list-item :disabled="!userSettingsStore.primarySettings.adobeApplications.ps"
+                     @click="openPhotoshop"
+        >
+          Open In Adobe Photoshop
+        </v-list-item>
+        <v-list-item :disabled="!userSettingsStore.primarySettings.adobeApplications.br"
+                     @click="openBridge"
+        >
+          Open In Adobe Bridge
+        </v-list-item>
       </v-list>
     </div>
   </div>
@@ -80,6 +88,7 @@ const imageBox = ref(null)
 const contextMenu = ref(null)
 
 const filteredImagesList = computed(() => useSearchFilter(searchText.value, images.list, ["name"]))
+const selectedImages = computed(() => filteredImagesList.value.filter(({isSelected}) => isSelected))
 
 const initFiles = async () => {
   await userSettingsStore.getFilesInFolder(({name, path, file}) => images.list.push(new ImageModel({
@@ -154,14 +163,21 @@ const closeContextMenu = () => {
   document.oncontextmenu = null
 }
 
-const openInExplorer = (path: string) => {
-  const selectedImages = filteredImagesList.value.filter(({isSelected}) => isSelected)
-  ipcRenderer.send("show-in-explorer", selectedImages[0].path)
+const openInExplorer = () => {
+  ipcRenderer.send("show-in-explorer", selectedImages.value[0].path)
 }
 
 const unselectFiles = (e: PointerEvent, file: ImageModel) => {
   if (!e.ctrlKey)
     file.isSelected = false
+}
+
+const openPhotoshop = () => {
+  ipcRenderer.send("run-child-app", userSettingsStore.primarySettings.adobeApplications.ps, [selectedImages.value[0].path])
+}
+
+const openBridge = () => {
+  ipcRenderer.send("run-child-app", userSettingsStore.primarySettings.adobeApplications.br, [selectedImages.value[0].path])
 }
 
 onUnmounted(() => images.unsubscribes.call(images))

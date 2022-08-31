@@ -4,7 +4,7 @@ import {
     ipcMain,
     dialog,
     FileFilter,
-    shell
+    shell,
 } from 'electron'
 import {release} from 'os'
 import {join} from 'path'
@@ -13,6 +13,7 @@ import {UserSettingsStore} from "./store/UserSettings"
 import {PrimarySettings} from "../../src/store/models/PrimarySettings";
 import {Transfer} from "../../src/store/models/Transfer";
 import {TransferHistory} from "./store/TransferHistory";
+import {execFile} from "child_process"
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -114,4 +115,8 @@ ipcMain.handle("delete-transfers", (event, userId: string | number, uuid: string
 
 ipcMain.on("show-in-explorer", (event, path) => {
     shell.showItemInFolder(path)
+})
+
+ipcMain.on("run-child-app", (event, path: string, args?: string[]) => {
+    execFile(path, args)
 })
