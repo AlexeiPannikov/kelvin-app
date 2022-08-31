@@ -39,7 +39,7 @@
                           hide-details
                           type="number"
                           label="day(s)"
-                          min="0"
+                          min="1"
                           v-model="userSettingsStore.primarySettings.transferHistory"
             >
             </v-text-field>
@@ -51,7 +51,7 @@
                           hide-details
                           type="number"
                           label="day(s)"
-                          min="0"
+                          min="1"
                           v-model="userSettingsStore.primarySettings.selectionsForTransferHistory"
             >
             </v-text-field>

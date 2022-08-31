@@ -13,12 +13,7 @@
 <script lang="ts" setup>
 import HeaderLayout from "./header-layout.vue";
 import SidebarLayout from "./sidebar-layout/sidebar-layout.vue";
-import {useClientsStore} from "../../store/ClientsStore";
-import {useStyleGuidesStore} from "../../store/StyleGuidesStore";
-import {useStudioStore} from "../../store/StudioStore";
-import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 import {useUserSettingsStore} from "../../store/UserSettingsStore";
-import {onMounted} from "vue";
 import {useRouter} from "vue-router";
 import {useCurrentUserStore} from "../../store/CurrentUserStore";
 
@@ -35,6 +30,7 @@ userSettingsStore.getSettings().then(() => {
 })
 
 currentUserStore.getCurrentUser()
+
 </script>
 
 <style lang="scss">

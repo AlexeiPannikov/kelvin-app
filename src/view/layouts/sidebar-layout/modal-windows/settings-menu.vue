@@ -61,6 +61,7 @@ import {useRouter} from "vue-router";
 import ComputerLocationModal from "./computer-location-modal.vue";
 import AppSettings from "./app-settings/app-settings.vue";
 import {useUserSettingsStore} from "../../../../store/UserSettingsStore";
+import {ipcRenderer} from "electron"
 
 const currentUserStore = useCurrentUserStore()
 const userSettingsStore = useUserSettingsStore()
@@ -85,6 +86,7 @@ onMounted(async () => {
   }
 })
 
+ipcRenderer.on("open-settings", () => isOpenAppSettings.value = true)
 </script>
 
 <style lang="scss" scoped>

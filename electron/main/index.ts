@@ -5,6 +5,9 @@ import {
     dialog,
     FileFilter,
     shell,
+    Menu,
+    MenuItem,
+    MenuItemConstructorOptions,
 } from 'electron'
 import {release} from 'os'
 import {join} from 'path'
@@ -45,14 +48,41 @@ const preload = join(__dirname, '../preload/index.js')
 const url = `http://${process.env['VITE_DEV_SERVER_HOST']}:${process.env['VITE_DEV_SERVER_PORT']}`
 const indexHtml = join(ROOT_PATH.dist, 'index.html')
 
-async function createMainWindow() {
-    const mainWin = new Window(indexHtml, url, {
+function createMainWindow() {
+    win = new Window(indexHtml, url, {
         icon: join(ROOT_PATH.public, "icon.png"),
         title: "Kelvin" + " v" + app.getVersion()
     })
 }
 
-app.whenReady().then(createMainWindow)
+app.whenReady().then(() => {
+    createMainWindow()
+    const template: MenuItem[] = [
+        new MenuItem({
+            label: "File", submenu: [
+                {
+                    label: "Settings",
+                    click: () => win.webContents.send("open-settings")
+                },
+                {
+                    label: "Exit",
+                    click: () =>
+                        app.exit()
+                },
+            ] as MenuItemConstructorOptions[]
+        }),
+        new MenuItem({
+            label: "Help", submenu: [
+                {
+                    label: "About Kelvin",
+                    click: () => win.webContents.send("open-about-app")
+                }
+            ] as MenuItemConstructorOptions[]
+        })
+    ]
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
+})
 
 app.on('window-all-closed', () => {
     win = null
