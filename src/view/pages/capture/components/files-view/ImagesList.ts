@@ -116,6 +116,10 @@ export class ImagesList {
         setTimeout(() => this.dragMode = false, 0)
     }
 
+    deleteImages(names: string[]) {
+        this.list = this.list.filter(item => !names.find(name => name === item.name))
+    }
+
     subscribes() {
         document.onmouseup = this.dragEnd.bind(this)
         document.onmouseleave = this.dragEnd.bind(this)

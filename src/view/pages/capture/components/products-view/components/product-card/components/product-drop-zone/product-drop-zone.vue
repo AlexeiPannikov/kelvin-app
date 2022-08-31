@@ -95,19 +95,19 @@
 import {useScanProductStore} from "../../../../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../../../../store/StudioStore";
 import ImageBox from "../../../../../files-view/image-box.vue";
-import {onMounted, onUnmounted, onUpdated, watch} from "vue";
-import images from "../../../../../files-view/ImagesList";
-import {Position} from "../../../../../../../../../api/models/requests/StyleGuides/Position";
+import {onMounted, onUnmounted} from "vue";
 
 const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 
 onMounted(() => {
-  scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.subscribes()
+  scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.positions
+      .forEach(item => item.subscribes())
 })
 
 onUnmounted(() => {
-  scanProductStore.confirmedProduct?.styleGuide?.shootingTypes?.forEach(item => item.unsubscribes())
+  scanProductStore.confirmedProduct?.styleGuide?.shootingTypes?.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.positions
+      .forEach(item => item.unsubscribes())
 })
 </script>
 

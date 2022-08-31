@@ -19,12 +19,4 @@ export class ShootingType {
     get isValidNumberOfPictures() {
         return !this.positions.find(({isValidNumberOfPictures}) => !isValidNumberOfPictures)
     }
-
-    subscribes() {
-        this.positions.forEach(item => item.subscribes.call(item))
-    }
-
-    unsubscribes() {
-        this.positions.forEach(item => item.unsubscribes.call(item))
-    }
 }
