@@ -10,6 +10,11 @@ export class PrimarySettings {
     }
     lastOpenedFolder = ""
     behaviourAfterTransfer = BehaviourAfterTransferEnum.Go
+    computerLocation = {
+        dontAskAgain: false,
+        locationUuid: "",
+        subLocationUuid: "",
+    }
 
     constructor(obj?: Partial<PrimarySettings>) {
         if (obj) {

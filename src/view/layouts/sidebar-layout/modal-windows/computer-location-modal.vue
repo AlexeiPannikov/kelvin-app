@@ -14,7 +14,7 @@
       <v-card-item>
         <h4 class="mb-2">LOCATION</h4>
         <v-select
-            v-model="locationUuid"
+            v-model="userSettingsStore.primarySettings.computerLocation.locationUuid"
             :items="locationsStore.locationsSelectList"
             density="compact"
             variant="outlined"
@@ -24,7 +24,7 @@
           <v-icon>mdi-arrow-right-bottom-bold</v-icon>
           <v-select
               v-if="locationsStore.subLocationsSelectList.length"
-              v-model="subLocationUuid"
+              v-model="userSettingsStore.primarySettings.computerLocation.subLocationUuid"
               :items="locationsStore.subLocationsSelectList"
               density="compact"
               variant="outlined"
@@ -37,16 +37,17 @@
         <v-checkbox label="Dont ask me again"
                     density="compact"
                     color="primary"
-                    v-model="dontAskAgain"
+                    v-model="userSettingsStore.primarySettings.computerLocation.dontAskAgain"
                     hide-details
         >
         </v-checkbox>
         <v-spacer></v-spacer>
-        <button-white @click="emit('cancel')"
+        <button-white @click="reset"
         >
           Cancel
         </button-white>
         <button-blue
+            @click="saveLocation"
         >
           Save
         </button-blue>
@@ -58,26 +59,35 @@
 <script lang="ts" setup>
 import ButtonWhite from "../../../components/buttons/button-white.vue";
 import ButtonBlue from "../../../components/buttons/button-blue.vue";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useLocationsStore} from "../../../../store/LocationsStore";
+import {useUserSettingsStore} from "../../../../store/UserSettingsStore";
 
 const emit = defineEmits(['cancel', 'save'])
 
 const locationsStore = useLocationsStore()
-const dontAskAgain = ref(false)
-const locationUuid = ref("0")
-const subLocationUuid = ref("0")
+const userSettingsStore = useUserSettingsStore()
 
 locationsStore.getLocations()
 
-watch(locationUuid, () => {
-  if (locationUuid.value !== "0")
-    locationsStore.getLocation(locationUuid.value)
+watch(() => userSettingsStore.primarySettings.computerLocation.locationUuid, () => {
+  if (userSettingsStore.primarySettings.computerLocation.locationUuid !== "")
+    locationsStore.getLocation(userSettingsStore.primarySettings.computerLocation.locationUuid)
   else {
-    subLocationUuid.value = "0"
+    userSettingsStore.primarySettings.computerLocation.subLocationUuid = ""
     locationsStore.resetSubLocations()
   }
 })
+
+const saveLocation = () => {
+  userSettingsStore.saveSettings()
+  emit('cancel')
+}
+
+const reset = () => {
+  userSettingsStore.getSettings()
+  emit('cancel')
+}
 </script>
 
 <style lang="scss" scoped>

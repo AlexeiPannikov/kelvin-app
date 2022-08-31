@@ -56,12 +56,14 @@
 <script lang="ts" setup>
 import {useCurrentUserStore} from "../../../../store/CurrentUserStore";
 import {useFirstNameLetters} from "../../../../functions/useFirstNameLetters";
-import {ref, toRefs} from "vue";
+import {onMounted, ref, toRefs} from "vue";
 import {useRouter} from "vue-router";
 import ComputerLocationModal from "./computer-location-modal.vue";
 import AppSettings from "./app-settings/app-settings.vue";
+import {useUserSettingsStore} from "../../../../store/UserSettingsStore";
 
 const currentUserStore = useCurrentUserStore()
+const userSettingsStore = useUserSettingsStore()
 const {currentUser} = toRefs(currentUserStore)
 const isOpenSettingsMenu = ref(false)
 const isOpenComputerLocation = ref(false)
@@ -75,6 +77,13 @@ const logout = async () => {
     await router.push("/login")
   }
 }
+
+onMounted(async () => {
+  await userSettingsStore.getSettings()
+  if (!userSettingsStore.primarySettings.computerLocation.dontAskAgain) {
+    setTimeout(() => isOpenComputerLocation.value = true, 2000)
+  }
+})
 
 </script>
 

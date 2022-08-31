@@ -30,14 +30,14 @@ export const useLocationsStore = defineStore("locations", {
         locationsSelectList(): { title: string, value: string }[] {
             if (!this.locations.length) return [];
             const array = this.locations.map(({uuid, name}) => ({title: name, value: uuid}))
-            array.unshift({title: "No particular location", value: "0"})
+            array.unshift({title: "No particular location", value: ""})
             return array
         },
 
         subLocationsSelectList(): { title: string, value: string }[] {
             if (!this.location.subs.length) return [];
             const array = this.location.subs.map(({uuid, name}) => ({title: name, value: uuid}))
-            array.unshift({title: "No particular location", value: "0"})
+            array.unshift({title: "No particular location", value: ""})
             return array
         },
     },
