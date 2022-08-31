@@ -22,7 +22,7 @@
     "@mdi/font": "5.9.55",
     "@types/uuid": "^8.3.4",
     "@vitejs/plugin-vue": "^2.3.3",
-    "@vue/devtools": "^6.0.0-beta.21",
+    "@vue/devtools": "^6.2.1",
     "@vuetify/vite-plugin": "^1.0.0-alpha.0",
     "electron": "^19.0.8",
     "electron-builder": "^23.3.3",
