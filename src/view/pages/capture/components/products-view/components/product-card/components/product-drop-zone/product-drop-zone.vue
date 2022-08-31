@@ -103,14 +103,11 @@ const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 
 onMounted(() => {
-  scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.positions
-      .forEach(position => position?.subscribes())
+  scanProductStore.confirmedProduct.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.subscribes()
 })
 
 onUnmounted(() => {
-  scanProductStore.confirmedProduct?.styleGuide?.shootingTypes?.forEach(shootingType => {
-    shootingType.positions.forEach(position => position?.unsubscribes())
-  })
+  scanProductStore.confirmedProduct?.styleGuide?.shootingTypes?.forEach(item => item.unsubscribes())
 })
 </script>
 
