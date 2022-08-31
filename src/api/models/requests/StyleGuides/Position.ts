@@ -34,6 +34,8 @@ export class Position {
     images = new ImagesList()
     altsImages = new ImagesList()
     errorMessage = ""
+    isPointerOverMainZone = false
+    isPointerOverAltZone = false
 
     constructor(obj?: Partial<Position>) {
         if (obj) {
@@ -156,11 +158,13 @@ export class Position {
     mouseenterMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
+        this.isPointerOverMainZone = true
         window.onmouseup = this.globalMouseupHandler.bind(this)
     }
 
     mouseleaveMainZoneHandler(e: MouseEvent) {
         e.preventDefault()
+        this.isPointerOverMainZone = false
         if (this.images.dragMode || imagesInFolder.dragMode) {
             window.onmouseup = this.globalMouseupHandler.bind(this)
         }
@@ -169,11 +173,13 @@ export class Position {
     mouseenterAltZoneHandler(e: MouseEvent) {
         e.preventDefault()
         if (this.isDisabledDragMode) return
+        this.isPointerOverAltZone = true
         window.onmouseup = this.globalMouseupHandler.bind(this)
     }
 
     mouseleaveAltZoneHandler(e: MouseEvent) {
         e.preventDefault()
+        this.isPointerOverAltZone = false
         if (this.altsImages.dragMode || imagesInFolder.dragMode) {
             window.onmouseup = this.globalMouseupHandler.bind(this)
         }

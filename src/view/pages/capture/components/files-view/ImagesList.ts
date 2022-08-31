@@ -34,7 +34,7 @@ export class ImagesList {
     choiceInMotion(event: MouseEvent, name: string) {
         const departureFromStartX = Math.abs(event.pageX - this.startX)
         const departureFromStartY = Math.abs(event.pageY - this.startY)
-        if (!this.madeAChoiceInMotion && (departureFromStartX < 2 || departureFromStartY < 2)) return
+        if (!this.madeAChoiceInMotion && (departureFromStartX < 8 || departureFromStartY < 8)) return
         if (this.isMouseDown && !event.ctrlKey && this.list.filter(({isSelected}) => isSelected).length < 2) {
             this.list.forEach(item => {
                 if (item.name === name) {

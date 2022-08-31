@@ -7,7 +7,7 @@
       <template v-if="shootingTypes.production_type_uuid === studioStore.selectedProductionTypeUuid">
         <v-card-item v-for="position in shootingTypes.positions"
                      :key="position.id"
-                     class="pl-0 py-0"
+                     class="px-0 py-0 mt-2"
                      v-click-outside="position.resetSelect?.bind(position)"
         >
           {{ position.errorMessage }}
@@ -41,7 +41,10 @@
                     </v-icon>
                   </div>
                 </div>
-                <div :id="position.id" class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto">
+                <div :id="position.id"
+                     class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto"
+                     :class="{'mouse-over': position.isPointerOverMainZone}"
+                >
                   <image-box v-for="img in position.images.list"
                              :id="img.name"
                              :file="img"
@@ -61,7 +64,10 @@
                 <div class="d-flex px-2 py-2 align-center align-self-start zone-header">
 
                 </div>
-                <div :id="`alt-${position.id}`" class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto">
+                <div :id="`alt-${position.id}`"
+                     class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto"
+                     :class="{'mouse-over': position.isPointerOverAltZone}"
+                >
                   <image-box v-for="img in position.altsImages.list"
                              :id="img.name"
                              :file="img"
@@ -142,5 +148,9 @@ onUnmounted(() => {
 
 .zone-header {
   height: 37px;
+}
+
+.mouse-over {
+  background-color: rgb(var(--v-theme-primary), 0.2);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column flex-grow-1 fill-height overflow-y-auto">
+  <div class="d-flex flex-column flex-grow-1 fill-height overflow-y-auto pb-10">
     <product-info-block>
     </product-info-block>
     <product-drop-zone class="mt-4">

@@ -25,7 +25,7 @@
                      @contextmenu="openContextMenu($event, file)"
                      @mousedown.prevent="dragStart"
                      @mousemove="choiceInMotion($event, file.name)"
-                     v-click-outside="() => file.isSelected = false"
+                     v-click-outside="e => unselectFiles(e, file)"
           >
           </image-box>
         </v-col>
@@ -157,6 +157,11 @@ const closeContextMenu = () => {
 const openInExplorer = (path: string) => {
   const selectedImages = filteredImagesList.value.filter(({isSelected}) => isSelected)
   ipcRenderer.send("show-in-explorer", selectedImages[0].path)
+}
+
+const unselectFiles = (e: PointerEvent, file: ImageModel) => {
+  if (!e.ctrlKey)
+    file.isSelected = false
 }
 
 onUnmounted(() => images.unsubscribes.call(images))

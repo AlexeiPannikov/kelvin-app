@@ -73,7 +73,6 @@ export const useScanProductStore = defineStore("scan-product", {
 
         isHasSelectedProdType(): boolean {
             const studioStore = useStudioStore()
-            console.log(this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid))
             return !!this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
         }
     },
@@ -198,8 +197,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
                 selectedShootingType.positions.forEach(position => {
-                    position.images.list = foundedProduct.photosToTransfer[position.id].images.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item))
-                    position.altsImages.list = foundedProduct.photosToTransfer[position.id].altImages.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item))
+                    position.images.list = foundedProduct.photosToTransfer[position.id]?.images.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item)) || []
+                    position.altsImages.list = foundedProduct.photosToTransfer[position.id]?.altImages.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item)) || []
                 })
                 this.confirmedProduct = new ProductFullData({
                     product,
