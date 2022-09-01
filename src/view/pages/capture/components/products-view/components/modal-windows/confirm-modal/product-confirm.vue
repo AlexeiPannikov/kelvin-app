@@ -65,12 +65,16 @@
   <v-card-actions class="justify-end mt-5">
     <button-white @click="sendEvent('back')"
                   prepend-icon="mdi-arrow-left"
-                  v-if="scanProductStore.samples.length > 1"
+                  v-if="isVisibleBack"
     >back
     </button-white>
     <v-spacer></v-spacer>
     <button-white @click="sendEvent('cancel')">cancel</button-white>
-    <button-blue @click="sendEvent('confirm')">Confirm</button-blue>
+    <button-blue @click="sendEvent('confirm')"
+                 :is-loading="scanProductStore.isLoadingConfirmProduct"
+    >
+      Confirm
+    </button-blue>
   </v-card-actions>
 
   <edit-product-modal v-model="isOpenEditModal"
@@ -87,6 +91,13 @@ import UiPreloader from "../../../../../../../components/ui-preloader/ui-preload
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 
 const EditProductModal = defineAsyncComponent(() => import("../edit-product-modal/edit-product-modal.vue"));
+
+const props = defineProps({
+  isVisibleBack: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const emit = defineEmits(["cancel", "confirm", "back"])
 

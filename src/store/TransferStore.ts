@@ -16,13 +16,17 @@ export const useTransferStore = defineStore("transfer", {
             isLoading: false,
             isFirstLoading: true,
             transferList: new TransferHistoryList(),
-            selectedTransfer: null as Transfer
+            selectedTransfer: null as Transfer,
         };
     },
 
     getters: {},
 
     actions: {
+        async beginTransfer() {
+
+        },
+
         async transfer() {
             this.isLoading = true
             const scanProductStore = useScanProductStore()

@@ -28,11 +28,12 @@
   <v-card-actions class="justify-end mt-5">
     <button-white @click="sendEvent('back')"
                   prepend-icon="mdi-arrow-left"
+                  v-if="isVisibleBack"
     >back
     </button-white>
     <v-spacer></v-spacer>
     <button-white @click="sendEvent('cancel')">cancel</button-white>
-    <button-blue @click="sendEvent('select')">Continue</button-blue>
+    <button-blue @click="() => changeProdType()">Continue</button-blue>
   </v-card-actions>
 </template>
 
@@ -42,6 +43,13 @@ import {onActivated, onDeactivated, ref} from "vue";
 import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../../../store/StudioStore";
+
+const props = defineProps({
+  isVisibleBack: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const emit = defineEmits(["cancel", "select", "back"])
 

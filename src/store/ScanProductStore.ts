@@ -18,6 +18,7 @@ import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel
 import {useUserSettingsStore} from "./UserSettingsStore";
 import moment from "moment";
 import fs from "fs";
+import {useTransferStore} from "./TransferStore";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -41,7 +42,8 @@ export interface ISavedProduct {
     }
     productionType: {
         name: string,
-        uuid: string
+        uuid: string,
+        taskUuid: string
     }
     sampleCode: string,
     photosToTransfer: IPositionImagesStorageData,
@@ -54,6 +56,7 @@ export const useScanProductStore = defineStore("scan-product", {
             isLoadingScan: false,
             isLoadingProduct: false,
             isLoadingEditProduct: false,
+            isLoadingConfirmProduct: false,
             samples: new Array<SampleModel>(),
             products: new Array<ProductModel>(),
             selectedJobCode: "",
@@ -196,7 +199,7 @@ export const useScanProductStore = defineStore("scan-product", {
                 }))
                 const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
-                selectedShootingType.positions.forEach(position => {
+                selectedShootingType?.positions?.forEach(position => {
                     position.images.list = foundedProduct.photosToTransfer[position.id]?.images.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item)) || []
                     position.altsImages.list = foundedProduct.photosToTransfer[position.id]?.altImages.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item)) || []
                 })
@@ -207,19 +210,33 @@ export const useScanProductStore = defineStore("scan-product", {
                     sampleCode: foundedProduct.sampleCode
                 })
                 this.saveProduct(false)
-                console.log(this.confirmedProduct)
             } finally {
                 this.isLoadingProduct = false
             }
         },
 
-        confirmProduct() {
-            this.confirmedProduct = new ProductFullData({
-                product: this.product.product as ProductModel,
-                styleGuide: this.product.styleGuide as StyleGuide,
-                sampleCode: this.product.sampleCode,
-                properties: this.product.properties
-            })
+        async confirmProduct() {
+            this.isLoadingConfirmProduct = true
+            try {
+                const res = await ProductsService.confirmProduct(this.product.product.product_uuid)
+                if (res) {
+                    res.forEach(item => {
+                        const foundedShootingType = this.product.styleGuide.shootingTypes.find(shootingType => shootingType.production_type_uuid === item.production_type.uuid)
+                        if (foundedShootingType)
+                            foundedShootingType.taskUuid = item.task_uuid
+                    })
+                    this.confirmedProduct = new ProductFullData({
+                        product: this.product.product as ProductModel,
+                        styleGuide: this.product.styleGuide as StyleGuide,
+                        sampleCode: this.product.sampleCode,
+                        properties: this.product.properties,
+                    })
+                }
+                Notifications.newMessage("Confirmed successfully")
+                return true
+            } finally {
+                this.isLoadingConfirmProduct = false
+            }
         },
 
         copyProduct() {
@@ -268,7 +285,7 @@ export const useScanProductStore = defineStore("scan-product", {
             const {selectedProductionTypeUuid} = studioStore
             const selectedShootingType = styleGuide.shootingTypes.find(item => item.production_type_uuid === selectedProductionTypeUuid)
             const photosToTransfer: IPositionImagesStorageData = {}
-            selectedShootingType.positions.forEach(({images, altsImages, id}) => {
+            selectedShootingType?.positions?.forEach(({images, altsImages, id}) => {
                 photosToTransfer[id] = {
                     images: images.list,
                     altImages: altsImages.list
@@ -278,7 +295,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 product: {code: product.product_code, uuid: product.product_uuid},
                 productionType: {
                     name: studioStore.productionTypes.find(({uuid}) => selectedProductionTypeUuid === uuid)?.name,
-                    uuid: selectedProductionTypeUuid
+                    uuid: selectedProductionTypeUuid,
+                    taskUuid: styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === selectedProductionTypeUuid)?.taskUuid
                 },
                 styleGuide: {name: styleGuide.name, uuid: styleGuide.uuid, url: styleGuide.coverFile.url},
                 sampleCode: sampleCode,

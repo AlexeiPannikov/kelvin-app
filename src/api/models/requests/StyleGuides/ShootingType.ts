@@ -7,6 +7,7 @@ export class ShootingType {
     fileIds: string[] = []
     filesInner: FileDataModel[] = []
     positions = new Array<Position>()
+    taskUuid = ""
 
     constructor(obj?: Partial<ShootingType>) {
         if (obj) {
