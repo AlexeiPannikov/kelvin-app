@@ -25,7 +25,7 @@
                      @contextmenu="openContextMenu($event, file)"
                      @mousedown.prevent="dragStart"
                      @mousemove="choiceInMotion($event, file.name)"
-                     v-click-outside="e => unselectFiles(e, file)"
+                     v-click-outside="(e: PointerEvent) => unselectFiles(e, file)"
           >
           </image-box>
         </v-col>
