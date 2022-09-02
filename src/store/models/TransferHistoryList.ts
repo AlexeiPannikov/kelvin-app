@@ -4,7 +4,7 @@ import moment from "moment";
 export class TransferHistoryList {
 
     historyList = new Array<Transfer>()
-    itemsToTransfer = new Array<Transfer>()
+    transfer = new Transfer()
 
     get sortedHistoryByDate() {
         const sortedList = this.historyList.sort((a, b) => moment(a.date).isBefore(moment(b.date)) ? 1 : -1)
@@ -28,20 +28,8 @@ export class TransferHistoryList {
         return rez
     }
 
-    startUpload() {
-        this.itemsToTransfer.forEach(item => item.startUpload())
-    }
-
-    successUpload() {
-        this.itemsToTransfer.forEach(item => item.uploadSuccess())
-    }
-
-    errorUpload() {
-        this.itemsToTransfer.forEach(item => item.uploadError())
-    }
-
-    stopUpload() {
-        this.itemsToTransfer.forEach(item => item.stopUpload())
+    addToHistory() {
+        this.historyList.push(this.transfer)
     }
 
     constructor(obj?: Partial<TransferHistoryList>) {

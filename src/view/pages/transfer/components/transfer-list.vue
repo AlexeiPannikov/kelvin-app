@@ -28,7 +28,6 @@ const transferStore = useTransferStore()
 
 const selectTransfer = (transfer: Transfer) => {
   transferStore.selectedTransfer = transfer
-  transferStore.selectedTransfer.files[0].isSelected = true
 }
 </script>
 

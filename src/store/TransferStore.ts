@@ -6,8 +6,11 @@ import {Transfer} from "./models/Transfer";
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "./CurrentUserStore";
 import moment from "moment";
-import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel";
 import {useUserSettingsStore} from "./UserSettingsStore";
+import ProductsService from "../api/services/ProductsService";
+import {TransferPosition} from "./models/TransferPosition";
+import FilesService from "../api/services/FilesService";
+import {FileDataModel} from "../api/models/responses/Files/FileDataModel";
 
 
 export const useTransferStore = defineStore("transfer", {
@@ -23,10 +26,6 @@ export const useTransferStore = defineStore("transfer", {
     getters: {},
 
     actions: {
-        async beginTransfer() {
-
-        },
-
         async transfer() {
             this.isLoading = true
             const scanProductStore = useScanProductStore()
@@ -34,32 +33,52 @@ export const useTransferStore = defineStore("transfer", {
             const {shootingTypes} = scanProductStore.confirmedProduct.styleGuide
             const {product_code} = scanProductStore.confirmedProduct.product
             const shootingType = shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
-            this.transferList.itemsToTransfer = shootingType.positions.map(({images, altsImages}) => new Transfer({
-                    productionTypeName: studioStore.productionTypeName,
-                    productCode: product_code,
-                    files: (JSON.parse(JSON.stringify([...images.list, ...altsImages.list])) as ImageModel[]).map(item => new ImageModel({
-                        ...item,
-                        isSelected: false
-                    })),
-                    date: moment().format()
-                })
-            )
-            this.transferList.startUpload()
-            this.transferList.historyList.push(...this.transferList.itemsToTransfer)
+            this.transferList.transfer = new Transfer({
+                date: moment().format(),
+                productionTypeName: studioStore.productionTypeName,
+                productionTypeUuid: studioStore.selectedProductionTypeUuid,
+                productCode: product_code,
+                taskUuid: shootingType.taskUuid,
+                positions: shootingType.positions.map(({
+                                                           images,
+                                                           altsImages,
+                                                           id
+                                                       }) => new TransferPosition({
+                    id: id.toString(),
+                    files: JSON.parse(JSON.stringify([...images.list, ...altsImages.list]))
+                }))
+            })
+            this.transferList.transfer.startUpload()
+            this.transferList.addToHistory()
             try {
-                const res = await new Promise<boolean>((resolve) => {
-                    setTimeout(() => {
-                        resolve(true)
-                    }, 2000)
+                const isBeginTransfer = await ProductsService.beginTransfer(this.transferList.transfer.productCode, this.transferList.transfer.productionTypeUuid)
+                if (!isBeginTransfer) {
+                    this.transferList.transfer.uploadError()
+                    return
+                }
+                const [, uuidList] = await FilesService.filesUploader("assets", this.transferList.transfer.allImages.map((item) => new FileDataModel({
+                    file: item.image
+                })))
+                const res = await ProductsService.transfer({
+                    product_uuid: this.transferList.transfer.uuid,
+                    production_type_uuid: this.transferList.transfer.productionTypeUuid,
+                    data: {
+                        task_uuid: this.transferList.transfer.taskUuid,
+                        positions: this.transferList.transfer.positions.map(({id, files}) => ({
+                            id,
+                            fileIds: uuidList
+                        })),
+                        teamOnSet: []
+                    }
                 })
                 if (res) {
                     const currentUserStore = useCurrentUserStore()
-                    this.transferList.successUpload()
-                    await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.transferList.itemsToTransfer)))
+                    this.transferList.transfer.uploadSuccess()
+                    await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.transferList.transfer)))
                     return true
                 }
             } catch (e) {
-                this.transferList.errorUpload()
+                this.transferList.transfer.uploadError()
             } finally {
                 this.isLoading = false
             }

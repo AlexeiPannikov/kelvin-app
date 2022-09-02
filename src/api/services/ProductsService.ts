@@ -4,7 +4,7 @@ import {EditProductRequest} from "../models/requests/Products/EditProductRequest
 import {GetProductData} from "../models/responses/Products/GetProductData";
 import {GetProductsData} from "../models/responses/Products/GetProductsData";
 import {TransferRequest} from "../models/requests/Products/TransferRequest";
-import {BeginTransferResponse} from "../models/responses/Products/BeginTransferResponse";
+import {ConfirmProductResponse} from "../models/responses/Products/ConfirmProductResponse";
 
 interface ITransferArgs {
     product_uuid: string,
@@ -41,8 +41,8 @@ class ProductsService {
         }
     }
 
-    async confirmProduct(uuid: string): Promise<BeginTransferResponse[]> {
-        const res = await $api.get<BaseResponse<BeginTransferResponse[]>>(`products/${uuid}/confirm`)
+    async confirmProduct(uuid: string): Promise<ConfirmProductResponse[]> {
+        const res = await $api.get<BaseResponse<ConfirmProductResponse[]>>(`products/${uuid}/confirm`)
         if (res?.data?.success) {
             return res.data.data
         }

@@ -5,7 +5,7 @@
   >
     <div class="d-flex">
       <div>
-        <v-img :src="transfer.files[0].path"
+        <v-img :src="transfer.allImages[0].path"
                width="50"
                aspect-ratio="1"
                class="bg-white"
@@ -15,8 +15,8 @@
         <div class="text-no-wrap overflow-hidden" style="text-overflow: ellipsis">{{ transfer.productCode }} -
           {{ transfer.productionTypeName }}
         </div>
-        <div style="font-size: 13px; opacity: 0.5">{{ transfer.files.length }}
-          {{ transfer.files.length > 1 ? 'FILES' : 'FILE' }}
+        <div style="font-size: 13px; opacity: 0.5">{{ transfer.allImages.length }}
+          {{ transfer.allImages.length > 1 ? 'FILES' : 'FILE' }}
         </div>
       </div>
       <v-spacer></v-spacer>
