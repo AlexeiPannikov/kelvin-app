@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto fill-height px-4">
     <v-row>
-      <v-col v-for="(image, i) in transferStore.selectedTransfer?.files"
+      <v-col v-for="(image, i) in transferStore.selectedTransfer?.allImages"
              :key="image.name"
       >
         <image-box :file="image"
@@ -12,7 +12,7 @@
       </v-col>
     </v-row>
 
-    <ui-modal-fullscreen-image-crop :file-list="transferStore.selectedTransfer?.files"
+    <ui-modal-fullscreen-image-crop :file-list="transferStore.selectedTransfer?.allImages"
                                     :index="index"
                                     @close="isOpenFullscreen = false"
                                     v-if="isOpenFullscreen"
@@ -36,7 +36,7 @@ const openFullscreen = (i: number) => {
 }
 
 const selectImage = (name: string) => {
-  transferStore.selectedTransfer?.files.forEach(item => item.isSelected = item.name === name)
+  transferStore.selectedTransfer?.allImages.forEach(item => item.isSelected = item.name === name)
 }
 </script>
 

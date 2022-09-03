@@ -15,7 +15,7 @@ export class Transfer {
     uploading = false
     uploadSuccessfully = false
 
-    get allImages() {
+    get allImages():  ImageModel[] {
         return this.positions.map(({files}) => files).flat()
     }
 
