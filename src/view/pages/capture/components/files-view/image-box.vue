@@ -3,8 +3,13 @@
        :class="{active: file.isSelected}"
        class="image-box position-relative"
   >
-    <v-img v-if="!file.cropImage" @dblclick="emit('dblclick')" class="image" :width="width" aspect-ratio="1"
-           :src="file.path"></v-img>
+    <v-img v-if="!file.cropImage"
+           @dblclick="emit('dblclick')"
+           class="image"
+           :width="width"
+           aspect-ratio="1"
+           :src="file.path"
+    ></v-img>
     <v-img v-else @dblclick="emit('dblclick')" class="image" :width="width + 'px'"
            :src="file.cropImage"></v-img>
     <div v-if="!withoutName" class="text-center mt-2" style="font-size: 12px">{{ file.name }}</div>

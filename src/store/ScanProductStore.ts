@@ -77,7 +77,7 @@ export const useScanProductStore = defineStore("scan-product", {
         isHasSelectedProdType(): boolean {
             const studioStore = useStudioStore()
             return !!this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
-        }
+        },
     },
 
     actions: {
@@ -139,7 +139,7 @@ export const useScanProductStore = defineStore("scan-product", {
                 if (res) {
                     this.copyProduct()
                     if (this.confirmedProduct)
-                        this.confirmProduct()
+                        this.initConfirmedProductFromProduct()
                     Notifications.newMessage("Product edited successfully");
                 } else this.resetProduct()
             } finally {
@@ -199,17 +199,31 @@ export const useScanProductStore = defineStore("scan-product", {
                 }))
                 const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
-                selectedShootingType?.positions?.forEach(position => {
-                    position.images.list = foundedProduct.photosToTransfer[position.id]?.images.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item)) || []
-                    position.altsImages.list = foundedProduct.photosToTransfer[position.id]?.altImages.filter(({path}) => fs.existsSync(path)).map(item => new ImageModel(item)) || []
-                })
+                selectedShootingType.taskUuid = foundedProduct.productionType.taskUuid
+                const imagesListMapper = async (list: ImageModel[]) => {
+                    const filteredList = list.filter(({path}) => fs.existsSync(path))
+                    const mappedList = []
+                    for (const item of filteredList) {
+                        const file = await fetch(item.path)
+                        const blob = await file.blob()
+                        mappedList.push(new ImageModel({
+                            ...item,
+                            image: new File([blob], item.name)
+                        }))
+                    }
+                    return mappedList
+                }
+                for (const position of selectedShootingType?.positions) {
+                    await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.images).then(res => position.images.list = res)
+                    await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.altImages).then(res => position.altsImages.list = res)
+                }
                 this.confirmedProduct = new ProductFullData({
                     product,
                     styleGuide,
                     properties: mappedProperties,
                     sampleCode: foundedProduct.sampleCode
                 })
-                this.saveProduct(false)
+                // this.saveProduct(false)
             } finally {
                 this.isLoadingProduct = false
             }
@@ -225,18 +239,22 @@ export const useScanProductStore = defineStore("scan-product", {
                         if (foundedShootingType)
                             foundedShootingType.taskUuid = item.task_uuid
                     })
-                    this.confirmedProduct = new ProductFullData({
-                        product: this.product.product as ProductModel,
-                        styleGuide: this.product.styleGuide as StyleGuide,
-                        sampleCode: this.product.sampleCode,
-                        properties: this.product.properties,
-                    })
+                    this.initConfirmedProductFromProduct()
                 }
                 Notifications.newMessage("Confirmed successfully")
                 return true
             } finally {
                 this.isLoadingConfirmProduct = false
             }
+        },
+
+        initConfirmedProductFromProduct() {
+            this.confirmedProduct = new ProductFullData({
+                product: this.product.product as ProductModel,
+                styleGuide: this.product.styleGuide as StyleGuide,
+                sampleCode: this.product.sampleCode,
+                properties: this.product.properties,
+            })
         },
 
         copyProduct() {
@@ -291,12 +309,18 @@ export const useScanProductStore = defineStore("scan-product", {
                     altImages: altsImages.list
                 }
             })
+            const getIndex = () => this.productsInStore.findIndex(({
+                                                                       product: {uuid},
+                                                                       productionType
+                                                                   }) => product.product_uuid === uuid && productionType.uuid === selectedProductionTypeUuid)
+            const productInStore = this.productsInStore[getIndex()]
             const productToSave: ISavedProduct = {
                 product: {code: product.product_code, uuid: product.product_uuid},
                 productionType: {
                     name: studioStore.productionTypes.find(({uuid}) => selectedProductionTypeUuid === uuid)?.name,
                     uuid: selectedProductionTypeUuid,
-                    taskUuid: styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === selectedProductionTypeUuid)?.taskUuid
+                    taskUuid: styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === selectedProductionTypeUuid)?.taskUuid ||
+                        productInStore?.productionType.taskUuid
                 },
                 styleGuide: {name: styleGuide.name, uuid: styleGuide.uuid, url: styleGuide.coverFile.url},
                 sampleCode: sampleCode,
@@ -307,11 +331,7 @@ export const useScanProductStore = defineStore("scan-product", {
                 this.productsInStore.push(productToSave)
             }
             if (this.productsInStore?.length) {
-                const index = this.productsInStore.findIndex(({
-                                                                  product: {uuid},
-                                                                  productionType
-                                                              }) => product.product_uuid === uuid && productionType.uuid === selectedProductionTypeUuid)
-                index > -1 ? this.productsInStore.splice(index, 1, productToSave) : this.productsInStore.push(productToSave)
+                getIndex() > -1 ? this.productsInStore.splice(getIndex(), 1, productToSave) : this.productsInStore.push(productToSave)
             }
             this.saveInStorage()
             if (resetConfirmedProduct)

@@ -31,12 +31,13 @@ export const useTransferStore = defineStore("transfer", {
             const scanProductStore = useScanProductStore()
             const studioStore = useStudioStore()
             const {shootingTypes} = scanProductStore.confirmedProduct.styleGuide
-            const {product_code} = scanProductStore.confirmedProduct.product
+            const {product_code, product_uuid} = scanProductStore.confirmedProduct.product
             const shootingType = shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
             this.transferList.transfer = new Transfer({
                 date: moment().format(),
                 productionTypeName: studioStore.productionTypeName,
                 productionTypeUuid: studioStore.selectedProductionTypeUuid,
+                productUuid: product_uuid,
                 productCode: product_code,
                 taskUuid: shootingType.taskUuid,
                 positions: shootingType.positions.map(({
@@ -45,13 +46,13 @@ export const useTransferStore = defineStore("transfer", {
                                                            id
                                                        }) => new TransferPosition({
                     id: id.toString(),
-                    files: JSON.parse(JSON.stringify([...images.list, ...altsImages.list]))
+                    files: [...images.list, ...altsImages.list]
                 }))
             })
             this.transferList.transfer.startUpload()
             this.transferList.addToHistory()
             try {
-                const isBeginTransfer = await ProductsService.beginTransfer(this.transferList.transfer.productCode, this.transferList.transfer.productionTypeUuid)
+                const isBeginTransfer = await ProductsService.beginTransfer(this.transferList.transfer.productUuid, this.transferList.transfer.productionTypeUuid)
                 if (!isBeginTransfer) {
                     this.transferList.transfer.uploadError()
                     return
@@ -64,7 +65,7 @@ export const useTransferStore = defineStore("transfer", {
                     production_type_uuid: this.transferList.transfer.productionTypeUuid,
                     data: {
                         task_uuid: this.transferList.transfer.taskUuid,
-                        positions: this.transferList.transfer.positions.map(({id, files}) => ({
+                        positions: this.transferList.transfer.positions.map(({id}) => ({
                             id,
                             fileIds: uuidList
                         })),
@@ -77,6 +78,7 @@ export const useTransferStore = defineStore("transfer", {
                     await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.transferList.transfer)))
                     return true
                 }
+                this.transferList.transfer.uploadError()
             } catch (e) {
                 this.transferList.transfer.uploadError()
             } finally {

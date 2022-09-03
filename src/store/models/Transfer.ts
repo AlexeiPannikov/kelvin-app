@@ -6,6 +6,7 @@ export class Transfer {
 
     readonly uuid = v4()
     productCode: string = null
+    productUuid: string = null
     productionTypeName: string = null
     productionTypeUuid: string = null
     taskUuid: string = null
