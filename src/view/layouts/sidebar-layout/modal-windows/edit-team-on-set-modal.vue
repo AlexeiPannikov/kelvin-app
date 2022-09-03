@@ -8,13 +8,11 @@
         <v-autocomplete density="compact"
                         hide-details
                         variant="outlined"
-                        label="SEARCH"
+                        placeholder="SEARCH & ADD USERS"
                         single-line
                         prepend-inner-icon="mdi-account"
                         :items="userList"
-                        ref="autocomplete"
                         @update:modelValue="select"
-                        open-on-clear
                         hide-selected
         >
         </v-autocomplete>
@@ -75,7 +73,6 @@ const studioStore = useStudioStore()
 const usersStore = useUsersStore()
 const teamOnSetStore = useTeamOnSetStore()
 const selectedUser = ref<number>(null)
-const autocomplete = ref(null)
 const prodTypeUuid = ref("")
 const attrs = useAttrs()
 

@@ -1,6 +1,6 @@
 <template>
   <v-list-item class="border-t"
-               :disabled="transferStore.isLoading"
+               :disabled="transferStore.isLoading || !transfer.uploadSuccessfully"
                @click="emit('click')"
   >
     <div class="d-flex">

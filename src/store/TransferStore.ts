@@ -11,6 +11,7 @@ import ProductsService from "../api/services/ProductsService";
 import {TransferPosition} from "./models/TransferPosition";
 import FilesService from "../api/services/FilesService";
 import {FileDataModel} from "../api/models/responses/Files/FileDataModel";
+import {useTeamOnSetStore} from "./TeamOnSetStore";
 
 
 export const useTransferStore = defineStore("transfer", {
@@ -60,6 +61,7 @@ export const useTransferStore = defineStore("transfer", {
                 const [, uuidList] = await FilesService.filesUploader("assets", this.transferList.transfer.allImages.map((item) => new FileDataModel({
                     file: item.image
                 })))
+                const teamOnSetStore = useTeamOnSetStore()
                 const res = await ProductsService.transfer({
                     product_uuid: this.transferList.transfer.uuid,
                     production_type_uuid: this.transferList.transfer.productionTypeUuid,
@@ -69,7 +71,7 @@ export const useTransferStore = defineStore("transfer", {
                             id,
                             fileIds: uuidList
                         })),
-                        teamOnSet: []
+                        teamOnSet: [...teamOnSetStore.teamOnSet.map(({id}) => ({user_id: id.toString()}))]
                     }
                 })
                 if (res) {

@@ -12,7 +12,7 @@ import {computed} from "vue";
 
 const transferStore = useTransferStore()
 
-const selectedFile = computed(() => transferStore.selectedTransfer?.files.find(({isSelected}) => isSelected))
+const selectedFile = computed(() => transferStore.selectedTransfer?.allImages.find(({isSelected}) => isSelected))
 </script>
 
 <style lang="scss" scoped>
