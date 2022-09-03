@@ -16,10 +16,12 @@ import SidebarLayout from "./sidebar-layout/sidebar-layout.vue";
 import {useUserSettingsStore} from "../../store/UserSettingsStore";
 import {useRouter} from "vue-router";
 import {useCurrentUserStore} from "../../store/CurrentUserStore";
+import {useUsersStore} from "../../store/UsersStore";
+import {useTeamOnSetStore} from "../../store/TeamOnSetStore";
 
 const router = useRouter()
 const userSettingsStore = useUserSettingsStore()
-const currentUserStore = useCurrentUserStore()
+const teamOnSetStore = useTeamOnSetStore()
 
 userSettingsStore.getSettings().then(() => {
   userSettingsStore.getRootFolder().then(() => {
@@ -29,8 +31,7 @@ userSettingsStore.getSettings().then(() => {
   })
 })
 
-currentUserStore.getCurrentUser()
-
+teamOnSetStore.init()
 </script>
 
 <style lang="scss">

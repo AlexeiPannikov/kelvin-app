@@ -58,8 +58,8 @@ import {useCurrentUserStore} from "../../../../store/CurrentUserStore";
 import {useFirstNameLetters} from "../../../../functions/useFirstNameLetters";
 import {onMounted, ref, toRefs} from "vue";
 import {useRouter} from "vue-router";
-import ComputerLocationModal from "./computer-location-modal.vue";
-import AppSettings from "./app-settings/app-settings.vue";
+import ComputerLocationModal from "../modal-windows/computer-location-modal.vue";
+import AppSettings from "../modal-windows/app-settings/app-settings.vue";
 import {useUserSettingsStore} from "../../../../store/UserSettingsStore";
 import {ipcRenderer} from "electron"
 

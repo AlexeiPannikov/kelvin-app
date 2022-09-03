@@ -15,6 +15,7 @@ export class PrimarySettings {
         locationUuid: "",
         subLocationUuid: "",
     }
+    teamOnSet: string[] = []
 
     constructor(obj?: Partial<PrimarySettings>) {
         if (obj) {

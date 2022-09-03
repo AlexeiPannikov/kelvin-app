@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts" setup>
-import TeamOnSetModal from "./modal-windows/team-on-set-menu.vue";
-import SettingsModal from "./modal-windows/settings-menu.vue";
+import TeamOnSetModal from "./menu/team-on-set-menu.vue";
+import SettingsModal from "./menu/settings-menu.vue";
 import NavButton from "./components/nav-button.vue";
 
 </script>
