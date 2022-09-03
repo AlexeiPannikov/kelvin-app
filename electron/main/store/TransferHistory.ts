@@ -45,7 +45,7 @@ export class TransferHistory {
         list.forEach(transfer => {
             const transferDir = path.join(this.directory, transfer.uuid)
             fs.mkdirSync(transferDir)
-            transfer.files.forEach(file => {
+            transfer.allImages.forEach(file => {
                 const newFilePath = path.join(transferDir, file.name)
                 fs.copyFileSync(file.path, newFilePath)
                 file.path = newFilePath
