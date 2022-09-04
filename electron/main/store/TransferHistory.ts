@@ -2,7 +2,17 @@ import {Transfer} from "../../../src/store/models/Transfer";
 import {app} from "electron";
 import fs from "fs";
 import isImage from "is-image"
-import path from "path";
+import {join} from "path";
+import {promisify} from "util";
+
+const readdirAsync = promisify(fs.readdir)
+const readFileAsync = promisify(fs.readFile)
+const mkdirAsync = promisify(fs.mkdir)
+const copyFileAsync = promisify(fs.copyFile)
+const writeFileAsync = promisify(fs.writeFile)
+const statAsync = promisify(fs.stat)
+const rmdirAsync = promisify(fs.rmdir)
+const rmAsync = promisify(fs.rm)
 
 export class TransferHistory {
 
@@ -10,68 +20,73 @@ export class TransferHistory {
     private directory = ""
 
     constructor(userId: string | number) {
-        const userDirectory = path.join(app.getPath("userData"), `user.${userId}`)
+        this.init(userId)
+    }
+
+    private init(userId: string | number) {
+        const userDirectory = join(app.getPath("userData"), `user.${userId}`)
         if (!fs.existsSync(userDirectory)) {
             fs.mkdirSync(userDirectory)
         }
-        this.directory = path.join(userDirectory, "transfers")
+        this.directory = join(userDirectory, "transfers")
         if (!fs.existsSync(this.directory)) {
             fs.mkdirSync(this.directory)
         }
     }
 
-    getAllTransfers() {
-        const files = fs.readdirSync(this.directory, {withFileTypes: true})
+    async getAllTransfers() {
+        const files = await readdirAsync(this.directory, {withFileTypes: true})
         this.historyList.splice(0)
-        const getTransfers = (items: fs.Dirent[], intermediatePath: string = "") => {
+        const getTransfers = async (items: fs.Dirent[], intermediatePath: string = "") => {
             for (const file of items) {
-                const filePath = path.join(this.directory, intermediatePath, file.name)
+                const filePath = join(this.directory, intermediatePath, file.name)
                 if (file.isFile() && !isImage(filePath)) {
-                    const parsedTransferFile: Transfer = JSON.parse(fs.readFileSync(filePath).toString())
+                    const notParsedTransfer = await readFileAsync(filePath, {encoding: "utf8"})
+                    const parsedTransferFile: Transfer = JSON.parse(notParsedTransfer)
                     this.historyList.push(new Transfer(parsedTransferFile))
                 }
                 if (file.isDirectory()) {
-                    const filePath = path.join(this.directory, file.name)
-                    const innerFiles = fs.readdirSync(filePath, {withFileTypes: true})
-                    getTransfers(innerFiles, file.name)
+                    const filePath = join(this.directory, file.name)
+                    const innerFiles = await readdirAsync(filePath, {withFileTypes: true})
+                    await getTransfers(innerFiles, file.name)
                 }
             }
         }
-        getTransfers(files)
+        await getTransfers(files)
         return this.historyList
     }
 
-    save(list: Transfer[]) {
-        list.forEach(transfer => {
-            const transferDir = path.join(this.directory, transfer.uuid)
-            fs.mkdirSync(transferDir)
-            transfer.allImages.forEach(file => {
-                const newFilePath = path.join(transferDir, file.name)
-                fs.copyFileSync(file.path, newFilePath)
+    async save(list: Transfer[]) {
+        for (const transfer of list) {
+            const transferDir = join(this.directory, transfer.uuid)
+            await mkdirAsync(transferDir)
+            for (const file of transfer.allImages) {
+                const newFilePath = join(transferDir, file.name)
+                await copyFileAsync(file.path, newFilePath)
                 file.path = newFilePath
-            })
-            fs.writeFileSync(`${path.join(transferDir, transfer.uuid)}.txt`, JSON.stringify(transfer))
-        })
+            }
+            await writeFileAsync(`${join(transferDir, transfer.uuid)}.txt`, JSON.stringify(transfer), {encoding: "utf8"})
+        }
         this.historyList.push(...list)
         return this
     }
 
-    delete(uuid: string) {
+    async delete(uuid: string) {
         this.historyList = this.historyList.filter(item => item.uuid !== uuid)
-        const clearDirectory = (dirPath: string) => {
-            const files = fs.readdirSync(dirPath)
+        const clearDirectory = async (dirPath: string) => {
+            const files = await readdirAsync(dirPath)
             for (const file of files) {
-                const filePath = path.join(dirPath, file)
-                const stat = fs.statSync(filePath)
+                const filePath = join(dirPath, file)
+                const stat = await statAsync(filePath)
                 if (stat.isFile())
-                    fs.rmSync(filePath)
+                    await rmAsync(filePath)
                 if (stat.isDirectory())
-                    clearDirectory(filePath)
+                    await clearDirectory(filePath)
             }
         }
-        const rootDir = path.join(this.directory, uuid)
-        clearDirectory(rootDir)
-        fs.rmdirSync(rootDir)
+        const rootDir = join(this.directory, uuid)
+        await clearDirectory(rootDir)
+        await rmdirAsync(rootDir)
         return this
     }
 }

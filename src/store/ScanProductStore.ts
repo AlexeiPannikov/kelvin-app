@@ -201,6 +201,7 @@ export const useScanProductStore = defineStore("scan-product", {
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
                 selectedShootingType.taskUuid = foundedProduct.productionType.taskUuid
                 const imagesListMapper = async (list: ImageModel[]) => {
+                    if (!list) return []
                     const filteredList = list.filter(({path}) => fs.existsSync(path))
                     const mappedList = []
                     for (const item of filteredList) {

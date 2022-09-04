@@ -48,7 +48,7 @@ export class Position {
     }
 
     get isValidNumberOfPictures() {
-        return this.images.list.length >= this.photography.minShots && this.images.list.length <= this.photography.maxShots
+        return this.images.list.length >= this.photography.minShots && (this.photography.maxShots === 0 ? true : this.images.list.length <= this.photography.maxShots)
     }
 
     pressDeleteHandler() {
@@ -124,6 +124,7 @@ export class Position {
     }
 
     isToManyFiles() {
+        if (this.photography.maxShots === 0) return
         const isInTheRange = (this.altsImages.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots) &&
             (imagesInFolder.list.filter(({isSelected}) => isSelected).length + this.images.list.length <= this.photography.maxShots)
         if (!isInTheRange) {

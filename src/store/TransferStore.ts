@@ -58,18 +58,23 @@ export const useTransferStore = defineStore("transfer", {
                     this.transferList.transfer.uploadError()
                     return
                 }
-                const [, uuidList] = await FilesService.filesUploader("assets", this.transferList.transfer.allImages.map((item) => new FileDataModel({
-                    file: item.image
-                })))
+                for (const position of this.transferList.transfer.positions) {
+                    for (const file of position.files) {
+                        const [, uuidList] = await FilesService.filesUploader("assets", [new FileDataModel({
+                            file: file.image,
+                        })])
+                        file.uuid = uuidList[0]
+                    }
+                }
                 const teamOnSetStore = useTeamOnSetStore()
                 const res = await ProductsService.transfer({
                     product_uuid: this.transferList.transfer.uuid,
                     production_type_uuid: this.transferList.transfer.productionTypeUuid,
                     data: {
                         task_uuid: this.transferList.transfer.taskUuid,
-                        positions: this.transferList.transfer.positions.map(({id}) => ({
+                        positions: this.transferList.transfer.positions.map(({id, files}) => ({
                             id,
-                            fileIds: uuidList
+                            fileIds: files.map(({uuid}) => uuid)
                         })),
                         teamOnSet: [...teamOnSetStore.teamOnSet.map(({id}) => ({user_id: id.toString()}))]
                     }

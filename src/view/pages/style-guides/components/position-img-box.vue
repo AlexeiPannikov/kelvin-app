@@ -24,7 +24,7 @@
     <div class="mt-2 description d-flex align-center justify-space-between">
       <div>
         {{ props.position.is_optional ? "(Optional)" : "" }}
-        {{ props.position.photography.minShots }}-{{ props.position.photography.maxShots }}
+        {{ props.position.photography.minShots }}-{{ props.position.photography.maxShots > 0 ? props.position.photography.maxShots : "ထ" }}
       </div>
       <div class="d-flex align-center actions">
         <div @click="openDescription"

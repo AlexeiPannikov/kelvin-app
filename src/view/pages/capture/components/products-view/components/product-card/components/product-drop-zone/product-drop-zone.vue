@@ -30,7 +30,9 @@
                   <div class="text-no-wrap">
                     <span v-if="position.photography.minShots || position.photography.maxShots"
                     >
-                {{ position.photography.minShots }} - {{ position.photography.maxShots }}
+                {{
+                        position.photography.minShots
+                      }} - {{ position.photography.maxShots > 0 ? position.photography.maxShots : "ထ" }}
                   </span>
                     <v-icon class="ml-2"
                             :color="position.images.list.length < position.photography.minShots ? 'black' : 'green'"

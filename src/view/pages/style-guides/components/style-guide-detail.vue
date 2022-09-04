@@ -42,7 +42,7 @@
             </file-link>
           </v-col>
           <v-col cols="12">
-            <v-row no-gutters>
+            <v-row>
               <v-col v-for="position in positions"
                      :key="position.id"
                      cols="6"

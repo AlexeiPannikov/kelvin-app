@@ -20,16 +20,16 @@
       </v-list>
       <v-spacer></v-spacer>
 
-      <team-on-set-modal></team-on-set-modal>
-      <settings-modal></settings-modal>
+      <team-on-set-menu></team-on-set-menu>
+      <settings-menu></settings-menu>
 
     </div>
   </v-navigation-drawer>
 </template>
 
 <script lang="ts" setup>
-import TeamOnSetModal from "./menu/team-on-set-menu.vue";
-import SettingsModal from "./menu/settings-menu.vue";
+import TeamOnSetMenu from "./menu/team-on-set-menu.vue";
+import SettingsMenu from "./menu/settings-menu.vue";
 import NavButton from "./components/nav-button.vue";
 
 </script>

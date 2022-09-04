@@ -128,19 +128,19 @@ ipcMain.once("restart-app", async () => {
     app.exit(0)
 })
 
-ipcMain.handle("save-transfers", (event, userId: string | number, data: Transfer[]) => {
+ipcMain.handle("save-transfers", async (event, userId: string | number, data: Transfer[]) => {
     const transfersStore = new TransferHistory(userId)
-    return transfersStore.save(data)
+    return await transfersStore.save(data)
 })
 
-ipcMain.handle("get-transfers", (event, userId: string | number) => {
+ipcMain.handle("get-transfers", async (event, userId: string | number) => {
     const transfersStore = new TransferHistory(userId)
-    return transfersStore.getAllTransfers()
+    return await transfersStore.getAllTransfers()
 })
 
-ipcMain.handle("delete-transfers", (event, userId: string | number, uuid: string) => {
+ipcMain.handle("delete-transfers", async (event, userId: string | number, uuid: string) => {
     const transfersStore = new TransferHistory(userId)
-    return transfersStore.delete(uuid)
+    return await transfersStore.delete(uuid)
 })
 
 ipcMain.on("show-in-explorer", (event, path) => {

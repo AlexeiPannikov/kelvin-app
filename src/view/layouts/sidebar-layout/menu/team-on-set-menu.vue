@@ -36,9 +36,9 @@
       </v-list>
     </v-card>
 
-    <team-on-set-modal v-model="isOpenEditTeamOnSetModal"
+    <edit-team-on-set-modal v-model="isOpenEditTeamOnSetModal"
                        @cancel="isOpenEditTeamOnSetModal = false"
-    ></team-on-set-modal>
+    ></edit-team-on-set-modal>
   </v-menu>
 </template>
 
@@ -46,7 +46,7 @@
 import {computed, ref} from "vue";
 import {useFirstNameLetters} from "../../../../functions/useFirstNameLetters";
 import ButtonBlue from "../../../components/buttons/button-blue.vue";
-import TeamOnSetModal from "../modal-windows/edit-team-on-set-modal.vue";
+import EditTeamOnSetModal from "../modal-windows/edit-team-on-set-modal.vue";
 import {useTeamOnSetStore} from "../../../../store/TeamOnSetStore";
 
 const isOpenUserMenu = ref(false)

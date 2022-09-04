@@ -1,5 +1,6 @@
 <template>
-  <v-dialog persistent>
+  <v-dialog persistent
+  >
     <v-card width="600">
       <v-card-title class="border-b">
         TEAM ON SET

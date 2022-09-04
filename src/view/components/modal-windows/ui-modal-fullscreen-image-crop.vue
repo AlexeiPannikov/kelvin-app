@@ -9,13 +9,13 @@
         </div>
         <div class="tools position-fixed d-flex">
           <div class="align-self-center d-flex justify-center flex-grow-1 ml-16">
-            <ui-tabs :items="tabs"
-                     height="20px"
-                     padding="4px"
-                     density="compact"
-                     v-model="mode"
-            >
-            </ui-tabs>
+            <!--            <ui-tabs :items="tabs"-->
+            <!--                     height="20px"-->
+            <!--                     padding="4px"-->
+            <!--                     density="compact"-->
+            <!--                     v-model="mode"-->
+            <!--            >-->
+            <!--            </ui-tabs>-->
           </div>
           <div class="d-flex align-center">
             <template v-if="mode === 'select'">
@@ -51,7 +51,7 @@
             maxWidth: '100%'
           }"
                  v-if="mode === 'select'"
-                 :id="item.name"
+                 :id="item.path"
             >
               <img
                   :src="item.path"
@@ -119,10 +119,9 @@ watch(mode, () => {
 onMounted(() => {
   setTimeout(() => {
     const images: HTMLElement[] = []
-    props.fileList.forEach(({name}) => {
-      images.push(document.getElementById(name) as HTMLElement);
+    props.fileList.forEach(({path}) => {
+      images.push(document.getElementById(path) as HTMLElement);
     })
-    console.log(images)
     fullscreenImage.init(images, props.index);
   }, 20);
 });
@@ -130,7 +129,7 @@ onMounted(() => {
 const toggleFullscreen = () => {
   isFullScreenBrowserMode.value = !isFullScreenBrowserMode.value;
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-  else if (document.exitFullscreen) {
+  else if (document.fullscreenElement) {
     document.exitFullscreen();
   }
 };
@@ -140,9 +139,9 @@ const cropChange = (data: CropperResult) => {
   emit("change", data)
 }
 
-const close = () => {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
+const close = async () => {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
   }
   emit('close')
 }

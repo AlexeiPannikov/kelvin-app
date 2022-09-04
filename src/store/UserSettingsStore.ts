@@ -2,11 +2,11 @@ import {defineStore} from "pinia";
 import {PrimarySettings} from "./models/PrimarySettings";
 import {ipcRenderer, FileFilter} from "electron";
 import fs from "fs";
-import nodePath from "path";
 import {useCurrentUserStore} from "./CurrentUserStore";
 import {OpenDialogReturnValue} from "electron"
 import isImage from "is-image"
-import {join, parse, extname} from "path";
+import {join, parse, extname, normalize} from "path";
+import {promisify} from "util";
 
 export interface IFolder {
     name: string,
@@ -51,10 +51,11 @@ export const useUserSettingsStore = defineStore("user-settings", {
                 const innerFolder = this.selectedFolder || this.rootFolder
                 if (!fs.existsSync(innerFolder)) return
                 list?.splice(0)
-                const allFiles = fs.readdirSync(innerFolder, {withFileTypes: true})
+                const readdirAsync = promisify(fs.readdir)
+                const allFiles = await readdirAsync(innerFolder, {withFileTypes: true})
                 for (const file of allFiles) {
                     if (file.isFile()) {
-                        const filePath = nodePath.normalize(join(innerFolder, file.name))
+                        const filePath = normalize(join(innerFolder, file.name))
                         const extension = extname(file.name).substring(1, file.name.length - 1)
                         const imageFile = await fetch(filePath).then(r => r.blob())
                             .then(blob => new File([blob], file.name, {type: `image/${extension}`}));
@@ -70,21 +71,21 @@ export const useUserSettingsStore = defineStore("user-settings", {
             fs.watch(this.selectedFolder || this.rootFolder, async () => await getFiles())
         },
 
-
         async getFoldersTree(rootPath: string): Promise<IFolder> {
             await this.getRootFolder()
-            const parserPath = parse(this.rootFolder)
-            const mainFolder: IFolder = {name: parserPath.base, path: this.rootFolder, children: []}
+            const parsedPath = parse(this.rootFolder)
+            const mainFolder: IFolder = {name: parsedPath.base, path: this.rootFolder, children: []}
             const getFiles = async (path: string, folders: IFolder[]) => {
                 if (!folders) return
                 const foundedFolder = folders.find((item) => item.path === path)
                 foundedFolder?.children.splice(0)
-                const itemsInRootPath = fs.readdirSync(path, {withFileTypes: true})
+                const readdirAsync = promisify(fs.readdir)
+                const itemsInRootPath = await readdirAsync(path, {withFileTypes: true})
                 for (const item of itemsInRootPath) {
                     if (item.isDirectory()) {
-                        const normPath = nodePath.normalize(join(path, item.name))
+                        const normPath = normalize(join(path, item.name))
                         folders.push(<IFolder>{name: item.name, path: normPath, children: []})
-                        const itemsInPath = fs.readdirSync(normPath, {withFileTypes: true})
+                        const itemsInPath = await readdirAsync(normPath, {withFileTypes: true})
                         if (itemsInPath?.length) {
                             for (const child of folders) {
                                 await getFiles(normPath, child.children)
