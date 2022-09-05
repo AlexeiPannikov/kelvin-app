@@ -130,7 +130,7 @@ ipcMain.once("restart-app", async () => {
 
 ipcMain.handle("save-transfers", async (event, userId: string | number, data: Transfer[]) => {
     const transfersStore = new TransferHistory(userId)
-    return await transfersStore.save(data)
+    return await transfersStore.save(data.map(item => new Transfer(item)))
 })
 
 ipcMain.handle("get-transfers", async (event, userId: string | number) => {

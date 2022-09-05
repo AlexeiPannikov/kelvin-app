@@ -28,6 +28,7 @@ const transferStore = useTransferStore()
 
 const selectTransfer = (transfer: Transfer) => {
   transferStore.selectedTransfer = transfer
+  transferStore.selectedTransfer.allImages[0].isSelected = true
 }
 </script>
 

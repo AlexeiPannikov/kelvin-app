@@ -96,10 +96,13 @@ const deleteProduct = (productUuid: string, prodTypeUuid: string) => {
   scanProductStore.deleteProduct(productUuid, prodTypeUuid)
 }
 
-const transfer = () => {
+const transfer = async () => {
   if (userSettingsStore.primarySettings.behaviourAfterTransfer === BehaviourAfterTransferEnum.Go)
-    router.push({name: "transfer"})
-  transfersStore.transfer()
+    await router.push({name: "transfer"})
+  await transfersStore.transfer()
+  const {product_uuid} = scanProductStore.confirmedProduct.product
+  scanProductStore.deleteProduct(product_uuid, studioStore.selectedProductionTypeUuid)
+  scanProductStore.confirmedProduct = null
 }
 </script>
 

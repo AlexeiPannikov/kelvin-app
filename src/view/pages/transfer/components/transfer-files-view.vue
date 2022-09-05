@@ -2,10 +2,10 @@
   <div class="overflow-y-auto fill-height px-4">
     <v-row>
       <v-col v-for="(image, i) in transferStore.selectedTransfer?.allImages"
-             :key="image.name"
+             :key="i"
       >
         <image-box :file="image"
-                   @click="selectImage(image.name)"
+                   @click="selectImage(i)"
                    @dblclick="openFullscreen(i)"
         >
         </image-box>
@@ -24,7 +24,7 @@
 import ImageBox from "../../capture/components/files-view/image-box.vue";
 import {useTransferStore} from "../../../../store/TransferStore";
 import UiModalFullscreenImageCrop from "../../../components/modal-windows/ui-modal-fullscreen-image-crop.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 
 const transferStore = useTransferStore()
 const index = ref(0)
@@ -35,8 +35,8 @@ const openFullscreen = (i: number) => {
   isOpenFullscreen.value = true
 }
 
-const selectImage = (name: string) => {
-  transferStore.selectedTransfer?.allImages.forEach(item => item.isSelected = item.name === name)
+const selectImage = (idx: number) => {
+  transferStore.selectedTransfer?.allImages.forEach((item, i) => item.isSelected = idx === i)
 }
 </script>
 

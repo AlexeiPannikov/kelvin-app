@@ -12,6 +12,7 @@ import {TransferPosition} from "./models/TransferPosition";
 import FilesService from "../api/services/FilesService";
 import {FileDataModel} from "../api/models/responses/Files/FileDataModel";
 import {useTeamOnSetStore} from "./TeamOnSetStore";
+import {TransferHistory} from "../../electron/main/store/TransferHistory";
 
 
 export const useTransferStore = defineStore("transfer", {
@@ -82,7 +83,7 @@ export const useTransferStore = defineStore("transfer", {
                 if (res) {
                     const currentUserStore = useCurrentUserStore()
                     this.transferList.transfer.uploadSuccess()
-                    await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.transferList.transfer)))
+                    await ipcRenderer.invoke("save-transfers", currentUserStore.currentUser.id, JSON.parse(JSON.stringify([this.transferList.transfer])))
                     return true
                 }
                 this.transferList.transfer.uploadError()
@@ -98,7 +99,7 @@ export const useTransferStore = defineStore("transfer", {
             const currentUserStore = useCurrentUserStore()
             const res: Transfer[] = await ipcRenderer.invoke("get-transfers", currentUserStore.currentUser.id)
             if (res) {
-                this.transferList.historyList.push(...res)
+                this.transferList.historyList.push(...res.map(item => new Transfer(item)))
                 await this.clearOldTransfers()
             }
         },
