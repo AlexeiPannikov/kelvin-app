@@ -19,6 +19,9 @@ import {useUserSettingsStore} from "./UserSettingsStore";
 import moment from "moment";
 import fs from "fs";
 import {useTransferStore} from "./TransferStore";
+import {Position} from "../api/models/requests/StyleGuides/Position";
+import FilesService from "../api/services/FilesService";
+import {ConfirmProductResponse} from "../api/models/responses/Products/ConfirmProductResponse";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -199,6 +202,13 @@ export const useScanProductStore = defineStore("scan-product", {
                 }))
                 const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
+                let res = await ProductsService.confirmProduct(product.product_uuid)
+                res = res.map(item => new ConfirmProductResponse(item))
+                for (const item of res) {
+                    await FilesService.filesDownloader("styleguide", item.allCovers)
+                }
+                const {positions} = res.find(({production_type: {uuid}}) => selectedShootingType.production_type_uuid === uuid)
+                selectedShootingType.positions = positions.map(item => new Position(item))
                 selectedShootingType.taskUuid = foundedProduct.productionType.taskUuid
                 const imagesListMapper = async (list: ImageModel[]) => {
                     if (!list) return []
@@ -214,7 +224,7 @@ export const useScanProductStore = defineStore("scan-product", {
                     }
                     return mappedList
                 }
-                for (const position of selectedShootingType?.positions) {
+                for (const position of selectedShootingType.positions) {
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.images).then(res => position.images.list = res)
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.altImages).then(res => position.altsImages.list = res)
                 }
@@ -224,7 +234,6 @@ export const useScanProductStore = defineStore("scan-product", {
                     properties: mappedProperties,
                     sampleCode: foundedProduct.sampleCode
                 })
-                // this.saveProduct(false)
             } finally {
                 this.isLoadingProduct = false
             }
@@ -233,13 +242,19 @@ export const useScanProductStore = defineStore("scan-product", {
         async confirmProduct() {
             this.isLoadingConfirmProduct = true
             try {
-                const res = await ProductsService.confirmProduct(this.product.product.product_uuid)
+                let res = await ProductsService.confirmProduct(this.product.product.product_uuid)
                 if (res) {
+                    res = res.map(item => new ConfirmProductResponse(item))
                     res.forEach(item => {
                         const foundedShootingType = this.product.styleGuide.shootingTypes.find(shootingType => shootingType.production_type_uuid === item.production_type.uuid)
                         if (foundedShootingType)
-                            foundedShootingType.taskUuid = item.task_uuid
+                            foundedShootingType.positions = res.find(({production_type: {uuid}}) => foundedShootingType.production_type_uuid === uuid)?.positions
+                                .map(item => new Position(item))
+                        foundedShootingType.taskUuid = item.task_uuid
                     })
+                    for (const item of res) {
+                        await FilesService.filesDownloader("styleguide", item.allCovers)
+                    }
                     this.initConfirmedProductFromProduct()
                 }
                 Notifications.newMessage("Confirmed successfully")

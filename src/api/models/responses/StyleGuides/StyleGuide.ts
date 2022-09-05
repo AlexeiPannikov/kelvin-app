@@ -17,7 +17,7 @@ export class StyleGuide {
     is_enabled = 0;
     uuid = "";
     coverFile: FileDataModel = new FileDataModel();
-    shootingTypes = new Array<ShootingType>()
+    shootingTypes = new Array<ShootingType>();
     categories: Category[] = []
 
     get hasRequireData() {

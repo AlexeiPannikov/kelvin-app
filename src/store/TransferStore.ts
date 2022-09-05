@@ -68,7 +68,7 @@ export const useTransferStore = defineStore("transfer", {
                 }
                 const teamOnSetStore = useTeamOnSetStore()
                 const res = await ProductsService.transfer({
-                    product_uuid: this.transferList.transfer.uuid,
+                    product_uuid: this.transferList.transfer.productUuid,
                     production_type_uuid: this.transferList.transfer.productionTypeUuid,
                     data: {
                         task_uuid: this.transferList.transfer.taskUuid,

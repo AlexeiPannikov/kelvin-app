@@ -1,6 +1,8 @@
 import {ProductModel} from "../../api/models/responses/Products/ProductModel";
 import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 import {PropertyModel} from "../../api/models/responses/Properties/PropertyModel";
+import {Position} from "../../api/models/requests/StyleGuides/Position";
+import {ShootingType} from "../../api/models/requests/StyleGuides/ShootingType";
 
 export class ProductFullData {
     product = new ProductModel()
