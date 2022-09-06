@@ -5,6 +5,7 @@ import {GetProductData} from "../models/responses/Products/GetProductData";
 import {GetProductsData} from "../models/responses/Products/GetProductsData";
 import {TransferRequest} from "../models/requests/Products/TransferRequest";
 import {ConfirmProductResponse} from "../models/responses/Products/ConfirmProductResponse";
+import {GetProductProductionsResponse} from "../models/responses/Products/GetProductProductionsResponse";
 
 interface ITransferArgs {
     product_uuid: string,
@@ -59,6 +60,13 @@ class ProductsService {
         const res = await $api.post<{ success: boolean }>(`products/${product_uuid}/${production_type_uuid}/transfer`, data)
         if (res?.data) {
             return res.data.success
+        }
+    }
+
+    async getProductProductions(product_uuid: string): Promise<GetProductProductionsResponse[]> {
+        const res = await $api.get<BaseResponse<GetProductProductionsResponse[]>>(`products/${product_uuid}/production`)
+        if (res?.data) {
+            return res.data.data
         }
     }
 }

@@ -41,7 +41,6 @@ import {ConfirmStepEnum} from "./ConfirmStepEnum";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import ProductConfirm from "./product-confirm.vue";
 import SelectProductionType from "./select-production-type.vue";
-import {useStudioStore} from "../../../../../../../../store/StudioStore";
 
 const SelectSample = defineAsyncComponent(() => import("./select-sample.vue"));
 const SelectTask = defineAsyncComponent(() => import("./select-task.vue"))

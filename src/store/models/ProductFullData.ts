@@ -3,11 +3,13 @@ import {StyleGuide} from "../../api/models/responses/StyleGuides/StyleGuide";
 import {PropertyModel} from "../../api/models/responses/Properties/PropertyModel";
 import {Position} from "../../api/models/requests/StyleGuides/Position";
 import {ShootingType} from "../../api/models/requests/StyleGuides/ShootingType";
+import {Task} from "../../api/models/responses/Products/Task";
 
 export class ProductFullData {
     product = new ProductModel()
     properties = new Array<PropertyModel>()
     styleGuide = new StyleGuide()
+    taskList = new Array<Task>()
     sampleCode = ""
 
     get defaultProperties() {

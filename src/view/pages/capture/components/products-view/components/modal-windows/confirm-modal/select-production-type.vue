@@ -21,6 +21,11 @@
           <div class="flex-grow-1 pl-4">
             {{ studioStore.productionTypes.find(item => item.uuid === shootingType.production_type_uuid)?.name }}
           </div>
+          <v-chip label
+                  :color="getTaskStatus(shootingType.id).color"
+          >
+            {{ getTaskStatus(shootingType.id).status }}
+          </v-chip>
         </div>
       </v-item>
     </v-item-group>
@@ -39,7 +44,7 @@
 
 <script lang="ts" setup>
 import ButtonWhite from "../../../../../../../components/buttons/button-white.vue";
-import {onActivated, onDeactivated, ref} from "vue";
+import {computed, onActivated, onDeactivated, ref} from "vue";
 import ButtonBlue from "../../../../../../../components/buttons/button-blue.vue";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../../../store/StudioStore";
@@ -57,8 +62,28 @@ const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 const selectedProdTypeIdx = ref(0)
 
+const getTaskStatus = (shootingTypeId: number) => {
+  const task = scanProductStore.product?.taskList.find(({shooting_type_id}) => shooting_type_id === shootingTypeId)
+  const getColor = () => {
+    switch (task?.status) {
+      case "To Do" || "In Progress":
+        return "primary"
+      case "Backlog":
+        return "lightgray"
+      case "Done":
+        return "green"
+      default:
+        return "lightgray"
+    }
+  }
+  return {
+    status: task?.status || "",
+    color: getColor()
+  }
+}
+
 const keyDownHandler = (e: KeyboardEvent) => {
-  if (e.key === "ArrowDown" && selectedProdTypeIdx.value < scanProductStore.samples.length - 1)
+  if (e.key === "ArrowDown" && selectedProdTypeIdx.value < scanProductStore.product.styleGuide.shootingTypes.length - 1)
     selectedProdTypeIdx.value += 1
   if (e.key === "ArrowUp" && selectedProdTypeIdx.value > 0)
     selectedProdTypeIdx.value -= 1
@@ -80,7 +105,6 @@ const changeProdType = (i?: number) => {
   studioStore.setAndSaveProductionType(scanProductStore.product.styleGuide.shootingTypes[selectedProdTypeIdx.value].production_type_uuid)
   sendEvent("select")
 }
-onActivated(() => console.log(scanProductStore.product.styleGuide.shootingTypes))
 onActivated(() => addEventListener("keydown", keyDownHandler))
 onDeactivated(() => unsubscribe())
 </script>

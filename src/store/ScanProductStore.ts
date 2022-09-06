@@ -59,6 +59,7 @@ export const useScanProductStore = defineStore("scan-product", {
             isLoadingScan: false,
             isLoadingProduct: false,
             isLoadingEditProduct: false,
+            isLoadingProductProductions: false,
             isLoadingConfirmProduct: false,
             samples: new Array<SampleModel>(),
             products: new Array<ProductModel>(),
@@ -228,14 +229,28 @@ export const useScanProductStore = defineStore("scan-product", {
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.images).then(res => position.images.list = res)
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.altImages).then(res => position.altsImages.list = res)
                 }
+                const productProductions = await ProductsService.getProductProductions(this.product.product.product_uuid)
                 this.confirmedProduct = new ProductFullData({
                     product,
                     styleGuide,
                     properties: mappedProperties,
+                    taskList: productProductions?.map(({task}) => task) || [],
                     sampleCode: foundedProduct.sampleCode
                 })
             } finally {
                 this.isLoadingProduct = false
+            }
+        },
+
+        async getProductProductions() {
+            this.isLoadingProductProductions = true
+            try {
+                const res = await ProductsService.getProductProductions(this.product.product.product_uuid)
+                if (res) {
+                    this.product.taskList = res.map(({task}) => task)
+                }
+            } finally {
+                this.isLoadingProductProductions = false
             }
         },
 

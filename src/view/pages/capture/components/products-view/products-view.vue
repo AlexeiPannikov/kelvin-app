@@ -36,6 +36,7 @@ scanProductStore.checkOldProductsInStore()
 
 const scanHandler = async () => {
   await scanProductStore.getProductData()
+  await scanProductStore.getProductProductions()
   isOpenConfirmModal.value = true
 }
 </script>
