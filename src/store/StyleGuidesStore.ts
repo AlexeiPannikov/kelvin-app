@@ -58,8 +58,14 @@ export const useStyleGuidesStore = defineStore("style-guides", {
 
         async viewStyleGuide(uuid: string) {
             this.isLoadingStyleGuide = true
-            this.styleGuide = await viewStyleGuide({uuid})
-            this.isLoadingStyleGuide = false
+            try {
+                const res = await viewStyleGuide({uuid})
+                if (res) {
+                    this.styleGuide = res
+                }
+            } finally {
+                this.isLoadingStyleGuide = false
+            }
         },
     },
 });

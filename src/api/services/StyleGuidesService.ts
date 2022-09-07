@@ -14,8 +14,8 @@ class StyleGuidesService {
         }
     }
 
-    async viewStyleGuide(uuid: string): Promise<{ style_guide: StyleGuide, shootingTypes?: ShootingType[] }> {
-        const res = await $api.get<BaseResponse<{ style_guide: StyleGuide, shootingTypes?: ShootingType[] }>>(
+    async viewStyleGuide(uuid: string): Promise<{ style_guide: StyleGuide, shootingTypes: ShootingType[] }> {
+        const res = await $api.get<BaseResponse<{ style_guide: StyleGuide, shootingTypes: ShootingType[] }>>(
             `styleguides/${uuid}/view`
         );
         if (res?.data?.success) {
@@ -23,6 +23,14 @@ class StyleGuidesService {
         }
     }
 
+    async viewVersionStyleGuide(uuid: string, sg_version: number | string): Promise<{ style_guide: StyleGuide, shootingTypes: ShootingType[] }> {
+        const res = await $api.get<BaseResponse<{ style_guide: StyleGuide, shootingTypes: ShootingType[] }>>(
+            `styleguides/${uuid}/${sg_version}/version`
+        );
+        if (res?.data?.success) {
+            return res.data.data;
+        }
+    }
 }
 
 export default new StyleGuidesService();

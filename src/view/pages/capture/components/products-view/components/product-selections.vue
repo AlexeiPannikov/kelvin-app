@@ -24,21 +24,21 @@
         <v-list v-if="scanProductStore.productsInStore?.length"
         >
           <v-list-item v-for="product in scanProductStore.productsInStore"
-                       @click="selectProduct(product.product.uuid, product.productionType.uuid)"
+                       @click="selectProduct(product?.product?.uuid, product?.productionType?.uuid)"
           >
             <div class="d-flex align-center">
               <div>
-                <v-img aspect-ratio="1" width="80" :src="product.styleGuide.url" class="bg-grey-darken-3"></v-img>
+                <v-img aspect-ratio="1" width="80" :src="product?.styleGuide?.url" class="bg-grey-darken-3"></v-img>
               </div>
               <div class="pl-5">
-                <v-list-item-title>{{ product.product.code }}</v-list-item-title>
-                <v-list-item-subtitle>{{ product.styleGuide.name }}</v-list-item-subtitle>
-                <v-list-item-subtitle>{{ product.productionType.name }}</v-list-item-subtitle>
+                <v-list-item-title>{{ product?.product?.code }}</v-list-item-title>
+                <v-list-item-subtitle>{{ product?.styleGuide?.name }}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{ product?.productionType?.name }}</v-list-item-subtitle>
               </div>
               <v-spacer></v-spacer>
               <v-icon size="18"
                       class="align-self-start pointer"
-                      @click.stop="deleteProduct(product.product.uuid, product.productionType.uuid)"
+                      @click.stop="deleteProduct(product?.product?.uuid, product?.productionType?.uuid)"
               >mdi-trash-can
               </v-icon>
             </div>
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useScanProductStore} from "../../../../../../store/ScanProductStore";
 import {useStudioStore} from "../../../../../../store/StudioStore";
 import ButtonBlue from "../../../../../components/buttons/button-blue.vue";
@@ -82,6 +82,8 @@ const userSettingsStore = useUserSettingsStore()
 const isOpenMenu = ref(false)
 const router = useRouter()
 
+onMounted(async () => await scanProductStore.initProductsInStore())
+
 const isVisibleTransfer = computed(() => {
   const currentShootingType = scanProductStore.confirmedProduct?.styleGuide?.shootingTypes
       .find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
@@ -92,8 +94,8 @@ const selectProduct = async (productUuid: string, prodTypeUuid: string) => {
   await scanProductStore.getProductFromSavedList(productUuid, prodTypeUuid)
 }
 
-const deleteProduct = (productUuid: string, prodTypeUuid: string) => {
-  scanProductStore.deleteProduct(productUuid, prodTypeUuid)
+const deleteProduct = async (productUuid: string, prodTypeUuid: string) => {
+  await scanProductStore.deleteProduct(productUuid, prodTypeUuid)
 }
 
 const transfer = async () => {
@@ -101,7 +103,7 @@ const transfer = async () => {
     await router.push({name: "transfer"})
   await transfersStore.transfer()
   const {product_uuid} = scanProductStore.confirmedProduct.product
-  scanProductStore.deleteProduct(product_uuid, studioStore.selectedProductionTypeUuid)
+  await scanProductStore.deleteProduct(product_uuid, studioStore.selectedProductionTypeUuid)
   scanProductStore.confirmedProduct = null
 }
 </script>

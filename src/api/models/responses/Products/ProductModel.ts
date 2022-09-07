@@ -23,6 +23,7 @@ export class ProductModel {
     state: number = 0;
     styleguide_name: string = null
     styleguide_uuid: string = null
+    sg_version_id: number
     styleGuide = new StyleGuide()
 
     constructor(obj?: Partial<ProductModel>) {

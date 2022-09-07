@@ -32,11 +32,8 @@ const ConfirmModal = defineAsyncComponent(() => import("./components/modal-windo
 
 const isOpenConfirmModal = ref(false)
 
-scanProductStore.checkOldProductsInStore()
-
 const scanHandler = async () => {
   await scanProductStore.getProductData()
-  await scanProductStore.getProductProductions()
   isOpenConfirmModal.value = true
 }
 </script>

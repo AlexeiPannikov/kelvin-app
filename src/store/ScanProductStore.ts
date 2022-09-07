@@ -2,7 +2,7 @@ import {PropertyModel} from "../api/models/responses/Properties/PropertyModel";
 import {SampleModel} from "../api/models/responses/Samples/SampleModel";
 import {defineStore} from "pinia";
 import {ProductModel} from "../api/models/responses/Products/ProductModel";
-import {viewStyleGuide} from "./methods/StyleGuides";
+import {viewStyleGuide, viewVersionStyleGuide} from "./methods/StyleGuides";
 import {getProduct, getProducts} from "./methods/Products";
 import {search} from "./methods/Samples";
 import {ProductFullData} from "./models/ProductFullData";
@@ -18,10 +18,11 @@ import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel
 import {useUserSettingsStore} from "./UserSettingsStore";
 import moment from "moment";
 import fs from "fs";
-import {useTransferStore} from "./TransferStore";
 import {Position} from "../api/models/requests/StyleGuides/Position";
 import FilesService from "../api/services/FilesService";
 import {ConfirmProductResponse} from "../api/models/responses/Products/ConfirmProductResponse";
+import {ipcRenderer} from "electron"
+import {useCurrentUserStore} from "./CurrentUserStore";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -41,7 +42,8 @@ export interface ISavedProduct {
     styleGuide: {
         name: string,
         uuid: string,
-        url: string
+        url: string,
+        version: number
     }
     productionType: {
         name: string,
@@ -69,7 +71,7 @@ export const useScanProductStore = defineStore("scan-product", {
             product: null as ProductFullData,
             confirmedProduct: null as ProductFullData,
             productCopy: null as ProductFullData,
-            productsInStore: JSON.parse(localStorage.getItem("products")) as ISavedProduct[] || new Array<ISavedProduct>()
+            productsInStore: new Array<ISavedProduct>()
         };
     },
 
@@ -173,8 +175,12 @@ export const useScanProductStore = defineStore("scan-product", {
                     value: product[item.internal_name as keyof ProductModel]?.toString() || ""
                 }))
                 let styleGuide = new StyleGuide()
-                if (product.styleguide_uuid) {
-                    styleGuide = await viewStyleGuide({uuid: product.styleguide_uuid})
+                if (product.styleguide_uuid && product.sg_version_id) {
+                    debugger
+                    styleGuide = await viewVersionStyleGuide({
+                        uuid: product.styleguide_uuid,
+                        sg_version: product.sg_version_id
+                    })
                 }
                 this.product = new ProductFullData({
                     product,
@@ -182,10 +188,19 @@ export const useScanProductStore = defineStore("scan-product", {
                     properties: mappedProperties,
                     sampleCode: this.selectedSample.sample_code
                 })
+                if (product.product_uuid)
+                    await this.getProductProductions()
                 this.copyProduct()
+                return true
             } finally {
                 this.isLoadingProduct = false
             }
+        },
+
+        async initProductsInStore() {
+            const currentUserStore = useCurrentUserStore()
+            this.productsInStore = await ipcRenderer.invoke("get-products", currentUserStore.currentUser.id) as ISavedProduct[]
+            await this.checkOldProductsInStore()
         },
 
         async getProductFromSavedList(productUuid: string, prodTypeUuid: string) {
@@ -201,7 +216,10 @@ export const useScanProductStore = defineStore("scan-product", {
                     ...item,
                     value: product[item.internal_name as keyof ProductModel]?.toString() || ""
                 }))
-                const styleGuide = await viewStyleGuide({uuid: foundedProduct.styleGuide.uuid})
+                const styleGuide = await viewVersionStyleGuide({
+                    uuid: foundedProduct.styleGuide.uuid,
+                    sg_version: foundedProduct.styleGuide.version
+                })
                 const selectedShootingType = styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === studioStore.selectedProductionTypeUuid)
                 let res = await ProductsService.confirmProduct(product.product_uuid)
                 res = res.map(item => new ConfirmProductResponse(item))
@@ -229,7 +247,7 @@ export const useScanProductStore = defineStore("scan-product", {
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.images).then(res => position.images.list = res)
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.altImages).then(res => position.altsImages.list = res)
                 }
-                const productProductions = await ProductsService.getProductProductions(this.product.product.product_uuid)
+                const productProductions = await ProductsService.getProductProductions(product.product_uuid)
                 this.confirmedProduct = new ProductFullData({
                     product,
                     styleGuide,
@@ -324,11 +342,12 @@ export const useScanProductStore = defineStore("scan-product", {
             this.productCopy = null
         },
 
-        saveInStorage() {
-            localStorage.setItem("products", JSON.stringify(this.productsInStore))
+        async saveInStore() {
+            const currentUserStore = useCurrentUserStore()
+            await ipcRenderer.send("save-products", currentUserStore.currentUser.id, JSON.parse(JSON.stringify(this.productsInStore)))
         },
 
-        saveProduct(resetConfirmedProduct = true) {
+        async saveProduct(resetConfirmedProduct = true) {
             const studioStore = useStudioStore()
             const {product, styleGuide, sampleCode} = this.confirmedProduct
             const {selectedProductionTypeUuid} = studioStore
@@ -353,7 +372,12 @@ export const useScanProductStore = defineStore("scan-product", {
                     taskUuid: styleGuide.shootingTypes.find(({production_type_uuid}) => production_type_uuid === selectedProductionTypeUuid)?.taskUuid ||
                         productInStore?.productionType.taskUuid
                 },
-                styleGuide: {name: styleGuide.name, uuid: styleGuide.uuid, url: styleGuide.coverFile.url},
+                styleGuide: {
+                    name: styleGuide.name,
+                    uuid: styleGuide.uuid,
+                    url: styleGuide.coverFile.url,
+                    version: product.sg_version_id
+                },
                 sampleCode: sampleCode,
                 photosToTransfer,
                 date: moment().format()
@@ -364,21 +388,21 @@ export const useScanProductStore = defineStore("scan-product", {
             if (this.productsInStore?.length) {
                 getIndex() > -1 ? this.productsInStore.splice(getIndex(), 1, productToSave) : this.productsInStore.push(productToSave)
             }
-            this.saveInStorage()
+            await this.saveInStore()
             if (resetConfirmedProduct)
                 this.confirmedProduct = null
         },
 
-        deleteProduct(productUuid: string, prodTypeUuid: string) {
+        async deleteProduct(productUuid: string, prodTypeUuid: string) {
             const index = this.productsInStore.findIndex(({
                                                               product,
                                                               productionType
                                                           }) => product.uuid === productUuid && productionType.uuid === prodTypeUuid)
             this.productsInStore.splice(index, 1)
-            this.saveInStorage()
+            await this.saveInStore()
         },
 
-        checkOldProductsInStore() {
+        async checkOldProductsInStore() {
             const oldSelectedProductsFilter = ({date}: ISavedProduct) => {
                 const {primarySettings} = useUserSettingsStore()
                 const {selectionsForTransferHistory: maxTerm} = primarySettings
@@ -392,7 +416,7 @@ export const useScanProductStore = defineStore("scan-product", {
                 return !moment(date).isBefore(maxDate, "d")
             }
             this.productsInStore = this.productsInStore.filter(oldSelectedProductsFilter)
-            this.saveInStorage()
+            await this.saveInStore()
         }
     },
 });

@@ -17,6 +17,8 @@ import {PrimarySettings} from "../../src/store/models/PrimarySettings";
 import {Transfer} from "../../src/store/models/Transfer";
 import {TransferHistory} from "./store/TransferHistory";
 import {execFile} from "child_process"
+import {SavedProducts} from "./store/SavedProducts";
+import {ISavedProduct} from "../../src/store/ScanProductStore";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -113,14 +115,24 @@ ipcMain.handle("open-set-filter-dialog", async (event, filters: FileFilter[]) =>
     return await dialog.showOpenDialog({properties: ['openFile'], filters})
 })
 
+ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
+    const userSettingsStore = new UserSettingsStore(userId)
+    return userSettingsStore.getAllSettings().data
+})
+
 ipcMain.on("set-user-settings", (event, userId: string | number, data: PrimarySettings) => {
     const userSettingsStore = new UserSettingsStore(userId)
     userSettingsStore.saveSettings(data)
 })
 
-ipcMain.handle("get-user-settings", async (event, userId: string | number) => {
-    const userSettingsStore = new UserSettingsStore(userId)
-    return userSettingsStore.getAllSettings().data
+ipcMain.handle("get-products", async (event, userId: string | number) => {
+    const userSettingsStore = new SavedProducts(userId)
+    return userSettingsStore.getProducts().data
+})
+
+ipcMain.on("save-products", (event, userId: string | number, data: ISavedProduct[]) => {
+    const userSettingsStore = new SavedProducts(userId)
+    userSettingsStore.saveProduct(data)
 })
 
 ipcMain.once("restart-app", async () => {
