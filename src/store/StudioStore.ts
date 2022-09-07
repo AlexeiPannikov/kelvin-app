@@ -40,6 +40,8 @@ export const useStudioStore = defineStore("studio", {
 
         setAndSaveProductionType(uuid?: string) {
             this.selectedProductionTypeUuid = uuid || this.selectedProductionTypeUuid
+            const isExist = !!this.productionTypes.find((item) => item.uuid === this.selectedProductionTypeUuid)
+            if (!isExist) this.selectedProductionTypeUuid = ""
             localStorage.setItem("productionType", this.selectedProductionTypeUuid)
         },
 

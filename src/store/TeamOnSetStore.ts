@@ -25,7 +25,7 @@ export const useTeamOnSetStore = defineStore("team-on-set", {
             const userSettingsStore = useUserSettingsStore()
             const {primarySettings} = userSettingsStore
             if (primarySettings.teamOnSet?.length) {
-                this.teamOnSet = [currentUserStore.currentUser, ...usersStore.users].filter(({id}) => primarySettings.teamOnSet.includes(id.toString()))
+                this.teamOnSet = usersStore.users.filter(({id}) => primarySettings.teamOnSet.includes(id.toString()))
                     .map(({
                               id,
                               name
@@ -33,6 +33,10 @@ export const useTeamOnSetStore = defineStore("team-on-set", {
                         id,
                         name
                     }))
+                const isNotExistInList = !this.teamOnSet.find(({id}) => currentUserStore.currentUser.id === id)
+                if (isNotExistInList) {
+                    this.teamOnSet.unshift(currentUserStore.currentUser)
+                }
             } else {
                 const {id, name} = currentUserStore.currentUser
                 this.teamOnSet.push(new MemberOfTheTeam({
