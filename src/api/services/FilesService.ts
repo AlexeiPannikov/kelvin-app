@@ -76,7 +76,7 @@ class FilesService {
             })
         }
         if (data instanceof FileDataModel) {
-            const file = await this.getFile("styleguide", data.uuid)
+            const file = await this.getFile(scope, data.uuid)
             Object.assign(data, file)
         }
     }

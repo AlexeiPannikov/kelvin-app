@@ -38,7 +38,7 @@
     <v-spacer></v-spacer>
     <button-white @click="sendEvent('cancel')">cancel</button-white>
     <button-blue
-        @click="() => changeProdType(getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx.value].id).status)"
+        @click="() => changeProdType(getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx].id).status)"
         :disabled="isDisabledButton"
     >
       Continue
