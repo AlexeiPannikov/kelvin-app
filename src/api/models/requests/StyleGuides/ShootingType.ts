@@ -3,6 +3,7 @@ import {FileDataModel} from "../../responses/Files/FileDataModel";
 
 export class ShootingType {
     description = ""
+    id: number = null
     production_type_uuid = ""
     fileIds: string[] = []
     filesInner: FileDataModel[] = []

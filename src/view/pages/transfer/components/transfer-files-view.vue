@@ -3,6 +3,7 @@
     <v-row>
       <v-col v-for="(image, i) in transferStore.selectedTransfer?.allImages"
              :key="i"
+             cols="auto"
       >
         <image-box :file="image"
                    @click="selectImage(i)"

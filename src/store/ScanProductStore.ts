@@ -23,6 +23,7 @@ import FilesService from "../api/services/FilesService";
 import {ConfirmProductResponse} from "../api/models/responses/Products/ConfirmProductResponse";
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "./CurrentUserStore";
+import {Task} from "../api/models/responses/Products/Task";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -84,6 +85,10 @@ export const useScanProductStore = defineStore("scan-product", {
             const studioStore = useStudioStore()
             return !!this.product?.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)
         },
+
+        isHasAvailableTasks(): boolean {
+            return !!this.product?.taskList.filter((task) => task.steps.find(({step}) => step === "Photography")?.status !== "Done")?.length
+        }
     },
 
     actions: {
@@ -176,7 +181,6 @@ export const useScanProductStore = defineStore("scan-product", {
                 }))
                 let styleGuide = new StyleGuide()
                 if (product.styleguide_uuid && product.sg_version_id) {
-                    debugger
                     styleGuide = await viewVersionStyleGuide({
                         uuid: product.styleguide_uuid,
                         sg_version: product.sg_version_id
@@ -248,6 +252,10 @@ export const useScanProductStore = defineStore("scan-product", {
                     await imagesListMapper(foundedProduct.photosToTransfer[position.id]?.altImages).then(res => position.altsImages.list = res)
                 }
                 const productProductions = await ProductsService.getProductProductions(product.product_uuid)
+                productProductions.forEach(item => {
+                    item.task = new Task(item.task)
+                    item.task.steps = item.steps
+                })
                 this.confirmedProduct = new ProductFullData({
                     product,
                     styleGuide,
@@ -265,6 +273,10 @@ export const useScanProductStore = defineStore("scan-product", {
             try {
                 const res = await ProductsService.getProductProductions(this.product.product.product_uuid)
                 if (res) {
+                    res.forEach(item => {
+                        item.task = new Task(item.task)
+                        item.task.steps = item.steps
+                    })
                     this.product.taskList = res.map(({task}) => task)
                 }
             } finally {
@@ -303,6 +315,7 @@ export const useScanProductStore = defineStore("scan-product", {
                 styleGuide: this.product.styleGuide as StyleGuide,
                 sampleCode: this.product.sampleCode,
                 properties: this.product.properties,
+                taskList: this.product.taskList
             })
         },
 
@@ -311,7 +324,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 product: this.product.product as ProductModel,
                 styleGuide: this.product.styleGuide as StyleGuide,
                 sampleCode: this.product.sampleCode,
-                properties: this.product.properties
+                properties: this.product.properties,
+                taskList: this.product.taskList
             })
         },
 
@@ -320,7 +334,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 product: this.productCopy.product as ProductModel,
                 styleGuide: this.productCopy.styleGuide as StyleGuide,
                 sampleCode: this.productCopy.sampleCode,
-                properties: this.productCopy.properties
+                properties: this.productCopy.properties,
+                taskList: this.productCopy.taskList
             })
         },
 
@@ -329,7 +344,8 @@ export const useScanProductStore = defineStore("scan-product", {
                 product: this.confirmedProduct.product as ProductModel,
                 styleGuide: this.confirmedProduct.styleGuide as StyleGuide,
                 sampleCode: this.confirmedProduct.sampleCode,
-                properties: this.confirmedProduct.properties
+                properties: this.confirmedProduct.properties,
+                taskList: this.confirmedProduct.taskList
             })
         },
 

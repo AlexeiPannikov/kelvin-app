@@ -68,7 +68,7 @@ const initStep = () => {
       stepList.push(ConfirmStepEnum.ConfirmProduct)
       break;
     case length === 1 || props.viewMode:
-      if (!scanProductStore.isHasSelectedProdType) {
+      if (!scanProductStore.isHasSelectedProdType || !scanProductStore.isHasAvailableTasks) {
         stepList.push(ConfirmStepEnum.SelectProductionType)
       }
       stepList.push(ConfirmStepEnum.ConfirmProduct)

@@ -4,6 +4,7 @@ import {PropertyModel} from "../../api/models/responses/Properties/PropertyModel
 import {Position} from "../../api/models/requests/StyleGuides/Position";
 import {ShootingType} from "../../api/models/requests/StyleGuides/ShootingType";
 import {Task} from "../../api/models/responses/Products/Task";
+import {Step} from "../../api/models/responses/Products/Step";
 
 export class ProductFullData {
     product = new ProductModel()

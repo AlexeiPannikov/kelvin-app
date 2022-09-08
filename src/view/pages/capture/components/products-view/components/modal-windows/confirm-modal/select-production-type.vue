@@ -4,19 +4,18 @@
     There are no {{ studioStore.productionTypeName }} tasks to produce.
     Please select a different production type to continue.
   </v-card-subtitle>
-  <div>
-  </div>
   <v-card-item>
     <div class="text-uppercase text-grey">OTHER TASKS FOR {{ scanProductStore.product?.product?.product_code }}</div>
-    <v-item-group v-model="selectedProdTypeIdx">
-      <v-item v-for="(shootingType, i) in scanProductStore.product?.styleGuide?.shootingTypes"
-              :key="shootingType.production_type_uuid"
-              v-slot="{ isSelected }"
+    <v-list v-model="selectedProdTypeIdx">
+      <v-list-item v-for="(shootingType, i) in scanProductStore.product?.styleGuide?.shootingTypes"
+                   :key="shootingType.production_type_uuid"
+                   :disabled="getTaskStatus(shootingType.id).status === 'Done'"
+                   class="px-0"
       >
         <div class="d-flex justify-start align-center border-b py-2 pointer"
-             @click="changeProdType(i)"
+             @click="changeProdType(getTaskStatus(shootingType.id).status, i)"
         >
-          <v-radio :model-value="isSelected" readonly color="primary" density="compact"
+          <v-radio :model-value="selectedProdTypeIdx === i" readonly color="primary" density="compact"
                    class="flex-grow-0"></v-radio>
           <div class="flex-grow-1 pl-4">
             {{ studioStore.productionTypes.find(item => item.uuid === shootingType.production_type_uuid)?.name }}
@@ -27,8 +26,8 @@
             {{ getTaskStatus(shootingType.id).status }}
           </v-chip>
         </div>
-      </v-item>
-    </v-item-group>
+      </v-list-item>
+    </v-list>
   </v-card-item>
   <v-card-actions class="justify-end mt-5">
     <button-white @click="sendEvent('back')"
@@ -38,7 +37,12 @@
     </button-white>
     <v-spacer></v-spacer>
     <button-white @click="sendEvent('cancel')">cancel</button-white>
-    <button-blue @click="() => changeProdType()">Continue</button-blue>
+    <button-blue
+        @click="() => changeProdType(getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx.value].id).status)"
+        :disabled="isDisabledButton"
+    >
+      Continue
+    </button-blue>
   </v-card-actions>
 </template>
 
@@ -62,22 +66,29 @@ const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 const selectedProdTypeIdx = ref(0)
 
+const isDisabledButton = computed(() =>
+    getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx.value].id).status === "Done"
+)
+
 const getTaskStatus = (shootingTypeId: number) => {
-  const task = scanProductStore.product?.taskList.find(({shooting_type_id}) => shooting_type_id === shootingTypeId)
+  const task = scanProductStore?.product?.taskList.filter(item => item).find(({shooting_type_id}) => shooting_type_id === shootingTypeId)
+  const photographyStep = task?.steps.find(({step}) => step === "Photography")
   const getColor = () => {
-    switch (task?.status) {
-      case "To Do" || "In Progress":
+    switch (photographyStep?.status) {
+      case "To Do":
+        return "primary"
+      case "Doing":
         return "primary"
       case "Backlog":
         return "lightgray"
       case "Done":
         return "green"
       default:
-        return "lightgray"
+        return "primary"
     }
   }
   return {
-    status: task?.status || "",
+    status: photographyStep?.status || "To Do",
     color: getColor()
   }
 }
@@ -88,7 +99,7 @@ const keyDownHandler = (e: KeyboardEvent) => {
   if (e.key === "ArrowUp" && selectedProdTypeIdx.value > 0)
     selectedProdTypeIdx.value -= 1
   if (e.key === "Enter")
-    changeProdType()
+    changeProdType(getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx.value].id).status)
   if (e.key === "Backspace")
     sendEvent("back")
 }
@@ -100,7 +111,8 @@ const sendEvent = (event: "cancel" | "select" | "back") => {
   emit(event)
 }
 
-const changeProdType = (i?: number) => {
+const changeProdType = (status: string, i?: number) => {
+  if (status === "Done") return
   if (i) selectedProdTypeIdx.value = i
   studioStore.setAndSaveProductionType(scanProductStore.product.styleGuide.shootingTypes[selectedProdTypeIdx.value].production_type_uuid)
   sendEvent("select")
