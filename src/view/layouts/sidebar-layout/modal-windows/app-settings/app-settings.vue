@@ -83,30 +83,32 @@ import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {ipcRenderer} from "electron"
 import ExternalApplications from "./external-applications.vue";
 import GeneralSettings from "./general-settings.vue";
+import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const emit = defineEmits(['cancel'])
 
 type TabName = "General" | "Workspace" | "External Applications"
 const selectedTab = ref<TabName>("General")
 const userSettingsStore = useUserSettingsStore()
+const filesViewStore = useFilesViewStore()
 const settingsCopy = ref("")
 const attrs = useAttrs()
 
 const isChanged = computed(() => {
   return settingsCopy.value !== JSON.stringify(userSettingsStore.primarySettings)
-      || userSettingsStore.primarySettings.folder !== userSettingsStore.newRootFolder
+      || userSettingsStore.primarySettings.folder !== filesViewStore.newRootFolder
 })
 
 const isValidData = computed(() => {
   return !!(userSettingsStore.isValidPhotoshopPath && userSettingsStore.isValidBridgePath &&
-      userSettingsStore.newRootFolder
+      filesViewStore.newRootFolder
   )
 })
 
 watch(() => attrs.modelValue, () => {
   if (attrs.modelValue)
     settingsCopy.value = JSON.stringify(userSettingsStore.primarySettings)
-  userSettingsStore.newRootFolder = userSettingsStore.primarySettings.folder
+  filesViewStore.newRootFolder = userSettingsStore.primarySettings.folder
 })
 
 const setTab = (tabName: TabName) => {
@@ -114,8 +116,8 @@ const setTab = (tabName: TabName) => {
 }
 
 const reset = () => {
-  userSettingsStore.primarySettings.folder = userSettingsStore.newRootFolder
-  userSettingsStore.newRootFolder = ""
+  userSettingsStore.primarySettings.folder = filesViewStore.newRootFolder
+  filesViewStore.newRootFolder = ""
   userSettingsStore.primarySettings.lastOpenedFolder = ""
   userSettingsStore.isValidBridgePath = true
   userSettingsStore.isValidPhotoshopPath = true
