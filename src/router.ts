@@ -43,7 +43,17 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("./view/pages/transfer/transfer-page.vue"),
                 meta: {title: "Transfer"},
             },
-        ]
+        ],
+        beforeEnter: async (to, from, next) => {
+            const store = useCurrentUserStore();
+            const res = await store.getCurrentUser();
+            if (!res) {
+                next({name: "login"});
+            } else {
+                next();
+            }
+        }
+
     },
 ];
 
@@ -52,22 +62,22 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach(async (to, from, next) => {
-    const store = useCurrentUserStore();
-    try {
-        if (to.meta?.requireAuth) {
-            const res = await store.getCurrentUser();
-            if (!res) {
-                next({name: "login"});
-            } else {
-                next();
-            }
-        } else {
-            next();
-        }
-    } catch {
-        next({name: "login"});
-    }
-});
+// router.beforeEach(async (to, from, next) => {
+//     const store = useCurrentUserStore();
+//     try {
+//         if (to.meta?.requireAuth) {
+//             const res = await store.getCurrentUser();
+//             if (!res) {
+//                 next({name: "login"});
+//             } else {
+//                 next();
+//             }
+//         } else {
+//             next();
+//         }
+//     } catch {
+//         next({name: "login"});
+//     }
+// });
 
 export default router;

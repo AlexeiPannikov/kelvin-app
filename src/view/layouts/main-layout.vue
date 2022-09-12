@@ -24,17 +24,19 @@ import {useUsersStore} from "../../store/UsersStore";
 import {useTeamOnSetStore} from "../../store/TeamOnSetStore";
 import {onMounted, ref} from "vue";
 import EditTeamOnSetModal from "./sidebar-layout/modal-windows/edit-team-on-set-modal.vue";
+import {useFilesViewStore} from "../../store/FilesViewStore";
 
 const router = useRouter()
 const userSettingsStore = useUserSettingsStore()
+const filesViewStore = useFilesViewStore()
 const teamOnSetStore = useTeamOnSetStore()
 const isOpenEditTeamOnSetModal = ref(false)
 
 userSettingsStore.getSettings().then(() => {
-  userSettingsStore.getRootFolder().then(() => {
+  filesViewStore.getRootFolder().then(() => {
     if (!userSettingsStore.primarySettings.folder) {
       router.push("primary-settings")
-    }
+    } else router.push("/")
   })
 })
 

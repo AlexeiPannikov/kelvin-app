@@ -7,8 +7,8 @@
     </v-row>
     <v-row class="flex-grow-0" no-gutters>
       <v-col>
-        <div class="text-uppercase description">{{ userSettingsStore.selectedWithoutEndpoint }}</div>
-        <div class="text-h4 text-uppercase">{{ userSettingsStore.endpoint?.toLocaleUpperCase() }}</div>
+        <div class="text-uppercase description">{{ filesViewStore.selectedWithoutEndpoint }}</div>
+        <div class="text-h4 text-uppercase">{{ filesViewStore.endpoint?.toLocaleUpperCase() }}</div>
       </v-col>
     </v-row>
     <v-row class="flex-wrap overflow-auto mt-2 mb-12" v-click-outside="resetSelect">
@@ -79,8 +79,8 @@ import images from "./ImagesList";
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {useSearchFilter} from "../../../../../functions/useSearch";
 import {ipcRenderer} from "electron"
-import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 import fs from "fs";
+import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const userSettingsStore = useUserSettingsStore()
 const filesViewStore = useFilesViewStore()
@@ -95,18 +95,7 @@ const filteredImagesList = computed(() => useSearchFilter(searchText.value, imag
 const selectedImages = computed(() => filteredImagesList.value.filter(({isSelected}) => isSelected))
 
 const initFiles = async () => {
-  const list = await userSettingsStore.getFilesInFolder()
-  images.list.splice(0)
-  if (list)
-    images.list = list.map(({file, name, path}) => new ImageModel({
-      path,
-      name,
-      image: file
-    }))
-  fs.watch(userSettingsStore.selectedFolder || userSettingsStore.rootFolder, async () => {
-    images.list.splice(0)
-    await initFiles()
-  })
+  await filesViewStore.initFilesInFolder()
 }
 initFiles()
 

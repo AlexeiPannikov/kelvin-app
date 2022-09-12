@@ -22,13 +22,15 @@ import {useCurrentUserStore} from "../../../../../store/CurrentUserStore";
 import {IFolder, useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import images from "../files-view/ImagesList";
 import {ImageModel} from "../files-view/ImageModel";
+import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const userSettingsStore = useUserSettingsStore()
+const filesViewStore = useFilesViewStore()
 const selectedItem = ref(new TreeItem())
 const foldersTree = reactive(new Tree())
 
 const initFolders = async () => {
-  const folder = await userSettingsStore.getFoldersTree(userSettingsStore.rootFolder)
+  const folder = await filesViewStore.getFoldersTree(filesViewStore.rootFolder)
   foldersTree.items[0] = new TreeItem({
     name: folder.name,
     value: folder.path,
@@ -45,7 +47,7 @@ const initFolders = async () => {
         value: path,
         type: "folder",
       })
-      if (path === userSettingsStore.selectedFolder) {
+      if (path === filesViewStore.selectedFolder) {
         newItem.selectItem()
         foldersTree.leaveOneSelected(newItem.id)
         selectedItem.value = newItem
@@ -58,18 +60,15 @@ const initFolders = async () => {
   foldersTree.expandToSelected()
 }
 initFolders()
-fs.watch(userSettingsStore.rootFolder, {recursive: true}, () => initFolders())
+fs.watch(filesViewStore.rootFolder, {recursive: true}, () => initFolders())
 
 const selectItem = async (item: TreeItem) => {
   selectedItem.value = item
-  userSettingsStore.selectedFolder = item.value
-  userSettingsStore.parseFolder()
-  await userSettingsStore.getFilesInFolder(({name, path}) => images.list.push(new ImageModel({
-    path,
-    name
-  })), images.list)
+  filesViewStore.selectedFolder = item.value
+  filesViewStore.parseFolder()
   userSettingsStore.primarySettings.lastOpenedFolder = item.value
   userSettingsStore.saveSettings()
+  await filesViewStore.initFilesInFolder()
 }
 </script>
 
