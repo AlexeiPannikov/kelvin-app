@@ -13,8 +13,11 @@ const myCustomDarkTheme: ThemeDefinition = {
         primary: "#499FFF",
         "main-navigation-back": "#2B2B2B",
         "main-content-back": "#343434",
-        "v-border-color": "#000000"
     },
+    variables: {
+        "border-color": "#000000",
+        "border-opacity": "0.2"
+    }
 };
 
 export default createVuetify({

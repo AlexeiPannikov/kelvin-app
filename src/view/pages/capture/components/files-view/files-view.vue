@@ -19,6 +19,7 @@
         >
           <image-box :file="file"
                      :id="file.name"
+                     :width="filesViewStore.size"
                      ref="imageBox"
                      @dblclick="openModal(i)"
                      @click="selectFile($event, file.name)"
@@ -78,8 +79,10 @@ import images from "./ImagesList";
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {useSearchFilter} from "../../../../../functions/useSearch";
 import {ipcRenderer} from "electron"
+import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const userSettingsStore = useUserSettingsStore()
+const filesViewStore = useFilesViewStore()
 const isOpenModal = ref(false)
 const fileIndex = ref(0)
 const searchText = ref("")

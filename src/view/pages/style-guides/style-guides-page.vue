@@ -21,7 +21,7 @@ import StyleGuideDetail from "./components/style-guide-detail.vue";
 import {useClientsStore} from "../../../store/ClientsStore";
 import {useStyleGuidesStore} from "../../../store/StyleGuidesStore";
 import {ref} from "vue";
-import BottomPanel from "../../layouts/components/bottom-panel.vue";
+import BottomPanel from "../capture/components/bottom-panel.vue";
 
 const clientsStore = useClientsStore()
 const styleGuidesStore = useStyleGuidesStore()

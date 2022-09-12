@@ -9,10 +9,10 @@ interface IJobStore {
 
 export const useJobsStore = defineStore("jobs", {
     state: () => {
-        return {
+        return <IJobStore>{
             isLoadingJobs: false,
             jobs: new Array<JobModel>(),
-        } as IJobStore;
+        };
     },
 
     actions: {

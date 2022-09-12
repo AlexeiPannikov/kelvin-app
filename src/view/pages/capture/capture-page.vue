@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import FilesView from "./components/files-view/files-view.vue";
 import ProductsView from "./components/products-view/products-view.vue";
-import BottomPanel from "../../layouts/components/bottom-panel.vue";
+import BottomPanel from "./components/bottom-panel.vue";
 import {ref} from "vue";
 import FoldersView from "./components/folders-view/folders-view.vue";
 

@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import {useTransferStore} from "../../../store/TransferStore";
 import {onMounted} from "vue";
-import BottomPanel from "../../layouts/components/bottom-panel.vue";
+import BottomPanel from "../capture/components/bottom-panel.vue";
 import TransferList from "./components/transfer-list.vue";
 import TransferFilesView from "./components/transfer-files-view.vue";
 import TransferFileView from "./components/transfer-file-view.vue";
