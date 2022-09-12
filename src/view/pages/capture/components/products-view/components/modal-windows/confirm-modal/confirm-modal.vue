@@ -86,8 +86,9 @@ const next = () => {
 }
 
 const prev = () => {
-  if (currentStep.value > 0)
+  if (stepList.indexOf(currentStep.value) > 0)
     currentStep.value = stepList[stepList.indexOf(currentStep.value)] - 1
+  else emit("cancel")
 }
 
 const resetState = () => {
