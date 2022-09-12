@@ -115,7 +115,6 @@ export const useFilesViewStore = defineStore("files-view", {
                         const itemsInPath = await readdirAsync(normPath, {withFileTypes: true})
                         if (itemsInPath?.length) {
                             for (const childItem of itemsInPath) {
-                                console.log(childItem)
                                 await getFiles(normPath, newFolder.children)
                             }
                         }
