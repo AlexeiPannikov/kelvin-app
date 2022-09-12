@@ -44,13 +44,13 @@ export const useUserSettingsStore = defineStore("user-settings", {
             this.selectedWithoutEndpoint = parsedFolder.dir
         },
 
-        async getFilesInFolder(callback: (args: { name: string, path: string, file: File }) => void, list?: any[]) {
+        async getFilesInFolder() {
             await this.getRootFolder()
             if (!fs.existsSync(this.selectedFolder || this.rootFolder)) return
+            const list: { name: string, path: string, file: File }[] = []
             const getFiles = async () => {
                 const innerFolder = this.selectedFolder || this.rootFolder
                 if (!fs.existsSync(innerFolder)) return
-                list?.splice(0)
                 const readdirAsync = promisify(fs.readdir)
                 const allFiles = await readdirAsync(innerFolder, {withFileTypes: true})
                 for (const file of allFiles) {
@@ -59,7 +59,7 @@ export const useUserSettingsStore = defineStore("user-settings", {
                         const extension = extname(file.name).substring(1, file.name.length - 1)
                         const imageFile = await fetch(filePath).then(r => r.blob())
                             .then(blob => new File([blob], file.name, {type: `image/${extension}`}));
-                        callback({
+                        list.push({
                             name: file.name,
                             path: filePath,
                             file: imageFile
@@ -68,7 +68,7 @@ export const useUserSettingsStore = defineStore("user-settings", {
                 }
             }
             await getFiles()
-            fs.watch(this.selectedFolder || this.rootFolder, async () => await getFiles())
+            return list
         },
 
         async getFoldersTree(rootPath: string): Promise<IFolder> {

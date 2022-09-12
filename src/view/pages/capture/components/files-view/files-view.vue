@@ -80,6 +80,7 @@ import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {useSearchFilter} from "../../../../../functions/useSearch";
 import {ipcRenderer} from "electron"
 import {useFilesViewStore} from "../../../../../store/FilesViewStore";
+import fs from "fs";
 
 const userSettingsStore = useUserSettingsStore()
 const filesViewStore = useFilesViewStore()
@@ -94,11 +95,18 @@ const filteredImagesList = computed(() => useSearchFilter(searchText.value, imag
 const selectedImages = computed(() => filteredImagesList.value.filter(({isSelected}) => isSelected))
 
 const initFiles = async () => {
-  await userSettingsStore.getFilesInFolder(({name, path, file}) => images.list.push(new ImageModel({
-    path,
-    name,
-    image: file
-  })), images.list)
+  const list = await userSettingsStore.getFilesInFolder()
+  images.list.splice(0)
+  if (list)
+    images.list = list.map(({file, name, path}) => new ImageModel({
+      path,
+      name,
+      image: file
+    }))
+  fs.watch(userSettingsStore.selectedFolder || userSettingsStore.rootFolder, async () => {
+    images.list.splice(0)
+    await initFiles()
+  })
 }
 initFiles()
 
