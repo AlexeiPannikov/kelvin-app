@@ -35,6 +35,7 @@ $api.interceptors.response.use(
                 localStorage.setItem("token", `${response.data.Value.accessToken}`);
                 return $api.request(originalRequest);
             } catch (e) {
+                document.dispatchEvent(new CustomEvent("not-authorized"));
                 console.log("Not authorized");
             }
         }

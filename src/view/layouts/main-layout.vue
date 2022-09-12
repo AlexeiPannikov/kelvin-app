@@ -22,7 +22,7 @@ import {useRouter} from "vue-router";
 import {useCurrentUserStore} from "../../store/CurrentUserStore";
 import {useUsersStore} from "../../store/UsersStore";
 import {useTeamOnSetStore} from "../../store/TeamOnSetStore";
-import {onMounted, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import EditTeamOnSetModal from "./sidebar-layout/modal-windows/edit-team-on-set-modal.vue";
 import {useFilesViewStore} from "../../store/FilesViewStore";
 
@@ -40,11 +40,19 @@ userSettingsStore.getSettings().then(() => {
   })
 })
 
-
 onMounted(async () => {
   await teamOnSetStore.init()
   isOpenEditTeamOnSetModal.value = true
 })
+
+const handler = () => {
+  router.push({name: "login"});
+  document.removeEventListener("not-authorized", handler);
+};
+
+document.addEventListener("not-authorized", handler);
+
+onUnmounted(() => document.removeEventListener("not-authorized", handler));
 </script>
 
 <style lang="scss">
