@@ -11,7 +11,7 @@
         <div class="d-flex align-center w-100">
           <v-text-field variant="outlined"
                         density="compact"
-                        v-model="userSettingsStore.newRootFolder"
+                        v-model="filesViewStore.newRootFolder"
                         readonly
                         hide-details
           >
