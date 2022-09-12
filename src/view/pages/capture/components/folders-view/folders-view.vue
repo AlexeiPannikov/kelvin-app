@@ -15,14 +15,8 @@ import {reactive, ref} from "vue";
 import {Tree} from "../../../../components/ui-tree/models/Tree";
 import {TreeItem} from "../../../../components/ui-tree/models/TreeItem";
 import fs from "fs";
-import path from "path";
-import {PrimarySettings} from "../../../../../store/models/PrimarySettings";
-import {ipcRenderer} from "electron";
-import {useCurrentUserStore} from "../../../../../store/CurrentUserStore";
-import {IFolder, useUserSettingsStore} from "../../../../../store/UserSettingsStore";
-import images from "../files-view/ImagesList";
-import {ImageModel} from "../files-view/ImageModel";
-import {useFilesViewStore} from "../../../../../store/FilesViewStore";
+import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
+import {IFolder, useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const userSettingsStore = useUserSettingsStore()
 const filesViewStore = useFilesViewStore()

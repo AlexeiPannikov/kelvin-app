@@ -65,13 +65,15 @@
 <script lang="ts" setup>
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import ButtonWhite from "../../../../components/buttons/button-white.vue";
+import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const userSettingsStore = useUserSettingsStore()
+const filesViewStore = useFilesViewStore()
 
 const selectDirectory = async () => {
   const selectedDir = await userSettingsStore.selectDirectory()
   if (selectedDir)
-    userSettingsStore.newRootFolder = selectedDir
+    filesViewStore.newRootFolder = selectedDir
 }
 
 </script>
