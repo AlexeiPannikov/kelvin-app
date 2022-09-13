@@ -78,16 +78,17 @@ const initStep = () => {
 }
 
 const next = () => {
+  debugger
   if (currentStep.value === ConfirmStepEnum.SelectSample && !scanProductStore.isHasSelectedProdType) {
     stepList.splice(2, 0, ConfirmStepEnum.SelectProductionType)
   }
   if (stepList.indexOf(currentStep.value) >= stepList.length - 1) return;
-  currentStep.value = stepList[stepList.indexOf(currentStep.value)] + 1
+  currentStep.value = stepList[stepList.indexOf(currentStep.value) + 1]
 }
 
 const prev = () => {
   if (stepList.indexOf(currentStep.value) > 0)
-    currentStep.value = stepList[stepList.indexOf(currentStep.value)] - 1
+    currentStep.value = stepList[stepList.indexOf(currentStep.value) - 1]
   else emit("cancel")
 }
 
