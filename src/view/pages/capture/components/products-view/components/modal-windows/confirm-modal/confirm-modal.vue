@@ -78,7 +78,6 @@ const initStep = () => {
 }
 
 const next = () => {
-  debugger
   if (currentStep.value === ConfirmStepEnum.SelectSample && !scanProductStore.isHasSelectedProdType) {
     stepList.splice(2, 0, ConfirmStepEnum.SelectProductionType)
   }
