@@ -12,8 +12,6 @@ import {TransferPosition} from "./models/TransferPosition";
 import FilesService from "../api/services/FilesService";
 import {FileDataModel} from "../api/models/responses/Files/FileDataModel";
 import {useTeamOnSetStore} from "./TeamOnSetStore";
-import {TransferHistory} from "../../electron/main/store/TransferHistory";
-
 
 export const useTransferStore = defineStore("transfer", {
     state: () => {

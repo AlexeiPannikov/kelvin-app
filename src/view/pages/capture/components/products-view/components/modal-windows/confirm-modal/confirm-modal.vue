@@ -78,7 +78,7 @@ const initStep = () => {
 }
 
 const next = () => {
-  if (currentStep.value === ConfirmStepEnum.SelectSample && !scanProductStore.isHasSelectedProdType) {
+  if (currentStep.value === ConfirmStepEnum.SelectSample && (!scanProductStore.isHasSelectedProdType || !scanProductStore.isHasAvailableTasks)) {
     stepList.splice(2, 0, ConfirmStepEnum.SelectProductionType)
   }
   if (stepList.indexOf(currentStep.value) >= stepList.length - 1) return;
