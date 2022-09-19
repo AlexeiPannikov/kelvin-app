@@ -1,4 +1,4 @@
-import {Task} from "@api/models/responses/Tasks/Task";
+import {Task} from "./Task";
 
 type Status = "To Do" | "Doing" | "Done"
 

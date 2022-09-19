@@ -31,21 +31,21 @@ export class GetTasksResponse {
     }
 
     async startCheckUpdates(step: StepsEnum) {
-        const getUpdates = async () => {
-            const res = await TasksService.getTasks({step, hash: this.hash})
-            this.step = step
-            if (res) {
-                this.updatedData = new GetTasksResponse({...res, step})
-
-            }
-        }
-        try {
-            this.timer = setInterval(async () => {
-                await getUpdates()
-            }, 10000)
-        } catch (e) {
-            console.log(e)
-        }
+        // const getUpdates = async () => {
+        //     const res = await TasksService.getTasks({step, hash: this.hash})
+        //     this.step = step
+        //     if (res) {
+        //         this.updatedData = new GetTasksResponse({...res, step})
+        //
+        //     }
+        // }
+        // try {
+        //     this.timer = setInterval(async () => {
+        //         await getUpdates()
+        //     }, 10000)
+        // } catch (e) {
+        //     console.log(e)
+        // }
     }
 
     stopCheckUpdates() {

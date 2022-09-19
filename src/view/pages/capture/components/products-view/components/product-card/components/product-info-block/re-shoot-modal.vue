@@ -33,7 +33,7 @@
             </div>
             <div class="pt-7">
               <template v-if="selectedItem?.reason">
-                <v-chip v-if="data"
+                <v-chip v-if="!!data"
                         :label="data"
                         color="primary"
                 >
