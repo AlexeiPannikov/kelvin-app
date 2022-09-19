@@ -1,16 +1,27 @@
 <template>
   <div class="product-info-block rounded py-2 px-2">
-    <v-tooltip>
-      <template #activator="{props}">
-        <v-icon class="position-absolute pointer rescan"
-                color="primary"
-                v-bind="props"
-                @click="rescan"
-        >mdi-autorenew
-        </v-icon>
-      </template>
-      Rescan
-    </v-tooltip>
+    <div class="position-absolute d-flex align-center button-group">
+      <v-btn v-if="taskUuid"
+             size="small"
+             class="mr-2"
+             color="orange"
+             flat
+             @click="reshoot"
+      >
+        re-shoot
+      </v-btn>
+      <v-tooltip location="bottom">
+        <template #activator="{props}">
+          <v-icon class="pointer"
+                  color="primary"
+                  v-bind="props"
+                  @click="rescan"
+          >mdi-autorenew
+          </v-icon>
+        </template>
+        Rescan
+      </v-tooltip>
+    </div>
     <div class="style-guide position-relative"
          @mouseover="isVisibleCopyStyleGuide = true"
          @mouseleave="isVisibleCopyStyleGuide = false"
@@ -50,23 +61,46 @@
                  @cancel="isOpenConfirmProductModal = false"
                  view-mode
   ></confirm-modal>
+
+  <re-shoot-modal v-model="isOpenReShootModal"
+                  @close="closeReShoot"
+  ></re-shoot-modal>
 </template>
 
 <script lang="ts" setup>
 import {useScanProductStore} from "../../../../../../../../../store/ScanProductStore";
 import CopyTooltip from "../../../../../../../../components/copy-tooltip/copy-tooltip.vue";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import StyleGuideDetail from "./style-guide-detail.vue";
 import ConfirmModal from "../../../modal-windows/confirm-modal/confirm-modal.vue";
+import {useStudioStore} from "../../../../../../../../../store/StudioStore";
+import {useTasksStore} from "../../../../../../../../../store/TasksStore";
+import ReShootModal from "./re-shoot-modal.vue";
 
 const scanProductStore = useScanProductStore()
+const tasksStore = useTasksStore()
 const isVisibleCopyStyleGuide = ref(false)
 const isVisibleCopyProduct = ref(false)
 const isOpenStyleGuide = ref(false)
 const isOpenConfirmProductModal = ref(false)
+const isOpenReShootModal = ref(false)
+const studioStore = useStudioStore()
+
+const taskUuid = computed(() => scanProductStore?.confirmedProduct?.styleGuide?.shootingTypes
+    .find(item => item.production_type_uuid === studioStore.selectedProductionTypeUuid)?.taskUuid)
 
 const rescan = () => {
   scanProductStore.confirmedProduct = null
+}
+
+const reshoot = async () => {
+  isOpenReShootModal.value = true
+  await tasksStore.getTask(taskUuid.value)
+}
+
+const closeReShoot = () => {
+  isOpenReShootModal.value = false
+  tasksStore.$reset()
 }
 
 const openConfirmModal = () => {
@@ -104,7 +138,7 @@ const openConfirmModal = () => {
   }
 }
 
-.rescan {
+.button-group {
   right: 25px;
   z-index: 10;
   opacity: 0.7;

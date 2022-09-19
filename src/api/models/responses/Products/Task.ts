@@ -9,6 +9,8 @@ export class Task {
     step = ""
     uuid = ""
     finished_at: string = null
+    is_picked = 0
+    is_rejected = 0
     steps = new Array<Step>()
 
     constructor(obj?: Partial<Task>) {
