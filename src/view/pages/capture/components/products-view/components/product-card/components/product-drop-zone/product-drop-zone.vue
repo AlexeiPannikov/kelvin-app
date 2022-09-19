@@ -61,30 +61,30 @@
               </div>
 
               <!--      ALTS ZONE        -->
-              <div class="alts-zone d-flex flex-column position-relative overflow-hidden"
-                   :class="{'dirty-alt-zone': position.altsImages.list.length}">
-                <div class="d-flex px-2 py-2 align-center align-self-start zone-header">
+<!--              <div class="alts-zone d-flex flex-column position-relative overflow-hidden"-->
+<!--                   :class="{'dirty-alt-zone': position.altsImages.list.length}">-->
+<!--                <div class="d-flex px-2 py-2 align-center align-self-start zone-header">-->
 
-                </div>
-                <div :id="`alt-${position.id}`"
-                     class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto"
-                     :class="{'mouse-over': position.isPointerOverAltZone}"
-                >
-                  <image-box v-for="img in position.altsImages.list"
-                             :id="img.name"
-                             :file="img"
-                             width="60"
-                             class="align-self-center"
-                             without-name
-                             @click="position.altsImages.selectFile($event, img.name)"
-                             @mousedown.prevent="position.altsImages.dragStart($event)"
-                             @mousemove="position.altsImages.choiceInMotion($event, img.name)"
-                  ></image-box>
-                </div>
-                <div v-if="!position.altsImages.list.length" class="alts-chip d-flex justify-center w-100">
-                  <v-chip>ALTS</v-chip>
-                </div>
-              </div>
+<!--                </div>-->
+<!--                <div :id="`alt-${position.id}`"-->
+<!--                     class="d-flex flex-grow-1 py-2 px-2 overflow-x-auto"-->
+<!--                     :class="{'mouse-over': position.isPointerOverAltZone}"-->
+<!--                >-->
+<!--                  <image-box v-for="img in position.altsImages.list"-->
+<!--                             :id="img.name"-->
+<!--                             :file="img"-->
+<!--                             width="60"-->
+<!--                             class="align-self-center"-->
+<!--                             without-name-->
+<!--                             @click="position.altsImages.selectFile($event, img.name)"-->
+<!--                             @mousedown.prevent="position.altsImages.dragStart($event)"-->
+<!--                             @mousemove="position.altsImages.choiceInMotion($event, img.name)"-->
+<!--                  ></image-box>-->
+<!--                </div>-->
+<!--                <div v-if="!position.altsImages.list.length" class="alts-chip d-flex justify-center w-100">-->
+<!--                  <v-chip>ALTS</v-chip>-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
           </div>
         </v-card-item>

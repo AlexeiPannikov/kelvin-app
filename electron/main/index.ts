@@ -8,15 +8,15 @@ import {
     Menu,
     MenuItem,
     MenuItemConstructorOptions,
-} from 'electron'
-import {release} from 'os'
-import {join} from 'path'
+} from 'electron';
+import {release} from 'os';
+import {join} from 'path';
 import {Window} from "./Window";
-import {UserSettingsStore} from "./store/UserSettings"
+import {UserSettingsStore} from "./store/UserSettings";
 import {PrimarySettings} from "../../src/store/models/PrimarySettings";
 import {Transfer} from "../../src/store/models/Transfer";
 import {TransferHistory} from "./store/TransferHistory";
-import {execFile} from "child_process"
+import {execFile} from "child_process";
 import {SavedProducts} from "./store/SavedProducts";
 import {ISavedProduct} from "../../src/store/ScanProductStore";
 

@@ -79,7 +79,6 @@ import images from "./ImagesList";
 import {useUserSettingsStore} from "../../../../../store/UserSettingsStore";
 import {useSearchFilter} from "../../../../../functions/useSearch";
 import {ipcRenderer} from "electron"
-import fs from "fs";
 import {useFilesViewStore} from "../../../../../store/FilesViewStore";
 
 const userSettingsStore = useUserSettingsStore()
@@ -132,6 +131,7 @@ const dragStart = (e: MouseEvent) => {
 }
 
 const openContextMenu = (e: MouseEvent, file: ImageModel) => {
+  images.list.forEach(item => item.name === file.name ? item.isSelected = true : item.isSelected = false)
   file.isSelected = true
   isOpenContextMenu.value = true
   const contextMenuEl = (contextMenu.value as HTMLDivElement)

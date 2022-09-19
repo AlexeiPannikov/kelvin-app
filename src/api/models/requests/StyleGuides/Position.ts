@@ -137,14 +137,14 @@ export class Position {
         const mainDropZone = document.getElementById(this.id.toString())
         const altDropZone = document.getElementById(`alt-${this.id}`)
         const resetSelection = (list: ImageModel[]) => list.forEach(item => item.isSelected = false)
-        if (mainDropZone.contains(e.target as Node) || altDropZone.contains(e.target as Node)) {
+        if (mainDropZone?.contains(e.target as Node) || altDropZone?.contains(e.target as Node)) {
             if (this.isFileExist()) return
-            if (mainDropZone.contains(e.target as Node)) {
+            if (mainDropZone && mainDropZone.contains(e.target as Node)) {
                 if (this.isToManyFiles()) return;
                 this.images.list.push(...this.selectedImagesInFolder, ...this.selectedImagesInAlts)
                 this.altsImages.list = this.altsImages.list.filter(({isSelected}) => !isSelected)
             }
-            if (altDropZone.contains(e.target as Node)) {
+            if (altDropZone && altDropZone.contains(e.target as Node)) {
                 this.altsImages.list.push(...this.selectedImagesInFolder, ...this.selectedImagesInMain)
                 this.images.list = this.images.list.filter(({isSelected}) => !isSelected)
             }
