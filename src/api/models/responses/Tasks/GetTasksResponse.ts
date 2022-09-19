@@ -1,7 +1,8 @@
-import {StatusAndTasks} from "@api/models/responses/Tasks/StatusAndTasks";
-import TasksService from "@api/services/TasksService";
-import {StepsEnum} from "@api/models/requests/Tasks/StepsEnum";
-import FilesService from "@api/services/FilesService";
+import FilesService from "../../../services/FilesService";
+import {StepsEnum} from "../../requests/Tasks/StepsEnum";
+import TasksService from "../../../services/TasksService";
+import {StatusAndTasks} from "./StatusAndTasks";
+
 
 export class GetTasksResponse {
     has_update = false
