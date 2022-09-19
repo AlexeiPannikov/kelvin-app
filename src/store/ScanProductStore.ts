@@ -24,6 +24,7 @@ import {ConfirmProductResponse} from "../api/models/responses/Products/ConfirmPr
 import {ipcRenderer} from "electron"
 import {useCurrentUserStore} from "./CurrentUserStore";
 import {Task} from "../api/models/responses/Products/Task";
+import {useTasksStore} from "./TasksStore";
 
 interface IParamsSavedProduct {
     productUuid: string,
@@ -263,6 +264,12 @@ export const useScanProductStore = defineStore("scan-product", {
                     taskList: productProductions?.map(({task}) => task) || [],
                     sampleCode: foundedProduct.sampleCode
                 })
+                const tasksStore = useTasksStore()
+                this.initConfirmedProductFromProduct()
+                const taskUuid = this.confirmedProduct?.styleGuide?.shootingTypes
+                    .find(item => item.production_type_uuid === studioStore.selectedProductionTypeUuid)?.taskUuid
+                if (taskUuid)
+                    await tasksStore.getTask(taskUuid)
             } finally {
                 this.isLoadingProduct = false
             }
@@ -300,7 +307,13 @@ export const useScanProductStore = defineStore("scan-product", {
                     for (const item of res) {
                         await FilesService.filesDownloader("styleguide", item.allCovers)
                     }
+                    const studioStore = useStudioStore()
+                    const tasksStore = useTasksStore()
                     this.initConfirmedProductFromProduct()
+                    const taskUuid = this.confirmedProduct?.styleGuide?.shootingTypes
+                        .find(item => item.production_type_uuid === studioStore.selectedProductionTypeUuid)?.taskUuid
+                    if (taskUuid)
+                        await tasksStore.getTask(taskUuid)
                 }
                 Notifications.newMessage("Confirmed successfully")
                 return true

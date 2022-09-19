@@ -33,11 +33,10 @@
             </div>
             <div class="pt-7">
               <template v-if="selectedItem?.reason">
-                <v-chip v-if="!!data"
-                        :label="data"
-                        color="primary"
+                <div v-if="!!data"
                 >
-                </v-chip>
+                  {{ data }}
+                </div>
                 <div class="text-h6">{{
                     tasksStore.taskData?.production?.steps?.find(({step}) => step === "Final selection")?.team.find(({is_primary}) => is_primary)?.name
                   }}

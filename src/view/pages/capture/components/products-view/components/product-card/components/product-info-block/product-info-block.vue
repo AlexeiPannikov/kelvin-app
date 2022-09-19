@@ -1,7 +1,7 @@
 <template>
   <div class="product-info-block rounded py-2 px-2">
     <div class="position-absolute d-flex align-center button-group">
-      <v-btn v-if="taskUuid"
+      <v-btn v-if="!!tasksStore.taskData.task.is_rejected"
              size="small"
              class="mr-2"
              color="orange"
@@ -86,16 +86,12 @@ const isOpenConfirmProductModal = ref(false)
 const isOpenReShootModal = ref(false)
 const studioStore = useStudioStore()
 
-const taskUuid = computed(() => scanProductStore?.confirmedProduct?.styleGuide?.shootingTypes
-    .find(item => item.production_type_uuid === studioStore.selectedProductionTypeUuid)?.taskUuid)
-
 const rescan = () => {
   scanProductStore.confirmedProduct = null
 }
 
 const reshoot = async () => {
   isOpenReShootModal.value = true
-  await tasksStore.getTask(taskUuid.value)
 }
 
 const closeReShoot = () => {
