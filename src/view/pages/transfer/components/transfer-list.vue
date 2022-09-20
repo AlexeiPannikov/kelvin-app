@@ -13,6 +13,7 @@
       <transfer-item v-for="transfer in group[1]"
                      :key="transfer.uuid"
                      :transfer="transfer"
+                     :active="transferStore.selectedTransfer.uuid === transfer.uuid"
                      @click="selectTransfer(transfer)"
       ></transfer-item>
     </v-list>
