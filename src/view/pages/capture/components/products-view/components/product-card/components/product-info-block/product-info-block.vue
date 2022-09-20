@@ -96,7 +96,7 @@ const reshoot = async () => {
 
 const closeReShoot = () => {
   isOpenReShootModal.value = false
-  tasksStore.$reset()
+  // tasksStore.$reset()
 }
 
 const openConfirmModal = () => {

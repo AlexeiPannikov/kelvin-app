@@ -191,10 +191,15 @@ export const useScanProductStore = defineStore("scan-product", {
                     product,
                     styleGuide,
                     properties: mappedProperties,
-                    sampleCode: this.selectedSample.sample_code
+                    sampleCode: this.selectedSample.sample_code,
                 })
                 if (product.product_uuid)
                     await this.getProductProductions()
+                const tasksStore = useTasksStore()
+                const taskUuid = this.product?.taskList
+                    .find(item => !!this.product.styleGuide.shootingTypes.find(({id}) => id === item.shooting_type_id))?.uuid
+                if (taskUuid)
+                    await tasksStore.getTask(taskUuid)
                 this.copyProduct()
                 return true
             } finally {
@@ -265,9 +270,8 @@ export const useScanProductStore = defineStore("scan-product", {
                     sampleCode: foundedProduct.sampleCode
                 })
                 const tasksStore = useTasksStore()
-                this.initConfirmedProductFromProduct()
-                const taskUuid = this.confirmedProduct?.styleGuide?.shootingTypes
-                    .find(item => item.production_type_uuid === studioStore.selectedProductionTypeUuid)?.taskUuid
+                const taskUuid = this.confirmedProduct?.taskList
+                    .find(item => this.confirmedProduct.styleGuide.shootingTypes.find(({id}) => id === item.shooting_type_id))?.uuid
                 if (taskUuid)
                     await tasksStore.getTask(taskUuid)
             } finally {
@@ -307,13 +311,7 @@ export const useScanProductStore = defineStore("scan-product", {
                     for (const item of res) {
                         await FilesService.filesDownloader("styleguide", item.allCovers)
                     }
-                    const studioStore = useStudioStore()
-                    const tasksStore = useTasksStore()
                     this.initConfirmedProductFromProduct()
-                    const taskUuid = this.confirmedProduct?.styleGuide?.shootingTypes
-                        .find(item => item.production_type_uuid === studioStore.selectedProductionTypeUuid)?.taskUuid
-                    if (taskUuid)
-                        await tasksStore.getTask(taskUuid)
                 }
                 Notifications.newMessage("Confirmed successfully")
                 return true
