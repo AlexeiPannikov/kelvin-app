@@ -4,6 +4,7 @@ import {GetTaskResponse} from "../api/models/responses/Tasks/GetTaskResponse";
 import TasksService from "../api/services/TasksService";
 import {StepEnum} from "../api/models/StepEnum";
 import {StepsEnum} from "../api/models/requests/Tasks/StepsEnum";
+import {loginData} from "../view/pages/auth/state/LoginDataState";
 
 interface IState {
     isLoadingTask: boolean,
@@ -20,7 +21,7 @@ export const useTasksStore = defineStore("tasks", {
 
     getters: {
         isAvailableToTransfer(): boolean {
-            return this.taskData.task?.step === StepsEnum.STEP_PHOTOGRAPHY && this.taskData.task?.status === "To Do"
+            return !this.taskData.task.uuid || (this.taskData.task?.step === StepsEnum.STEP_PHOTOGRAPHY && this.taskData.task?.status === "To Do")
         }
     },
 
