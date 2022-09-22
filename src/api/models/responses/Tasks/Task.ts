@@ -1,5 +1,6 @@
 import {FileDataModel} from "../Files/FileDataModel";
-import {StepEnum} from "../../StepEnum";
+import {ProductStatusEnum} from "../../requests/Products/ProductStatusEnum";
+import {StepsEnum} from "../../requests/Tasks/StepsEnum";
 
 
 export class Task {
@@ -14,7 +15,8 @@ export class Task {
     task_uuid = ""
     uuid = ""
     shooting_type_id: number = null
-    step: StepEnum = null
+    step: StepsEnum = null
+    status = ""
     styleguide_version_id: number = null
     styleguide_name = ""
     styleguide_uuid = ""

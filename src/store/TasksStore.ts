@@ -2,6 +2,8 @@ import {defineStore} from "pinia";
 import FilesService from "../api/services/FilesService";
 import {GetTaskResponse} from "../api/models/responses/Tasks/GetTaskResponse";
 import TasksService from "../api/services/TasksService";
+import {StepEnum} from "../api/models/StepEnum";
+import {StepsEnum} from "../api/models/requests/Tasks/StepsEnum";
 
 interface IState {
     isLoadingTask: boolean,
@@ -14,6 +16,12 @@ export const useTasksStore = defineStore("tasks", {
             isLoadingTask: false,
             taskData: new GetTaskResponse()
         };
+    },
+
+    getters: {
+        isAvailableToTransfer(): boolean {
+            return this.taskData.task?.step === StepsEnum.STEP_PHOTOGRAPHY && this.taskData.task?.status === "To Do"
+        }
     },
 
     actions: {

@@ -41,6 +41,7 @@ import {ConfirmStepEnum} from "./ConfirmStepEnum";
 import {useScanProductStore} from "../../../../../../../../store/ScanProductStore";
 import ProductConfirm from "./product-confirm.vue";
 import SelectProductionType from "./select-production-type.vue";
+import {useTasksStore} from "../../../../../../../../store/TasksStore";
 
 const SelectSample = defineAsyncComponent(() => import("./select-sample.vue"));
 const SelectTask = defineAsyncComponent(() => import("./select-task.vue"))
@@ -56,6 +57,7 @@ const emit = defineEmits(["cancel"])
 
 const attrs = useAttrs()
 const scanProductStore = useScanProductStore()
+const tasksStore = useTasksStore()
 const currentStep = ref<ConfirmStepEnum>(null)
 const stepList = reactive<ConfirmStepEnum[]>([])
 
@@ -68,7 +70,7 @@ const initStep = () => {
       stepList.push(ConfirmStepEnum.ConfirmProduct)
       break;
     case length === 1 || props.viewMode:
-      if (!scanProductStore.isHasSelectedProdType || !scanProductStore.isHasAvailableTasks) {
+      if (!scanProductStore.isHasSelectedProdType || !tasksStore.isAvailableToTransfer) {
         stepList.push(ConfirmStepEnum.SelectProductionType)
       }
       stepList.push(ConfirmStepEnum.ConfirmProduct)
@@ -78,7 +80,9 @@ const initStep = () => {
 }
 
 const next = () => {
-  if (currentStep.value === ConfirmStepEnum.SelectSample && (!scanProductStore.isHasSelectedProdType || !scanProductStore.isHasAvailableTasks)) {
+  if (currentStep.value === ConfirmStepEnum.SelectSample && (!scanProductStore.isHasSelectedProdType ||
+      !tasksStore.isAvailableToTransfer)
+  ) {
     stepList.splice(2, 0, ConfirmStepEnum.SelectProductionType)
   }
   if (stepList.indexOf(currentStep.value) >= stepList.length - 1) return;

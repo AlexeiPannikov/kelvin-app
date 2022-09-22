@@ -66,8 +66,9 @@ const scanProductStore = useScanProductStore()
 const studioStore = useStudioStore()
 const selectedProdTypeIdx = ref(0)
 
-const isDisabledButton = computed(() =>
-    getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx.value].id).status === "Done"
+const isDisabledButton = computed(() => {
+      return  getTaskStatus(scanProductStore.product?.styleGuide?.shootingTypes[selectedProdTypeIdx.value]?.id).status === "Done"
+    }
 )
 
 const getTaskStatus = (shootingTypeId: number) => {

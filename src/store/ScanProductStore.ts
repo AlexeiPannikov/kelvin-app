@@ -89,7 +89,7 @@ export const useScanProductStore = defineStore("scan-product", {
 
         isHasAvailableTasks(): boolean {
             return !!this.product?.taskList.filter((task) => task.steps.find(({step}) => step === "Photography")?.status !== "Done")?.length
-        }
+        },
     },
 
     actions: {
@@ -196,8 +196,9 @@ export const useScanProductStore = defineStore("scan-product", {
                 if (product.product_uuid)
                     await this.getProductProductions()
                 const tasksStore = useTasksStore()
-                const taskUuid = this.product?.taskList
-                    .find(item => !!this.product.styleGuide.shootingTypes.find(({id}) => id === item.shooting_type_id))?.uuid
+                const studioStore = useStudioStore()
+                const shootingTypeId= this.product.styleGuide.shootingTypes.find(({production_type_uuid}) => studioStore.selectedProductionTypeUuid === production_type_uuid)?.id
+                const taskUuid = this.product?.taskList.find(({shooting_type_id}) => shooting_type_id === shootingTypeId)?.uuid
                 if (taskUuid)
                     await tasksStore.getTask(taskUuid)
                 this.copyProduct()
