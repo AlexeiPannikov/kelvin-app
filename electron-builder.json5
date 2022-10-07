@@ -4,6 +4,7 @@
 {
   "appId": "KELVINApplication",
   "asar": true,
+  productName: "KELVIN",
   "directories": {
     "output": "release/${version}",
     "buildResources": "dist"
