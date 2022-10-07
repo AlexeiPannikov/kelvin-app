@@ -1,9 +1,9 @@
 {
-  "name": "kelvin-app",
-  "version": "0.0.13",
+  "name": "KELVIN",
+  "version": "0.0.14",
   "main": "dist/electron/main/index.js",
   "description": "Kelvin",
-  "author": "Alexei Pannicov",
+  "author": "PIXEL MODA",
   "license": "MIT",
   "private": true,
   "repository": {
