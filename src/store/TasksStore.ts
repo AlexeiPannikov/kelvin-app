@@ -21,7 +21,7 @@ export const useTasksStore = defineStore("tasks", {
 
     getters: {
         isAvailableToTransfer(): boolean {
-            return !this.taskData.task.uuid || (this.taskData.task?.step === StepsEnum.STEP_PHOTOGRAPHY && this.taskData.task?.status === "To Do")
+            return !this.taskData.task.uuid || (this.taskData.task?.step === StepsEnum.STEP_PHOTOGRAPHY && this.taskData.task?.status === "To Do" || this.taskData.task?.status === "Doing")
         }
     },
 
