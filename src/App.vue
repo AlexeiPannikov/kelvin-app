@@ -11,6 +11,7 @@ const router = useRouter()
 const isOpenAbout = ref(false)
 
 ipcRenderer.on("open-about-app", () => isOpenAbout.value = true)
+ipcRenderer.on("activate", (event, args) => console.log(args))
 </script>
 
 <template>

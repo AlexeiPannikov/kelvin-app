@@ -100,6 +100,7 @@ app.on('second-instance', () => {
 
 app.on('activate', async () => {
     const allWindows = BrowserWindow.getAllWindows()
+    win.webContents.send("activate", `windowsNumber: ${allWindows}`)
     if (allWindows.length === 0) {
         await createMainWindow()
     } else {
