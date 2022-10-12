@@ -100,10 +100,10 @@ app.on('second-instance', () => {
 
 app.on('activate', async () => {
     const allWindows = BrowserWindow.getAllWindows()
-    if (allWindows.length) {
-        allWindows[0].focus()
-    } else {
+    if (allWindows.length === 0) {
         await createMainWindow()
+    } else {
+        allWindows[0].focus()
     }
 })
 

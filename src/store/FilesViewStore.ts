@@ -6,6 +6,8 @@ import {useUserSettingsStore} from "./UserSettingsStore";
 import images from "../view/pages/capture/components/files-view/ImagesList";
 import {ImageModel} from "../view/pages/capture/components/files-view/ImageModel";
 
+const isImage = require("is-image");
+
 interface IState {
     size: number,
     rootFolder: string,
@@ -65,7 +67,7 @@ export const useFilesViewStore = defineStore("files-view", {
                 const readdirAsync = promisify(fs.readdir)
                 const allFiles = await readdirAsync(innerFolder, {withFileTypes: true})
                 for (const file of allFiles) {
-                    if (file.isFile()) {
+                    if (file.isFile() && isImage(file.name)) {
                         const filePath = normalize(join(innerFolder, file.name))
                         const extension = extname(file.name).substring(1, file.name.length - 1)
                         const imageFile = await fetch(filePath).then(r => r.blob())
