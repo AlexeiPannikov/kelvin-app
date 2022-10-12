@@ -1,5 +1,4 @@
 import { LoginResponse } from "../models/responses/Auth/LoginResponse";
-import Cookies from "js-cookie";
 import { GetCurrentUserResponse } from "../models/responses/Users/GetCurrentUserResponse";
 import { LoginRequest } from "../models/requests/Auth/LoginRequest";
 import $api from "../api";
