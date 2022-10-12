@@ -80,7 +80,7 @@ const userSettingsStore = useUserSettingsStore()
 onMounted(() => console.log(userSettingsStore.primarySettings))
 
 const selectPhotoshopPath = async () => {
-  const path = await userSettingsStore.selectFile([{name: "Applications", extensions: ["exe"]}])
+  const path = await userSettingsStore.selectFile()
   if (path) {
     const index = path.lastIndexOf("\\")
     const fileName = path.substring(index + 1, path.length)
